@@ -45,13 +45,18 @@
   "split_dist": 31.761,
   "split_p": 35.852,
   "s10": 36.875,
-  "s10_net": 38.925,
-  "s10_loop": 40.966,
-  "s06_pts": 41.266,
-  "contour": 44.85,
-  "road": 45.3,
-  "mark": 47.1014,
-  "shoes": 53.25,
+  "s10_net": 37.325,
+  "s10_loop": 41.988,
+  "s06_pts": 42.038,
+  "s06_link": 42.2,
+  "contour": 45.85,
+  "road": 46.3,
+  "mark": 48.1241,
+  "shoes": 53.9,
+  "search": [
+   51.7,
+   54.9
+  ],
   "end": 57.329,
   "credit": 58.329,
   "silence": [
@@ -176,10 +181,10 @@
    "src_in": 23.46,
    "grade": "",
    "scale": 1.0,
-   "left": 300,
+   "left": 348,
    "top": 177,
    "win": true,
-   "w": 1056
+   "w": 960
   },
   {
    "id": "c11",
@@ -189,35 +194,35 @@
    "src_in": 26.61,
    "grade": "colorbalance=rm=-0.015:bm=0.015",
    "scale": 1.0,
-   "left": 560,
+   "left": 608,
    "top": 177,
    "win": true,
    "freeze_tail": 0.07,
-   "w": 1056
+   "w": 960
   },
   {
    "id": "c12",
    "shot": "S10",
    "start": 36.875,
-   "dur": 4.091,
+   "dur": 5.113,
    "src_in": 36.69,
    "grade": "eq=gamma=0.98,colorbalance=rm=0.01:bm=-0.01",
    "scale": 1.0,
    "left": 0,
    "top": 177,
-   "freeze_tail": 1.091
+   "freeze_tail": 2.113
   },
   {
    "id": "c13",
    "shot": "S06",
-   "start": 40.966,
-   "dur": 7.135,
+   "start": 41.988,
+   "dur": 7.136,
    "src_in": 20.38,
    "grade": "colorbalance=rm=-0.015:bm=0.015",
-   "scale": 1.0,
-   "left": 0,
-   "top": 177,
-   "freeze_tail": 4.065
+   "scale": 1.1,
+   "left": 175,
+   "top": 250,
+   "freeze_tail": 4.066
   }
  ],
  "narration": [
@@ -243,19 +248,19 @@
   },
   {
    "id": "N7",
-   "start": 37.9
+   "start": 38.9
   },
   {
    "id": "N8",
-   "start": 43.35
+   "start": 44.35
   },
   {
    "id": "N9",
-   "start": 48.0
+   "start": 48.6
   },
   {
    "id": "N10",
-   "start": 53.75
+   "start": 54.2
   }
  ],
  "texts": [
@@ -291,7 +296,7 @@
    "id": "q2",
    "text": "一度で、おしまい？",
    "start": 36.875,
-   "end": 40.966,
+   "end": 41.988,
    "where": "bar_bottom"
   },
   {
@@ -320,12 +325,12 @@
   ],
   [
    39.875,
-   40.966,
+   41.988,
    "c12"
   ],
   [
-   44.036,
-   48.101,
+   45.058,
+   49.124,
    "c13"
   ]
  ]

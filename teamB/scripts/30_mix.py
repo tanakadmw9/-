@@ -41,7 +41,7 @@ place("se", load(A + "tones/decision28.mp3"), C["split_p"], gain=-9)    # ② �
 t = np.arange(N) / SR
 env = lambda pts: db(np.interp(t, *zip(*pts)))[:, None].astype(np.float32)
 g = np.full(N, -8.0)
-DUCK = {"N4": -26.5, "N7": -25.5, "N10": -21.5}   # 打楽器が入る小節（N4・N7）と曲の終わり（N10）はもう少し下げる
+DUCK = {"N4": -26.5, "N7": -25.5, "N10": -22.5}   # 打楽器が入る小節（N4・N7）と曲の終わり（N10）はもう少し下げる
 for nid, s, e in win:   # ナレ中は −23dB（ステムでナレより15dB以上小さく。曲の終わりの静かな部分にかかる N10 は −18dB）。下げはナレの0.4秒前から
     g[(t > s - 0.4) & (t < e + 0.3)] = DUCK.get(nid, -23.0)
 k = int(0.25 * SR); g = np.convolve(np.pad(g, (k, k), mode="edge"), np.ones(k) / k, "same")[k:-k]

@@ -1,7 +1,7 @@
 """選んだ曲を映像の尺に合わせて小節単位で編集し、audio/bgm/bgm.wav（48kHz stereo）を作る。
 使い方: python3 scripts/34_prep_bgm.py <曲.mp3> [bpm_fit_beat0 秒] [beat 周期 秒]
   - 曲の頭は最初の拍（照準が合う拍＝timeline.bgm.start に置く）から始める
-  - 必要な長さ（timeline.bgm.end − start）になるよう、本編の途中から 8 小節（足りなければ 4 小節単位）を抜く。
+  - 必要な長さ（timeline.bgm.end − start）になるよう、本編の途中から 2 小節単位（4 の倍数を優先）で抜き、曲の終わりを映像の終わりの 0〜1.5 秒前に置く。
     抜く位置は、つなぎ目の前後の音色（メルスペクトル）が最も似ている小節の頭を選び、60ms で重ねてつなぐ
   - 曲の本来の終わり（余韻）をそのまま映像の終わりに合わせる（最大 1.5 秒早く終わるのは可）（途中でフェードアウトしない：docs/05 §2）
 拍の位置は librosa の拍検出を直線で近似した値（New Departure：beat0 1.9567 秒、周期 0.63199 秒＝94.9 BPM）。
@@ -27,8 +27,10 @@ rest = len(x) / SR
 env = np.sqrt(np.convolve(x.mean(1) ** 2, np.ones(SR // 20) / (SR // 20), "same"))
 end_s = (np.where(env > 10 ** (-70 / 20))[0][-1]) / SR
 over = end_s - NEED
-nbars = max(4, int(round(over / BAR / 4)) * 4)   # 4 小節単位
-if over - nbars * BAR < -1.5: nbars -= 4         # 曲の終わりが映像の終わりより 1.5 秒以上早くなるなら減らす
+# 2 小節単位で、曲の終わりが映像の終わりの 0〜1.5 秒前に来る最小の数（できれば 4 の倍数＝フレーズ単位を優先）
+cands = [n for n in range(2, 40, 2) if 0 <= n * BAR - over <= 1.5]
+if not cands: raise SystemExit(f"no bar count fits: over {over:.2f}s, bar {BAR:.3f}s")
+nbars = next((n for n in cands if n % 4 == 0), cands[0])
 cut = nbars * BAR
 print(f"need {NEED:.2f}s, song from beat0 {end_s:.2f}s (audible), remove {nbars} bars = {cut:.2f}s -> {end_s - cut:.2f}s")
 

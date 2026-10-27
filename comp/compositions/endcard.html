@@ -30,6 +30,9 @@
       font-feature-settings: "palt"; letter-spacing: 0.08em; white-space: nowrap; }
     .endcard-main { font-family: var(--font-ja); font-weight: 700; font-size: 88px; line-height: 1.2; color: var(--white);
       font-feature-settings: "palt"; white-space: nowrap; margin-top: 4px; }
+    /* 仮ナレのクレジット（VOICEVOX の規約で表示が必要。本ナレに差し替えたら消す） */
+    #endcard-credit { position: absolute; left: 132px; bottom: 96px; opacity: 0; font-family: var(--font-ja); font-weight: 400;
+      font-size: 34px; line-height: 1.2; color: var(--sub); white-space: nowrap; }
   </style>
   <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
     <div id="endcard-all">
@@ -63,6 +66,7 @@
         <div class="endcard-field">基準点測量</div>
         <div class="endcard-main">まちづくりの“最初の一点”</div>
       </div>
+      <div id="endcard-credit">ナレーション（仮）　VOICEVOX:冥鳴ひまり</div>
     </div>
   </div>
   <script>
@@ -82,6 +86,8 @@
       tl.fromTo("#endcard-ret-in", { opacity: 0, scale: 1.12, transformOrigin: "50% 50%" },
         { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.5, ease: "power3.out" }, c.reticle);
       tl.fromTo("#endcard-dot", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.reticle + 0.1);
+
+      tl.fromTo("#endcard-credit", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.out" }, c.text_in);
 
       // point：照準が縮んで消え、オレンジの点が一つ残る（＝最初の一点に戻る）
       tl.fromTo("#endcard-ret-in", { scale: 1, opacity: 1 },

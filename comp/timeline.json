@@ -7,71 +7,71 @@
   {
    "id": "B1",
    "start": 0.0,
-   "end": 6.8068,
-   "dur": 6.8,
+   "end": 6.006,
+   "dur": 6.0,
    "purpose": "音楽なしで静かに始め、観客を現場に連れていく"
   },
   {
    "id": "B2",
-   "start": 6.8068,
-   "end": 13.2132,
-   "dur": 6.4,
+   "start": 6.006,
+   "end": 12.8128,
+   "dur": 6.8,
    "purpose": "章の提示とモチーフの導入"
   },
   {
    "id": "B3",
-   "start": 13.2132,
-   "end": 17.8845,
+   "start": 12.8128,
+   "end": 17.4841,
    "dur": 4.67,
    "purpose": "『位置』がすべての出発点だと示す"
   },
   {
    "id": "B4",
-   "start": 17.8845,
-   "end": 25.392,
-   "dur": 7.52,
+   "start": 17.4841,
+   "end": 26.393,
+   "dur": 8.91,
    "purpose": "用語『基準点』を、実物の形と一緒に覚えてもらう"
   },
   {
    "id": "B5",
-   "start": 25.392,
-   "end": 31.9986,
-   "dur": 6.61,
+   "start": 26.393,
+   "end": 33.6002,
+   "dur": 7.22,
    "purpose": "実写の観測から図解への橋渡し"
   },
   {
    "id": "B6",
-   "start": 31.9986,
-   "end": 40.3403,
+   "start": 33.6002,
+   "end": 41.9419,
    "dur": 8.35,
    "purpose": "角度→距離→位置が決まる、の3拍"
   },
   {
    "id": "B7",
-   "start": 40.3403,
-   "end": 50.9843,
-   "dur": 10.65,
+   "start": 41.9419,
+   "end": 52.8862,
+   "dur": 10.95,
    "purpose": "はかりつなぎと確認。最後は人の顔に戻す"
   },
   {
    "id": "B8",
-   "start": 50.9843,
-   "end": 62.429,
+   "start": 52.8862,
+   "end": 64.3309,
    "dur": 11.43,
    "purpose": "観客自身の発見（同じ基準点だから、つながる）"
   },
   {
    "id": "B9",
-   "start": 62.429,
-   "end": 67.3673,
+   "start": 64.3309,
+   "end": 69.2692,
    "dur": 4.95,
    "purpose": "毎日の道につながる"
   },
   {
    "id": "B10",
-   "start": 67.3673,
-   "end": 78.9789,
-   "dur": 11.61,
+   "start": 69.2692,
+   "end": 82.2822,
+   "dur": 13.01,
    "purpose": "誇りと余韻"
   }
  ],
@@ -90,69 +90,69 @@
    "shot": "S08",
    "src": "assets/video/S08.mp4",
    "start": 3.003,
-   "dur": 3.8038,
+   "dur": 3.003,
    "media_start": 0.0,
    "purpose": "まだ何もない場所を見渡す2人＝ここから始まる"
   },
   {
-   "id": "S04@6.8068",
+   "id": "S04@6.006",
    "shot": "S04",
    "src": "assets/video/S04.mp4",
-   "start": 6.8068,
+   "start": 6.006,
    "dur": 3.2032,
    "media_start": 0.0,
    "purpose": "ローアングルのプリズム。照準モチーフの導入"
   },
   {
-   "id": "S01@13.2132",
+   "id": "S01@12.8128",
    "shot": "S01",
    "src": "assets/video/S01.mp4",
-   "start": 13.2132,
+   "start": 12.8128,
    "dur": 4.6713,
    "media_start": 0.3,
    "purpose": "TSとプリズムの関係が1画面で見える唯一のカット"
   },
   {
-   "id": "S03@17.8845",
+   "id": "S03@17.4841",
    "shot": "S03",
    "src": "assets/video/S03.mp4",
-   "start": 17.8845,
+   "start": 17.4841,
    "dur": 1.9019,
    "media_start": 3.0,
    "purpose": "プリズムを据える手元＝目印の上に機械を立てる"
   },
   {
-   "id": "S09@25.392",
+   "id": "S09@26.393",
    "shot": "S09",
    "src": "assets/video/S09.mp4",
-   "start": 25.392,
+   "start": 26.393,
    "dur": 1.2012,
    "media_start": 2.5,
    "purpose": "肩越しのTSと奥のプリズム。はかる瞬間"
   },
   {
-   "id": "S07@48.8154",
+   "id": "S07@50.684",
    "shot": "S07",
    "src": "assets/video/S07.mp4",
-   "start": 48.8154,
-   "dur": 2.1689,
+   "start": 50.684,
+   "dur": 2.2022,
    "media_start": 0.0,
    "purpose": "記録する2人＝人が責任を持って確かめている"
   },
   {
-   "id": "S02@67.3673",
+   "id": "S02@69.2692",
    "shot": "S02",
    "src": "assets/video/S02.mp4",
-   "start": 67.3673,
+   "start": 69.2692,
    "dur": 3.1031,
    "media_start": 0.0,
    "purpose": "指差して指示する2人＝チームで最初の一点をつくる"
   },
   {
-   "id": "S10@70.4704",
+   "id": "S10@72.3723",
    "shot": "S10",
    "src": "assets/video/S10.mp4",
-   "start": 70.4704,
+   "start": 72.3723,
    "dur": 2.6026,
    "media_start": 0.0,
    "purpose": "現場を見渡す背中＝誇りと余韻（冒頭と対）"
@@ -162,8 +162,8 @@
   {
    "id": "S04_last",
    "src": "assets/video/S04_last.png",
-   "start": 10.01,
-   "dur": 3.2032,
+   "start": 9.2092,
+   "dur": 3.6036,
    "purpose": "タイトル表示のための意図的な静止（固定カメラ）"
   }
  ],
@@ -171,14 +171,14 @@
   {
    "id": "title",
    "comp": "compositions/title.html",
-   "start": 6.8068,
-   "dur": 6.4064,
+   "start": 6.006,
+   "dur": 6.8068,
    "cues": {
     "reticle_in": 0.3,
     "lock": 1.6,
     "title_in": 1.8,
-    "sub_in": 2.0,
-    "out": 6.05
+    "sub_in": 1.8,
+    "out": 6.45
    },
    "overlay": true,
    "variables": {
@@ -190,13 +190,13 @@
   {
    "id": "d0_marker",
    "comp": "compositions/d0_marker.html",
-   "start": 19.7864,
-   "dur": 5.6056,
+   "start": 19.386,
+   "dur": 7.007,
    "cues": {
     "marker_in": 0.0,
     "tripod_in": 0.9,
     "term_in": 2.14,
-    "out": 5.3
+    "out": 6.69
    },
    "overlay": false,
    "variables": {},
@@ -205,15 +205,15 @@
   {
    "id": "d1_observe",
    "comp": "compositions/d1_observe.html",
-   "start": 26.5932,
-   "dur": 5.4054,
+   "start": 27.5942,
+   "dur": 6.006,
    "cues": {
     "desat": 0.0,
     "ts_label": 0.2,
     "prism_label": 2.0,
     "angle": 2.84,
     "distance": 3.38,
-    "to_paper": 4.71
+    "to_paper": 5.32
    },
    "overlay": false,
    "variables": {
@@ -227,7 +227,7 @@
   {
    "id": "d2_topview",
    "comp": "compositions/d2_topview.html",
-   "start": 31.9986,
+   "start": 33.6002,
    "dur": 8.3417,
    "cues": {
     "setup": 0.0,
@@ -244,8 +244,8 @@
   {
    "id": "d3_traverse",
    "comp": "compositions/d3_traverse.html",
-   "start": 40.3403,
-   "dur": 8.4751,
+   "start": 41.9419,
+   "dur": 8.7421,
    "cues": {
     "chain": 2.05,
     "last": 3.46,
@@ -258,7 +258,7 @@
   {
    "id": "d4_bridge",
    "comp": "compositions/d4_bridge.html",
-   "start": 50.9843,
+   "start": 52.8862,
    "dur": 11.4447,
    "cues": {
     "network": 0.0,
@@ -276,7 +276,7 @@
   {
    "id": "d5_everyday",
    "comp": "compositions/d5_everyday.html",
-   "start": 62.429,
+   "start": 64.3309,
    "dur": 4.9383,
    "cues": {
     "life_in": 0.0,
@@ -289,13 +289,13 @@
   {
    "id": "endcard",
    "comp": "compositions/endcard.html",
-   "start": 73.073,
-   "dur": 5.9059,
+   "start": 74.9749,
+   "dur": 7.3073,
    "cues": {
     "reticle": 0.0,
     "point": 0.6,
     "text_in": 1.91,
-    "fade": 5.11
+    "fade": 6.51
    },
    "overlay": false,
    "variables": {},
@@ -307,7 +307,7 @@
    "id": "kw_ichi",
    "kind": "keyword",
    "text": "正確な位置",
-   "start": 15.2819,
+   "start": 14.8815,
    "dur": 2.3023,
    "min_dur": 2.25,
    "ok": true,
@@ -325,77 +325,77 @@
   {
    "id": "N2",
    "src": "assets/audio/vo/N2.wav",
-   "start": 13.6136,
+   "start": 13.2132,
    "dur": 3.64,
    "text": "工事は、すべて「正確な位置」から始まります。"
   },
   {
    "id": "N3",
    "src": "assets/audio/vo/N3.wav",
-   "start": 18.1848,
+   "start": 17.7844,
    "dur": 5.25,
    "text": "その位置の“ものさし”になる目印をつくるのが、「基準点測量」です。"
   },
   {
    "id": "N4",
    "src": "assets/audio/vo/N4.wav",
-   "start": 26.7934,
+   "start": 27.7944,
    "dur": 4.21,
    "text": "トータルステーションで、プリズムまでの「角度」と「距離」をはかります。"
   },
   {
    "id": "N5a",
    "src": "assets/audio/vo/N5a.wav",
-   "start": 33.1998,
+   "start": 34.8014,
    "dur": 2.97,
    "text": "わかっている点からの、角度と距離で、"
   },
   {
    "id": "N5b",
    "src": "assets/audio/vo/N5b.wav",
-   "start": 36.67,
+   "start": 38.2716,
    "dur": 2.78,
    "text": "新しい点の位置が、決まります。"
   },
   {
    "id": "N6",
    "src": "assets/audio/vo/N6.wav",
-   "start": 40.7407,
+   "start": 42.3423,
    "dur": 5.99,
    "text": "点から点へとはかりつなぎ、最後に、ずれがないかを確かめます。"
   },
   {
    "id": "N7a",
    "src": "assets/audio/vo/N7a.wav",
-   "start": 52.8862,
+   "start": 54.7881,
    "dur": 4.72,
    "text": "川の両岸からつくる橋が、真ん中でぴったりつながるのは、"
   },
   {
    "id": "N7b",
    "src": "assets/audio/vo/N7b.wav",
-   "start": 58.6252,
+   "start": 60.5271,
    "dur": 3.11,
    "text": "同じ基準点を、もとにしているから。"
   },
   {
    "id": "N8",
    "src": "assets/audio/vo/N8.wav",
-   "start": 62.9295,
+   "start": 64.8314,
    "dur": 3.75,
    "text": "毎日通る道も、ここから始まっています。"
   },
   {
    "id": "N9a",
    "src": "assets/audio/vo/N9a.wav",
-   "start": 67.7677,
+   "start": 69.6696,
    "dur": 3.18,
    "text": "まちづくりの、最初の一点をつくる。"
   },
   {
    "id": "N9b",
    "src": "assets/audio/vo/N9b.wav",
-   "start": 71.6716,
+   "start": 73.5735,
    "dur": 3.01,
    "text": "それが、私たちの仕事です。"
   }
@@ -403,39 +403,39 @@
  "se": [
   {
    "kind": "lock",
-   "start": 8.4084,
+   "start": 7.6076,
    "note": "照準が合う電子音"
   },
   {
    "kind": "measure",
-   "start": 29.9633,
+   "start": 30.9643,
    "note": "測距の短い電子音"
   },
   {
    "kind": "click",
-   "start": 38.8054,
+   "start": 40.3737,
    "note": "新しい点が決まる小さなクリック"
   },
   {
    "kind": "click",
-   "start": 46.0126,
+   "start": 47.6142,
    "note": "確認の✓"
   },
   {
    "kind": "join",
-   "start": 59.6262,
+   "start": 61.5281,
    "note": "橋がつながる低めのカチッ"
   }
  ],
  "bgm": {
-  "start": 8.4084,
+  "start": 7.6076,
   "note": "照準が合う拍からBGM開始",
   "pause": {
-   "start": 57.5241,
-   "end": 58.6252,
+   "start": 59.426,
+   "end": 60.5271,
    "note": "答えの前の『間』。BGMを抜く"
   },
-  "end": 78.9789
+  "end": 82.2822
  },
  "amb": [
   {
@@ -446,16 +446,16 @@
  ],
  "intended_freezes": [
   [
-   10.01,
-   13.2132,
+   9.2092,
+   12.8128,
    "S04_last"
   ],
   [
-   26.5932,
-   31.9986,
+   27.5942,
+   33.6002,
    "S09_freeze（D1の背景）"
   ]
  ],
- "duration": 78.9789,
- "speech_ratio": 0.599
+ "duration": 82.2822,
+ "speech_ratio": 0.575
 }

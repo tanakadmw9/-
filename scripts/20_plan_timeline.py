@@ -60,7 +60,7 @@ def beat(id_, start, end, purpose):
 b = 0.0
 _, n1e = vo("N1", b + 0.6)
 shot("S06", b, 3.0, 0.05, "大引き。測量の一行が現場にやってくる")
-b1e = max(b + 6.8, n1e + 0.6)
+b1e = max(b + 6.0, n1e + 0.6)
 shot("S08", b + 3.0, b1e - (b + 3.0), 0.0, "まだ何もない場所を見渡す2人＝ここから始まる")
 beat("B1", b, b1e, "音楽なしで静かに始め、観客を現場に連れていく")
 T["amb"].append({"start": 0.0, "end": None, "note": "風・草の環境音。図解区間は下げる（ミックスで指定）"})
@@ -69,10 +69,10 @@ T["amb"].append({"start": 0.0, "end": None, "note": "風・草の環境音。図
 b = b1e
 s04_dur = 3.2
 shot("S04", b, s04_dur, 0.0, "ローアングルのプリズム。照準モチーフの導入")
-b2e = b + 6.4
+b2e = b + 6.8  # 副題（13字）を 4.25秒読ませる
 still("S04_last", b + s04_dur, b2e - (b + s04_dur), "タイトル表示のための意図的な静止（固定カメラ）")
 lock = b + 1.6
-scene("title", b, b2e - b, {"reticle_in": 0.3, "lock": lock - b, "title_in": 1.8, "sub_in": 2.0, "out": (b2e - b) - 0.35},
+scene("title", b, b2e - b, {"reticle_in": 0.3, "lock": lock - b, "title_in": 1.8, "sub_in": 1.8, "out": (b2e - b) - 0.35},
       "章の提示。照準がプリズムに合い『最初の一点』のモチーフを示す", overlay=True,
       variables={"target_x": 820, "target_y": 268})
 se("lock", lock, "照準が合う電子音")
@@ -94,7 +94,7 @@ s, n3e = vo("N3", b + 0.3)
 k_mark = kw("N3", s, "目印")
 shot("S03", b, k_mark - b, 3.0, "プリズムを据える手元＝目印の上に機械を立てる")
 d0s = k_mark
-d0e = max(n3e + 1.0, d0s + 5.6)
+d0e = max(n3e + 1.0, d0s + 5.6, kw("N3", s, "基準点測量") + 0.3 + 4.25 + 0.3)  # 説明（13字）を 4.25秒
 scene("d0_marker", d0s, d0e - d0s, {"marker_in": 0.0, "tripod_in": 0.9, "term_in": kw("N3", s, "基準点測量") - d0s,
                                     "out": (d0e - d0s) - 0.3},
       "物語の主役『基準点の標識』を一度見せ、用語を仕組みの前に紹介する")
@@ -107,7 +107,7 @@ freeze_media = 3.7  # S09 のこの時刻のフレームで静止（02_intermedi
 shot("S09", b, s09_live, freeze_media - s09_live, "肩越しのTSと奥のプリズム。はかる瞬間")
 d1s = b + s09_live
 s, n4e = vo("N4", d1s + 0.2)
-d1e = n4e + 1.0
+d1e = max(n4e + 1.0, kw("N4", s, "プリズム") + 0.32 + 3.0 + 0.7)  # 「光をはね返す鏡」を 3.0秒（to_paper まで）
 scene("d1_observe", d1s, d1e - d1s, {
     "desat": 0.0, "ts_label": kw("N4", s, "トータルステーション") - d1s, "prism_label": kw("N4", s, "プリズム") - d1s,
     "angle": kw("N4", s, "角度") - d1s, "distance": kw("N4", s, "距離") - d1s, "to_paper": (d1e - d1s) - 0.7},
@@ -121,7 +121,7 @@ beat("B5", b, d1e, "実写の観測から図解への橋渡し")
 b = d1e
 s, e = vo("N5a", b + 1.2)
 s2, n5e = vo("N5b", e + 0.5)
-d2e = n5e + 0.9
+d2e = n5e + 0.9  # 座標は読ませない（例であることだけ伝わればよい）。延ばすと尺が 2 秒増えるため見送り（decisions.md）
 scene("d2_topview", b, d2e - b, {
     "setup": 0.0, "known": kw("N5a", s, "わかっている点") - b, "angle": kw("N5a", s, "角度") - b,
     "distance": kw("N5a", s, "距離") - b, "new_point": kw("N5b", s2, "新しい点") - b,
@@ -133,7 +133,7 @@ beat("B6", b, d2e, "角度→距離→位置が決まる、の3拍")
 b = d2e
 s, n6e = vo("N6", b + 0.4)
 k_check = kw("N6", s, "確かめます")
-d3e = max(n6e + 0.6, k_check + 0.3 + 2.5)  # 「新しい基準点」（6字）を 2.5秒見せる
+d3e = max(n6e + 0.6, k_check + 0.3 + 2.8)  # 「新しい基準点」（6字）を 2.5秒＋出だしの動き
 scene("d3_traverse", b, d3e - b, {
     "chain": kw("N6", s, "はかりつなぎ") - b, "last": kw("N6", s, "最後に") - b,
     "check": kw("N6", s, "確かめます") - b}, "正確さに責任を持つ仕事だと伝える")
@@ -173,7 +173,7 @@ shot("S10", b + 3.1, 2.6, 0.0, "現場を見渡す背中＝誇りと余韻（冒
 s2, n9be = vo("N9b", max(n9ae + 0.6, b + 4.3))
 endc = b + 5.7
 text_in = n9be + 0.3          # 締めの一文は N9b を言い終えてから（耳と目の言葉をずらさない）
-fade = text_in + 3.2          # 12字 → 表示 4.0秒（フェード込み）
+fade = text_in + 4.6          # 13字 → 4.25秒読ませ、少し余韻を置いてから黒へ
 end = fade + 0.8
 scene("endcard", endc, end - endc, {"reticle": 0.0, "point": 0.6, "text_in": text_in - endc, "fade": fade - endc},
       "締めの一文。照準が一点に戻り、冒頭と閉じる")

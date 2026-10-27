@@ -19,4 +19,5 @@
 | ソフト | ミックス・QC スクリプト（numpy / scipy / soundfile / pyloudnorm / OpenCV / FFmpeg） | PyPI ほか | BSD・MIT 等（ツールとして使用、成果物に同梱しない） | 2026-10-27 | 不要 | scripts/30_mix.py, 40_qc.py |
 | 音声合成（仮ナレ） | VOICEVOX エンジン 0.26.0（Docker イメージ voicevox/voicevox_engine:cpu-latest、ローカル実行） | https://github.com/VOICEVOX/voicevox_engine | LGPL-3.0（エンジン）。音声ライブラリは各キャラクターの規約に従う | 2026-10-27 | 不要（ソフト） | scripts/11_tts_voicevox.py |
 | 音声合成（仮ナレ・声） | VOICEVOX:冥鳴ひまり（ノーマル、style 14） | https://meimeihimari.wixsite.com/himari/terms-of-use | エンジン同梱の規約（/speaker_info）：「VOICEVOX:冥鳴ひまり」とクレジットを記載すれば商用・非商用で利用可。詳細規約は上記URL（このクラウドからは未読、**要確認**） | 2026-10-27 | **要**：「VOICEVOX:冥鳴ひまり」 | 仮ナレ N1〜N9b（audio/vo_temp） |
+| BGM | New Departure — FLASH☆BEAT（OpenTracks、旧DOVA-SYNDROME） | https://opentracks.com/bgm/detail/6843 | OpenTracks 音源利用ライセンス（/mnt/project-files/dova/terms.txt）：商用・法人可、表示不要、編集・フェード可。禁止：音源を主役にする使い方・再配布・AI学習。作曲者の追加条件なし | 2026-10-27 | 不要（任意で「FLASH☆BEAT」） | source/music/01_new_departure.mp3 → audio/bgm/bgm.wav（scripts/34_prep_bgm.py で 8 小節カット） |
 | | | | | | | |

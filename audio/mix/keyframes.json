@@ -6,108 +6,108 @@
    -16.0
   ],
   [
-   5.5192,
+   5.4206,
    -16.0
   ],
   [
-   6.1192,
-   -5.79
+   6.0206,
+   -4.91
   ],
   [
    8.4084,
-   -5.79
+   -4.91
   ],
   [
    13.1636,
-   -5.79
+   -4.91
   ],
   [
    13.5636,
-   -16.46
+   -19.78
   ],
   [
-   23.1881,
-   -16.46
+   23.5348,
+   -19.78
   ],
   [
-   23.7881,
-   -7.39
+   24.1348,
+   -11.13
   ],
   [
-   26.2767,
-   -7.39
+   26.3434,
+   -11.13
   ],
   [
-   26.6767,
-   -18.73
+   26.7434,
+   -22.72
   ],
   [
-   31.2722,
-   -18.73
+   31.1034,
+   -22.72
   ],
   [
-   31.8722,
-   -13.52
+   31.7034,
+   -17.72
   ],
   [
-   32.95,
-   -13.52
+   32.7498,
+   -17.72
   ],
   [
-   33.35,
-   -18.52
+   33.1498,
+   -23.21
   ],
   [
-   47.4044,
-   -18.52
+   46.829,
+   -23.21
   ],
   [
-   48.0044,
-   -10.15
+   47.429,
+   -14.16
   ],
   [
-   52.97,
-   -10.15
+   52.4362,
+   -14.16
   ],
   [
-   53.37,
-   -19.98
+   52.8362,
+   -21.99
   ],
   [
-   57.9245,
-   -19.98
+   57.5241,
+   -21.99
   ],
   [
-   58.0445,
-   -52.98
+   57.6441,
+   -54.99
   ],
   [
-   58.1464,
-   -52.98
+   57.7062,
+   -54.99
   ],
   [
-   58.9756,
-   -54.76
+   58.5752,
+   -54.74
   ],
   [
-   58.9956,
-   -54.76
+   58.5952,
+   -54.74
   ],
   [
-   59.0256,
-   -21.76
+   58.6252,
+   -21.74
   ],
   [
-   74.4816,
-   -21.76
+   74.7804,
+   -21.74
   ],
   [
-   75.0816,
-   -12.78
+   75.3804,
+   -2.85
   ],
   [
-   78.6786,
-   -12.78
+   78.9789,
+   -2.85
   ]
  ],
  "amb_keyframes": [
@@ -132,27 +132,27 @@
    -18.5
   ],
   [
-   19.4531,
+   19.4864,
    -18.5
   ],
   [
-   20.2531,
+   20.2864,
    -28.5
   ],
   [
-   48.8159,
+   48.3154,
    -28.5
   ],
   [
-   49.6159,
+   49.1154,
    -18.5
   ],
   [
-   51.2181,
+   50.6843,
    -18.5
   ],
   [
-   52.0181,
+   51.4843,
    -28.5
   ],
   [
@@ -172,11 +172,11 @@
    -28.5
   ],
   [
-   78.3786,
+   78.6789,
    -90.0
   ],
   [
-   78.6786,
+   78.9789,
    -90.0
   ]
  ],
@@ -189,70 +189,70 @@
   },
   {
    "kind": "measure",
-   "t": 30.1635,
+   "t": 29.9633,
    "gain_db": -23.27,
    "loudness100ms_re_vo_ref_db": -16.0
   },
   {
    "kind": "click",
-   "t": 39.1391,
+   "t": 38.8054,
    "gain_db": -7.62,
    "loudness100ms_re_vo_ref_db": -16.0
   },
   {
    "kind": "click",
-   "t": 46.5131,
+   "t": 46.0126,
    "gain_db": -7.62,
    "loudness100ms_re_vo_ref_db": -16.0
   },
   {
    "kind": "join",
-   "t": 60.0266,
+   "t": 59.6262,
    "gain_db": -12.81,
    "loudness100ms_re_vo_ref_db": -12.0
   }
  ],
  "report": {
-  "duration": 78.6786,
-  "samples": 3776573,
+  "duration": 78.9789,
+  "samples": 3790987,
   "vo_lines": 12,
-  "bgm_source": "audio/bgm/temp_bgm.wav",
+  "bgm_source": "audio/bgm/bgm.wav",
   "bgm_regions": [
    {
     "type": "under_vo",
     "start": 0.601,
-    "end": 5.419,
+    "end": 5.321,
     "fader_db": -16.0
    },
    {
     "type": "under_vo",
     "start": 13.614,
-    "end": 23.088,
-    "fader_db": -16.46
+    "end": 23.435,
+    "fader_db": -19.78
    },
    {
     "type": "under_vo",
-    "start": 26.727,
-    "end": 31.172,
-    "fader_db": -18.73
+    "start": 26.793,
+    "end": 31.003,
+    "fader_db": -22.72
    },
    {
     "type": "under_vo",
-    "start": 33.4,
-    "end": 47.304,
-    "fader_db": -18.52
+    "start": 33.2,
+    "end": 46.729,
+    "fader_db": -23.21
    },
    {
     "type": "under_vo",
-    "start": 53.42,
-    "end": 58.046,
-    "fader_db": -19.98
+    "start": 52.886,
+    "end": 57.606,
+    "fader_db": -21.99
    },
    {
     "type": "under_vo",
-    "start": 59.026,
-    "end": 74.382,
-    "fader_db": -21.76
+    "start": 58.625,
+    "end": 74.68,
+    "fader_db": -21.74
    },
    {
     "type": "free",
@@ -262,74 +262,74 @@
    },
    {
     "type": "free",
-    "start": 6.119,
+    "start": 6.021,
     "end": 13.164,
-    "fader_db": -5.79
+    "fader_db": -4.91
    },
    {
     "type": "free",
-    "start": 23.788,
-    "end": 26.277,
-    "fader_db": -7.39
+    "start": 24.135,
+    "end": 26.343,
+    "fader_db": -11.13
    },
    {
     "type": "free",
-    "start": 31.872,
-    "end": 32.95,
-    "fader_db": -13.52
+    "start": 31.703,
+    "end": 32.75,
+    "fader_db": -17.72
    },
    {
     "type": "free",
-    "start": 48.004,
-    "end": 52.97,
-    "fader_db": -10.15
+    "start": 47.429,
+    "end": 52.436,
+    "fader_db": -14.16
    },
    {
     "type": "free",
-    "start": 58.746,
-    "end": 58.576,
+    "start": 58.306,
+    "end": 58.175,
     "fader_db": null
    },
    {
     "type": "free",
-    "start": 75.082,
-    "end": 78.679,
-    "fader_db": -12.78
+    "start": 75.38,
+    "end": 78.979,
+    "fader_db": -2.85
    }
   ],
   "integrated_lufs_py": -24.0,
   "integrated_lufs_ffmpeg": -24.0,
-  "true_peak_dbtp_py": -9.04,
-  "true_peak_dbtp_ffmpeg": -9.0,
+  "true_peak_dbtp_py": -9.87,
+  "true_peak_dbtp_ffmpeg": -9.9,
   "limiter_max_gr_db": null,
   "stems_sum_residual": 1.1102230246251565e-16,
   "vo_minus_bgm_per_line_db": {
    "N1": null,
-   "N2": 20.5,
-   "N3": 19.4,
-   "N4": 19.7,
-   "N5a": 19.9,
-   "N5b": 20.2,
-   "N6": 19.6,
-   "N7a": 20.0,
-   "N7b": 23.4,
-   "N8": 19.1,
-   "N9a": 19.2,
-   "N9b": 18.4
+   "N2": 20.1,
+   "N3": 19.1,
+   "N4": 21.6,
+   "N5a": 20.0,
+   "N5b": 19.2,
+   "N6": 19.8,
+   "N7a": 19.1,
+   "N7b": 18.4,
+   "N8": 19.0,
+   "N9a": 19.5,
+   "N9b": 23.1
   },
   "vo_minus_bgm_short_term_inside_lines": {
-   "median": 18.8,
-   "p5": 17.2,
-   "min": 17.0,
-   "n_windows": 94
+   "median": 18.4,
+   "p5": 17.1,
+   "min": 16.9,
+   "n_windows": 100
   },
-  "vo_median_short_term_lufs": -24.2,
-  "bgm_free_max_short_term_re_vo": -8.6,
-  "amb_re_vo_live_median": -19.3,
-  "amb_re_vo_diagram_median": -29.1,
-  "se_max_100ms_re_vo_max_100ms": -17.0,
-  "se_max_100ms_re_vo_integrated": -9.8,
-  "se_peak_re_vo_peak_db": -9.9,
-  "bgm_in_pause_short_term_lufs": -72.5
+  "vo_median_short_term_lufs": -24.3,
+  "bgm_free_max_short_term_re_vo": -8.7,
+  "amb_re_vo_live_median": -19.6,
+  "amb_re_vo_diagram_median": -29.3,
+  "se_max_100ms_re_vo_max_100ms": -16.9,
+  "se_max_100ms_re_vo_integrated": -9.7,
+  "se_peak_re_vo_peak_db": -9.8,
+  "bgm_in_pause_short_term_lufs": -74.6
  }
 }

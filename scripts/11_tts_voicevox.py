@@ -33,7 +33,7 @@ def query(t, kana=None, d=None):
     q = json.loads(post("/audio_query", {"text": t, "speaker": STYLE}))
     if kana:
         q["accent_phrases"] = json.loads(post("/accent_phrases", {"text": kana, "speaker": STYLE, "is_kana": "true"}))
-    q.update(speedScale=d.get("speed", 0.92) * SPEED, intonationScale=d.get("inton", 1.15) * INTON,
+    q.update(speedScale=d.get("speed", 0.92) * SPEED, intonationScale=min(d.get("inton", 1.15) * INTON, 1.4),  # 1.4 を超えると機械的に聞こえやすい
              pauseLengthScale=PAUSE, pitchScale=d.get("pitch", 0) + PITCH, volumeScale=d.get("volume", 1.0),
              prePhonemeLength=0.0, postPhonemeLength=0.0, outputSamplingRate=SR, outputStereo=False)
     return q
@@ -82,8 +82,7 @@ def direct(q, d, rng):
         for m, dp in zip(voiced[-2:], (0.02, 0.05)): m["pitch"] -= dp
         voiced[-1]["vowel_length"] *= 1.35 if end == "soft_long" else 1.15
         if last["pitch"] == 0: last["vowel_length"] *= 1.3
-    elif end == "cont":
-        for m in voiced[-2:]: m["pitch"] += 0.03
+    elif end == "cont":  # 下げず・上げず（上げると問いかけに聞こえる）、少しだけ伸ばして次へ
         voiced[-1]["vowel_length"] *= 1.1
     elif end == "firm":
         voiced[-1]["pitch"] -= 0.02
@@ -108,6 +107,16 @@ def synth(q):
         assert w.getframerate() == SR
         return np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float64)
 
+def soften_onsets(x, gap=0.015, thr=60, fade=0.004):
+    """文中の無音（15ms 以上）の直後の立ち上がりに 4ms のフェードイン。破裂音の後の合成器のプチッという段差を抑える。"""
+    w = int(0.002 * SR); e = np.sqrt(np.convolve(x ** 2, np.ones(w) / w, "same"))
+    quiet = e < thr; n = int(gap * SR); f = int(fade * SR); run = 0
+    for i in range(len(x)):
+        if quiet[i]: run += 1; continue
+        if run >= n: x[i:i + f] *= 0.5 - 0.5 * np.cos(np.linspace(0, np.pi, len(x[i:i + f])))
+        run = 0
+    return x
+
 def trim(x, thr=200):
     idx = np.where(np.abs(x) > thr)[0]
     if len(idx) == 0: return x
@@ -126,6 +135,8 @@ for ln in nar["lines"]:
     q = direct(query(t, ln.get("vv_kana"), d), d, random.Random(ln["id"]))
     x = synth(q); lead = (np.where(np.abs(x) > 200)[0][:1] / SR).tolist(); x = trim(x)
     lead = max((lead[0] if lead else 0) - 0.01, 0)
+    f = int(0.008 * SR); x[:f] *= np.linspace(0, 1, f); x[-f:] *= np.linspace(1, 0, f)  # 端の段差を消す
+    x = soften_onsets(x)
     x = np.clip(x / max(1, np.abs(x).max()) * 0.89 * 32767, -32767, 32767).astype(np.int16)
     with wave.open(str(OUT / f"{ln['id']}.wav"), "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes(x.tobytes())

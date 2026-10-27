@@ -1,0 +1,10 @@
+{
+ "source": "01_new_departure.mp3",
+ "beat0": 1.9567,
+ "beat_period": 0.63199,
+ "bars_removed": 8,
+ "splice_at": 25.28,
+ "resume_from": 45.503,
+ "length": 70.57,
+ "need": 70.57
+}

@@ -1,0 +1,197 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"setup\":0.0,\"known\":1.2,\"angle\":2.82,\"distance\":4.24,\"new_point\":5.15,\"fix\":6.76}"},{"id":"dur","type":"number","label":"dur","default":9.009},{"id":"coord_x","type":"string","label":"X（例）","default":"1234.567"},{"id":"coord_y","type":"string","label":"Y（例）","default":"2345.678"}]'>
+<body>
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #d2-bg { position: absolute; inset: 0; background: var(--paper); }
+    #d2-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    .d2-lbl { position: absolute; font-family: var(--font-ja); line-height: 1.35; font-feature-settings: "palt"; white-space: nowrap; }
+    .d2-navy { color: var(--navy); }
+    .d2-od { color: var(--orange-dark); }
+    .d2-b { font-weight: 700; }
+    #d2-lbl-b { left: 104px; top: 211px; width: 320px; text-align: right; font-size: 36px; font-weight: 400; }
+    #d2-lbl-a { left: 112px; top: 727px; width: 360px; text-align: right; font-size: 48px; }
+    #d2-lbl-angle { left: 580px; top: 560px; width: 160px; text-align: center; font-size: 52px; }
+    #d2-lbl-dist { left: 870px; top: 534px; width: 160px; text-align: center; font-size: 52px; }
+    #d2-lbl-new { left: 1200px; top: 414px; width: 360px; text-align: center; font-size: 48px; }
+    #d2-coords { position: absolute; left: 1250px; top: 580px; width: 260px; }
+    .d2-row { height: 54px; display: flex; align-items: flex-start; font-family: var(--font-num); font-size: 40px; line-height: 54px; color: var(--ink); white-space: nowrap; }
+    .d2-row .d2-ax { width: 44px; font-weight: 700; }
+    .d2-row .d2-unit { margin-left: 12px; }
+    .d2-odo { display: inline-block; height: 54px; overflow: hidden; vertical-align: top; }
+    .d2-strip { display: block; }
+    .d2-strip span { display: block; height: 54px; line-height: 54px; }
+    #d2-note { position: absolute; left: 1180px; top: 696px; width: 400px; text-align: center; font-family: var(--font-ja); font-size: 34px; line-height: 1.35; color: var(--ink); font-feature-settings: "palt"; }
+  </style>
+  <div id="root" data-composition-id="d2_topview" data-width="1920" data-height="1080">
+    <div id="d2-bg"></div>
+    <svg id="d2-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- 方眼：80px 間隔。A(560,760) が交点に乗るよう y を 40 ずらす -->
+        <pattern id="d2-gridpat" x="0" y="40" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0 H0 V80" fill="none" stroke="var(--grid)" stroke-width="1.5"/>
+        </pattern>
+      </defs>
+      <rect id="d2-grid" x="0" y="0" width="1920" height="1080" fill="url(#d2-gridpat)" opacity="0"/>
+
+      <!-- A→B 紺の点線（基準の向き） -->
+      <line id="d2-ab" x1="560" y1="760" x2="560" y2="760" stroke="var(--navy)" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 15" opacity="0"/>
+      <!-- 角度：回る線とオレンジの弧 -->
+      <line id="d2-ray" x1="560" y1="760" x2="790" y2="760" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" opacity="0"/>
+      <path id="d2-arc" d="M540.5 651.7 A110 110 0 0 1 665.6 729.1" fill="none" stroke="var(--orange)" stroke-width="5" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+      <!-- 距離：A→P の光の線 -->
+      <line id="d2-ap-glow" x1="560" y1="760" x2="1380" y2="520" stroke="var(--orange)" stroke-width="16" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+      <line id="d2-ap" x1="560" y1="760" x2="1380" y2="520" stroke="var(--orange)" stroke-width="5" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+
+      <!-- d1 の終わりの状態（TS＝△、プリズム＝◎、光の線）からの引き継ぎ -->
+      <line id="d2-carry-glow" x1="613" y1="572" x2="1446" y2="137" stroke="var(--orange)" stroke-width="16" stroke-linecap="round" opacity="0.18"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0"/>
+      <line id="d2-carry-beam" x1="613" y1="572" x2="1446" y2="137" stroke="var(--orange)" stroke-width="5" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0"/>
+      <g id="d2-carry-new" transform="translate(1446 137)">
+        <g id="d2-carry-new-in">
+          <circle r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
+          <circle r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
+        </g>
+      </g>
+
+      <!-- B：もう一つの既知点 -->
+      <g id="d2-B" transform="translate(470 260)">
+        <g id="d2-B-in" opacity="0">
+          <path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round"/>
+          <circle r="6" fill="var(--navy)"/>
+        </g>
+      </g>
+      <!-- P：新しい点 -->
+      <g id="d2-P" transform="translate(1380 520)">
+        <g id="d2-P-in" opacity="0">
+          <circle r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
+          <circle r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
+        </g>
+      </g>
+      <!-- A：わかっている点（d1 の TS 位置から移ってくる）＋真上から見た TS -->
+      <g id="d2-A">
+        <g id="d2-ts" opacity="0">
+          <circle id="d2-ts-ring" r="50" fill="none" stroke="var(--navy)" stroke-width="3" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" transform="rotate(-90)"/>
+          <path id="d2-ts-ticks" d="M0 -50 V-66 M50 0 H66 M0 50 V66 M-50 0 H-66" stroke="var(--navy)" stroke-width="3" stroke-linecap="round" opacity="0"/>
+        </g>
+        <g id="d2-A-in">
+          <path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round"/>
+          <circle r="6" fill="var(--navy)"/>
+        </g>
+      </g>
+    </svg>
+
+    <div id="d2-lbl-b" class="d2-lbl d2-navy">もう一つの<br>わかっている点</div>
+    <div id="d2-lbl-a" class="d2-lbl d2-navy d2-b">わかっている点</div>
+    <div id="d2-lbl-angle" class="d2-lbl d2-od d2-b">角度</div>
+    <div id="d2-lbl-dist" class="d2-lbl d2-od d2-b">距離</div>
+    <div id="d2-lbl-new" class="d2-lbl d2-od d2-b">新しい点</div>
+    <div id="d2-coords" data-layout-allow-overflow>
+      <div class="d2-row" id="d2-row-x"><span class="d2-ax">X</span><span class="d2-num" id="d2-num-x"></span><span class="d2-unit">m</span></div>
+      <div class="d2-row" id="d2-row-y"><span class="d2-ax">Y</span><span class="d2-num" id="d2-num-y"></span><span class="d2-unit">m</span></div>
+    </div>
+    <div id="d2-note">（数値は例）</div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 9;
+
+      // 配置（docs/08 §4）。d3 の冒頭もこの座標で描く
+      const A = [560, 760], B = [470, 260], P = [1380, 520];
+      const TS0 = [613, 572];              // d1 の終わりの △（TS の位置）
+      const deg = (p) => Math.atan2(p[1] - A[1], p[0] - A[0]) * 180 / Math.PI;
+      const angAB = deg(B), angAP = deg(P);
+      const R = 110;
+      const pt = (a, r) => [A[0] + r * Math.cos(a * Math.PI / 180), A[1] + r * Math.sin(a * Math.PI / 180)];
+      const s0 = pt(angAB, R), s1 = pt(angAP, R);
+      document.querySelector("#d2-arc").setAttribute("d",
+        "M" + s0[0].toFixed(1) + " " + s0[1].toFixed(1) + " A" + R + " " + R + " 0 0 1 " + s1[0].toFixed(1) + " " + s1[1].toFixed(1));
+
+      // 座標の数字：桁ごとの回転ドラム（カウントして止まる）
+      const ROW = 54;
+      const odo = [];
+      function buildNumber(host, text) {
+        let di = 0;
+        const digits = text.replace(/[^0-9]/g, "").length;
+        for (const ch of text) {
+          if (!/[0-9]/.test(ch)) { const s = document.createElement("span"); s.textContent = ch; host.appendChild(s); continue; }
+          const target = Number(ch);
+          const travel = 2 + Math.round(26 * Math.pow(di / Math.max(1, digits - 1), 1.3)); // 上の桁ほど少なく、下の桁ほど多く回る
+          const start = ((target - travel) % 10 + 10) % 10;
+          const col = document.createElement("span"); col.className = "d2-odo"; col.setAttribute("data-layout-ignore", "");
+          const strip = document.createElement("span"); strip.className = "d2-strip";
+          for (let j = 0; j <= travel; j++) { const d = document.createElement("span"); d.textContent = String((start + j) % 10); strip.appendChild(d); }
+          col.appendChild(strip); host.appendChild(col);
+          odo.push({ strip, travel });
+          di++;
+        }
+      }
+      buildNumber(document.querySelector("#d2-num-x"), String(v.coord_x || "1234.567"));
+      buildNumber(document.querySelector("#d2-num-y"), String(v.coord_y || "2345.678"));
+
+      const tl = gsap.timeline({ paused: true });
+      const IN = { duration: 0.5, ease: "power3.out" };
+      const rise = (s, at) => tl.fromTo(s, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, at);
+      const show = (s, at, op) => tl.fromTo(s, { opacity: 0 }, { opacity: op || 1, duration: 0.01, ease: "none" }, at);
+      const draw = (s, at, d, ease, op) => { show(s, at, op); tl.fromTo(s, { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: d, ease: ease || "power2.inOut" }, at); };
+      const pop = (s, at, d) => tl.fromTo(s, { opacity: 0, scale: 0.6, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: d || 0.45, ease: "power3.out" }, at);
+
+      // ---- setup：d1 の終わりから。光の線が △ に戻り、◎ が消え、△ が A へ。方眼、B、A→B の点線
+      const s = c.setup;
+      tl.fromTo(["#d2-carry-beam", "#d2-carry-glow"], { attr: { "stroke-dashoffset": 0 } }, { attr: { "stroke-dashoffset": 100 }, duration: 0.35, ease: "power2.in" }, s);
+      tl.fromTo(["#d2-carry-beam", "#d2-carry-glow"], { opacity: (i) => (i ? 0.18 : 1) }, { opacity: 0, duration: 0.01, ease: "none", immediateRender: false }, s + 0.35);
+      tl.fromTo("#d2-carry-new-in", { opacity: 1, scale: 1, svgOrigin: "0 0" }, { opacity: 0, scale: 0.6, svgOrigin: "0 0", duration: 0.3, ease: "power2.in" }, s);
+      tl.fromTo("#d2-A", { x: TS0[0], y: TS0[1] }, { x: A[0], y: A[1], duration: 0.55, ease: "power2.inOut" }, s + 0.15);
+      tl.fromTo("#d2-grid", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power1.inOut" }, s + 0.05);
+      pop("#d2-B-in", s + 0.62, 0.4);
+      show("#d2-ab", s + 0.74);
+      tl.fromTo("#d2-ab", { attr: { x2: A[0], y2: A[1] } }, { attr: { x2: B[0], y2: B[1] }, duration: 0.45, ease: "power2.inOut" }, s + 0.74);
+      rise("#d2-lbl-b", s + 0.95);
+
+      // ---- known：「わかっている点」。A を1回だけ強調、真上から見た TS
+      const k = c.known;
+      rise("#d2-lbl-a", k);
+      tl.fromTo("#d2-A-in", { scale: 1, svgOrigin: "0 0" }, { scale: 1.15, svgOrigin: "0 0", duration: 0.25, ease: "power2.out" }, k + 0.15);
+      tl.fromTo("#d2-A-in", { scale: 1.15, svgOrigin: "0 0" }, { scale: 1, svgOrigin: "0 0", duration: 0.55, ease: "power2.inOut", immediateRender: false }, k + 0.4);
+      show("#d2-ts", k + 0.75);
+      tl.fromTo("#d2-ts-ring", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, k + 0.75);
+      tl.fromTo("#d2-ts-ticks", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, k + 1.0);
+
+      // ---- angle：AB の向きから AP の向きへ線が回り、オレンジの弧がのびる（0.8秒）
+      const a = c.angle;
+      tl.fromTo("#d2-ray", { opacity: 0, rotation: angAB, svgOrigin: "560 760" }, { opacity: 1, duration: 0.12, ease: "none" }, a);
+      tl.fromTo("#d2-ray", { rotation: angAB, svgOrigin: "560 760" }, { rotation: angAP, svgOrigin: "560 760", duration: 0.8, ease: "power2.inOut", immediateRender: false }, a + 0.08);
+      draw("#d2-arc", a + 0.08, 0.8, "power2.inOut");
+      rise("#d2-lbl-angle", a + 0.6);
+
+      // ---- distance：A から P の方向へオレンジの線がのびる（0.8秒）
+      const d = c.distance;
+      draw("#d2-ap-glow", d, 0.8, "power2.inOut", 0.18);
+      draw("#d2-ap", d, 0.8);
+      rise("#d2-lbl-dist", d + 0.45);
+
+      // ---- new_point：線の先にオレンジの◎。「新しい点」
+      const n = c.new_point;
+      pop("#d2-P-in", n, 0.5);
+      rise("#d2-lbl-new", n + 0.15);
+
+      // ---- fix：座標がカウントして止まる（止まる瞬間＝fix）。「（数値は例）」
+      const f = c.fix, roll = 0.7;
+      tl.fromTo("#d2-coords", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "power1.out" }, f - roll - 0.05);
+      odo.forEach((o) => tl.fromTo(o.strip, { y: 0 }, { y: -o.travel * ROW, duration: roll, ease: "power2.out" }, f - roll));
+      tl.fromTo("#d2-note", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, f + 0.15);
+
+      // 以降は止まって待つ
+      tl.set({}, {}, dur);
+      window.__timelines["d2_topview"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

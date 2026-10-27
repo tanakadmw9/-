@@ -1,0 +1,166 @@
+<html data-composition-variables='[{"id": "cues", "type": "string", "label": "cues", "default": "{\"life_in\":0.0,\"road_glow\":0.5}"}, {"id": "dur", "type": "number", "label": "dur", "default": 5.2052}]'>
+<body>
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: var(--paper); overflow: hidden; }
+    #d5-svg { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+    .d5-label { position: absolute; font-family: var(--font-ja); font-weight: 700; color: var(--ink);
+      font-feature-settings: "palt"; line-height: 1.2; white-space: nowrap; }
+    #d5-same { right: 1204px; top: 307px; font-size: 52px; padding: 2px 14px; background: var(--paper); border-radius: 6px; }
+    #d5-river { left: 787.8135007538278px; top: 853px; font-size: 44px; }
+  </style>
+  <div id="root" data-composition-id="d5_everyday" data-width="1920" data-height="1080">
+    <svg id="d5-svg" viewBox="0 0 1920 1080" aria-hidden="true" data-layout-allow-overflow>
+      <defs>
+        <pattern id="d5-gridpat" x="0" y="40" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0 H0 V80" fill="none" stroke="var(--grid)" stroke-width="1.5"/>
+        </pattern>
+        <mask id="d5-roadmask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080">
+          <path id="d5-roadmask-path" d="M-30 704 C330 704 520 560 760 560 L1180 560 C1400 560 1580 452 1950 452" fill="none" stroke="#fff" stroke-width="24" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0"/>
+        </mask>
+      </defs>
+      <rect x="0" y="0" width="1920" height="1080" fill="url(#d5-gridpat)"/>
+      <!-- 川：紺の細い岸線（下の太い線）＋ --grid の帯 -->
+      <path d="M1290.5 -159 L1239 -40 C1079 330 889 700 699 1120 L645 1238" fill="none" stroke="var(--navy)" stroke-width="257"/>
+      <path d="M1290.5 -159 L1239 -40 C1079 330 889 700 699 1120 L645 1238" fill="none" stroke="var(--grid)" stroke-width="250"/>
+      <g id="d5-links" stroke="var(--navy)" stroke-width="2.5" stroke-linecap="round">
+        <line id="d5-ln0" x1="760" y1="340" x2="600" y2="170" opacity="0.32"/>
+        <line id="d5-ln1" x1="760" y1="340" x2="640" y2="650" opacity="0.32"/>
+        <line id="d5-ln2" x1="600" y1="170" x2="300" y2="330" opacity="0.32"/>
+        <line id="d5-ln3" x1="300" y1="330" x2="480" y2="470" opacity="0.32"/>
+        <line id="d5-ln4" x1="300" y1="330" x2="220" y2="630" opacity="0.32"/>
+        <line id="d5-ln5" x1="480" y1="470" x2="220" y2="630" opacity="0.32"/>
+        <line id="d5-ln6" x1="480" y1="470" x2="640" y2="650" opacity="0.32"/>
+        <line id="d5-ln7" x1="220" y1="630" x2="360" y2="850" opacity="0.32"/>
+        <line id="d5-ln8" x1="640" y1="650" x2="360" y2="850" opacity="0.32"/>
+        <line id="d5-ln9" x1="640" y1="650" x2="540" y2="960" opacity="0.32"/>
+        <line id="d5-ln10" x1="360" y1="850" x2="540" y2="960" opacity="0.32"/>
+        <line id="d5-ln11" x1="1290" y1="300" x2="1540" y2="220" opacity="0.32"/>
+        <line id="d5-ln12" x1="1540" y1="220" x2="1770" y2="340" opacity="0.32"/>
+        <line id="d5-ln13" x1="1290" y1="300" x2="1300" y2="640" opacity="0.32"/>
+        <line id="d5-ln14" x1="1540" y1="220" x2="1620" y2="580" opacity="0.32"/>
+        <line id="d5-ln15" x1="1770" y1="340" x2="1620" y2="580" opacity="0.32"/>
+        <line id="d5-ln16" x1="1300" y1="640" x2="1620" y2="580" opacity="0.32"/>
+        <line id="d5-ln17" x1="1300" y1="640" x2="1110" y2="870" opacity="0.32"/>
+        <line id="d5-ln18" x1="1300" y1="640" x2="1470" y2="860" opacity="0.32"/>
+        <line id="d5-ln19" x1="1110" y1="870" x2="1470" y2="860" opacity="0.32"/>
+        <line id="d5-ln20" x1="1470" y1="860" x2="1620" y2="580" opacity="0.32"/>
+      </g>
+
+      <!-- 実線の道（縁取り）とオレンジの細い縁（road_glow） -->
+      <path id="d5-glow" d="M-30 704 C330 704 520 560 760 560 L1180 560 C1400 560 1580 452 1950 452" fill="none" stroke="var(--orange)" stroke-width="62" opacity="0"/>
+      <g id="d5-street" opacity="0">
+        <path d="M-30 704 C330 704 520 560 760 560 L1180 560 C1400 560 1580 452 1950 452" fill="none" stroke="var(--ink)" stroke-width="50"/>
+        <path d="M-30 704 C330 704 520 560 760 560 L1180 560 C1400 560 1580 452 1950 452" fill="none" stroke="var(--paper)" stroke-width="42"/>
+      </g>
+      <!-- d4 の設計線（はじめは d4 の最後のコマと同じ） -->
+      <path id="d5-road" d="M-30 704 C330 704 520 560 760 560 L1180 560 C1400 560 1580 452 1950 452" fill="none" stroke="var(--navy)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 16" mask="url(#d5-roadmask)"/>
+      <path id="d5-t0" class="d5-town" d="M80 646 V596 L118 564 L156 596 V646 Z M109 646 V622 H127 V646" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t1" class="d5-town" d="M208 632 V612 M226 594 A18 18 0 1 1 190 594 A18 18 0 1 1 226 594" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t2" class="d5-town" d="M252 615 V569 L287 539 L322 569 V615 Z M278 615 V593 H296 V615" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t3" class="d5-town" d="M426 566 V516 L464 484 L502 516 V566 Z M455 566 V542 H473 V566" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t4" class="d5-town" d="M560 539 V519 M584 495 A24 24 0 1 1 536 495 A24 24 0 1 1 584 495" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t5" class="d5-town" d="M1350 485 V443 L1380 417 L1410 443 V485 Z M1372 485 V465 H1388 V485" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t6" class="d5-town" d="M1466 466 V446 M1488 424 A22 22 0 1 1 1444 424 A22 22 0 1 1 1488 424" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t7" class="d5-town" d="M1584 432 V378 L1626 344 L1668 378 V432 Z M1617 432 V406 H1635 V432" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t8" class="d5-town" d="M1702 415 V373 L1732 347 L1762 373 V415 Z M1724 415 V395 H1740 V415" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t9" class="d5-town" d="M1814 407 V387 M1832 369 A18 18 0 1 1 1796 369 A18 18 0 1 1 1832 369" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t10" class="d5-town" d="M110 824 V774 L148 742 L186 774 V824 Z M139 824 V800 H157 V824" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t11" class="d5-town" d="M220 809 V755 L262 721 L304 755 V809 Z M253 809 V783 H271 V809" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t12" class="d5-town" d="M428 737 V717 M448 697 A20 20 0 1 1 408 697 A20 20 0 1 1 448 697" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t13" class="d5-town" d="M474 734 V684 L512 652 L550 684 V734 Z M503 734 V710 H521 V734" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t14" class="d5-town" d="M608 696 V676 M632 652 A24 24 0 1 1 584 652 A24 24 0 1 1 632 652" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t15" class="d5-town" d="M1166 692 V642 L1204 610 L1242 642 V692 Z M1195 692 V668 H1213 V692" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t16" class="d5-town" d="M1364 645 V625 M1382 607 A18 18 0 1 1 1346 607 A18 18 0 1 1 1382 607" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t17" class="d5-town" d="M1408 640 V598 L1438 572 L1468 598 V640 Z M1430 640 V620 H1446 V640" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t18" class="d5-town" d="M1524 617 V597 M1546 575 A22 22 0 1 1 1502 575 A22 22 0 1 1 1546 575" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t19" class="d5-town" d="M1642 610 V556 L1684 522 L1726 556 V610 Z M1675 610 V584 H1693 V610" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t20" class="d5-town" d="M1760 577 V535 L1790 509 L1820 535 V577 Z M1782 577 V557 H1798 V577" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t21" class="d5-town" d="M264 496 V476 M288 452 A24 24 0 1 1 240 452 A24 24 0 1 1 288 452" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t22" class="d5-town" d="M384 456 V414 L414 388 L444 414 V456 Z M406 456 V436 H422 V456" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t23" class="d5-town" d="M640 396 V376 M662 354 A22 22 0 1 1 618 354 A22 22 0 1 1 662 354" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t24" class="d5-town" d="M1282 372 V322 L1320 290 L1358 322 V372 Z M1311 372 V348 H1329 V372" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t25" class="d5-town" d="M1556 321 V301 M1580 277 A24 24 0 1 1 1532 277 A24 24 0 1 1 1580 277" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t26" class="d5-town" d="M1606 303 V253 L1646 221 L1686 253 V303 Z M1637 303 V279 H1655 V303" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t27" class="d5-town" d="M148 928 V908 M166 890 A18 18 0 1 1 130 890 A18 18 0 1 1 166 890" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t28" class="d5-town" d="M332 894 V852 L362 826 L392 852 V894 Z M354 894 V874 H370 V894" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t29" class="d5-town" d="M450 868 V848 M474 824 A24 24 0 1 1 426 824 A24 24 0 1 1 474 824" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t30" class="d5-town" d="M1234 816 V766 L1272 734 L1310 766 V816 Z M1263 816 V792 H1281 V816" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t31" class="d5-town" d="M1362 775 V755 M1380 737 A18 18 0 1 1 1344 737 A18 18 0 1 1 1380 737" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t32" class="d5-town" d="M1546 751 V701 L1586 669 L1626 701 V751 Z M1577 751 V727 H1595 V751" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <path id="d5-t33" class="d5-town" d="M1750 703 V683 M1770 663 A20 20 0 1 1 1730 663 A20 20 0 1 1 1770 663" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0"/>
+      <g transform="translate(760 340)"><g id="d5-p0" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(600 170)"><g id="d5-p1" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(300 330)"><g id="d5-p2" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(480 470)"><g id="d5-p3" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(220 630)"><g id="d5-p4" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(640 650)"><g id="d5-p5" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(360 850)"><g id="d5-p6" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(540 960)"><g id="d5-p7" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(1290 300)"><g id="d5-p8" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(1540 220)"><g id="d5-p9" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(1770 340)"><g id="d5-p10" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(1300 640)"><g id="d5-p11" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(1620 580)"><g id="d5-p12" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(1110 870)"><g id="d5-p13" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <g transform="translate(1470 860)"><g id="d5-p14" opacity="1"><path d="M0 -21.1 L18.2 10.5 L-18.2 10.5 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/><circle r="3.5" fill="var(--navy)"/></g></g>
+      <path id="d5-wings" d="M794 535.0 l-16 -16 M794 585.0 l-16 16 M1130 535.0 l16 -16 M1130 585.0 l16 16" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" opacity="1"/>
+      <rect id="d5-brL" x="794" y="535.0" width="168.0" height="50" fill="var(--ink)"/>
+      <rect id="d5-brR" x="962.0" y="535.0" width="168.0" height="50" fill="var(--ink)"/>
+      <line id="d5-seam" x1="962.0" y1="541.0" x2="962.0" y2="579.0" stroke="var(--paper)" stroke-width="2" opacity="1"/>
+      <circle id="d5-ring" cx="760" cy="340" r="34" fill="none" stroke="var(--orange)" stroke-width="5"
+              pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0" transform="rotate(-90 760 340)"/>
+      <g id="d5-tie" stroke="var(--orange)" stroke-linecap="round" fill="none">
+        <path id="d5-glowL" d="M920.0 560 L782.4 370.7" stroke-width="16" opacity="0.18" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0"/>
+        <path id="d5-glowR" d="M1004.0 560 L788.2 365.4" stroke-width="16" opacity="0.18" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0"/>
+        <path id="d5-tieL" d="M920.0 560 L782.4 370.7" stroke-width="5" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0"/>
+        <path id="d5-tieR" d="M1004.0 560 L788.2 365.4" stroke-width="5" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="0"/>
+        <circle id="d5-tipL" cx="920.0" cy="560" r="6" fill="var(--orange)" stroke="none" opacity="1"/>
+        <circle id="d5-tipR" cx="1004.0" cy="560" r="6" fill="var(--orange)" stroke="none" opacity="1"/>
+      </g>
+
+      <circle id="d5-here" cx="760" cy="340" r="32" fill="none" stroke="var(--navy)" stroke-width="4"
+              pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" transform="rotate(-90 760 340)"/>
+      <g transform="translate(640 574)"><g id="d5-car" opacity="0"><path d="M-54 -12 V-34 Q-54 -40 -48 -40 H-30 L-17 -60 H20 L34 -40 H48 Q54 -40 54 -34 V-12 Z M2 -60 V-40" fill="var(--paper)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/><circle cx="-30" cy="-10" r="10" fill="var(--paper)" stroke="var(--ink)" stroke-width="4"/><circle cx="30" cy="-10" r="10" fill="var(--paper)" stroke="var(--ink)" stroke-width="4"/></g></g>
+    </svg>
+    <div id="d5-river" class="d5-label">川</div>
+    <div id="d5-same" class="d5-label">同じ基準点</div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur);
+      const tl = gsap.timeline({ paused: true });
+      const L = c.life_in, G = c.road_glow;
+
+      // life_in：図解の記号（網・オレンジの線・ラベル）が退き、道路と橋が暮らしの線画になる
+      const fade = ["#d5-links", "#d5-tie", "#d5-ring", "#d5-same", "#d5-p1", "#d5-p2", "#d5-p3", "#d5-p4", "#d5-p5", "#d5-p6", "#d5-p7", "#d5-p8", "#d5-p9", "#d5-p10", "#d5-p11", "#d5-p12", "#d5-p13", "#d5-p14"];
+      tl.fromTo(fade, { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in" }, L);
+      tl.fromTo("#d5-p0", { scale: 1.3, transformOrigin: "50% 64%" }, { scale: 1, transformOrigin: "50% 64%", duration: 0.4, ease: "power2.inOut" }, L);
+      tl.fromTo("#d5-seam", { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in" }, L);
+      tl.fromTo("#d5-road", { opacity: 1 }, { opacity: 0, duration: 0.35, ease: "power1.inOut" }, L + 0.08);
+      tl.fromTo("#d5-street", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power1.inOut" }, L + 0.08);
+      const townDelay = [0.564, 0.473, 0.364, 0.2, 0.073, 0.127, 0.218, 0.382, 0.491, 0.582, 0.545, 0.436, 0.236, 0.164, 0.018, 0.0, 0.091, 0.182, 0.255, 0.418, 0.527, 0.4, 0.273, 0.036, 0.109, 0.327, 0.455, 0.6, 0.345, 0.291, 0.055, 0.145, 0.309, 0.509];
+      townDelay.forEach((d, k) => {
+        tl.fromTo("#d5-t" + k, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, L + 0.15 + d);
+      });
+      tl.fromTo("#d5-car", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, L + 0.3);
+
+      // road_glow：道路がゆっくり一度だけ明るくなり、車が橋を渡る（このとき動くのは車だけ）
+      tl.fromTo("#d5-glow", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.inOut" }, G);
+      tl.fromTo("#d5-glow", { opacity: 1 }, { opacity: 0, duration: 1.1, ease: "power2.inOut", immediateRender: false }, G + 1.0);
+      tl.fromTo("#d5-car", { x: 0 }, { x: 622, duration: 1.8, ease: "power1.inOut" }, G + 0.4);
+
+      // 最後に：道路わきの基準点が一度だけ強調される（＝「ここから始まっています」）
+      const H = Math.min(G + 2.38, dur - 1.2);
+      tl.fromTo("#d5-p0", { scale: 1 }, { scale: 1.3, transformOrigin: "50% 64%", duration: 0.35, ease: "power2.out", immediateRender: false }, H);
+      tl.fromTo("#d5-p0", { scale: 1.3 }, { scale: 1, transformOrigin: "50% 64%", duration: 0.5, ease: "power2.inOut", immediateRender: false }, H + 0.35);
+      tl.fromTo("#d5-here", { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" }, H + 0.05);
+
+      window.__timelines["d5_everyday"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"chain\":1.58,\"last\":2.52,\"check\":5.82}"},{"id":"dur","type":"number","label":"dur","default":7.1738}]'>
+<body>
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #d3-bg { position: absolute; inset: 0; background: var(--paper); }
+    #d3-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    /* d2 の終わりの注記（冒頭でだけ見え、すぐ消える） */
+    #d3-d2notes .d3-lbl { position: absolute; font-family: var(--font-ja); line-height: 1.35; font-feature-settings: "palt"; white-space: nowrap; }
+    #d3-d2notes .d3-navy { color: var(--navy); }
+    #d3-d2notes .d3-od { color: var(--orange-dark); }
+    #d3-d2notes .d3-b { font-weight: 700; }
+    #d3-o-b { left: 104px; top: 211px; width: 320px; text-align: right; font-size: 36px; }
+    #d3-o-a { left: 112px; top: 727px; width: 360px; text-align: right; font-size: 48px; }
+    #d3-o-angle { left: 580px; top: 560px; width: 160px; text-align: center; font-size: 52px; }
+    #d3-o-dist { left: 870px; top: 534px; width: 160px; text-align: center; font-size: 52px; }
+    #d3-o-new { left: 1200px; top: 414px; width: 360px; text-align: center; font-size: 48px; }
+    #d3-o-coords { position: absolute; left: 1250px; top: 580px; width: 260px; font-family: var(--font-num); font-size: 40px; line-height: 54px; color: var(--ink); white-space: nowrap; }
+    #d3-o-coords .d3-row { height: 54px; display: flex; align-items: flex-start; }
+    #d3-o-coords .d3-ax { width: 44px; font-weight: 700; }
+    #d3-o-coords .d3-unit { margin-left: 12px; }
+    #d3-o-note { left: 1180px; top: 696px; width: 400px; text-align: center; font-size: 34px; color: var(--ink); }
+    #d3-lbl-check { position: absolute; left: 1110px; top: 767px; width: 300px; text-align: right; font-family: var(--font-ja); font-weight: 700;
+      font-size: 48px; line-height: 1.35; color: var(--ink); font-feature-settings: "palt"; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="d3_traverse" data-width="1920" data-height="1080">
+    <div id="d3-bg"></div>
+    <svg id="d3-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="d3-gridpat" x="0" y="40" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0 H0 V80" fill="none" stroke="var(--grid)" stroke-width="1.5"/>
+        </pattern>
+        <clipPath id="d3-lens-clip"><circle cx="1590" cy="800" r="147"/></clipPath>
+      </defs>
+
+      <!-- d2 と同じ座標の「世界」。これを縮小して視野を広げる（線は太さを保つ） -->
+      <g id="d3-world">
+        <rect x="-400" y="-500" width="4200" height="2400" fill="url(#d3-gridpat)"/>
+        <line id="d3-ab" x1="560" y1="760" x2="470" y2="260" stroke="var(--navy)" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 15" vector-effect="non-scaling-stroke"/>
+        <path id="d3-arc" d="M540.5 651.7 A110 110 0 0 1 665.6 729.1" fill="none" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        <line id="d3-ray" x1="560" y1="760" x2="780.7" y2="695.4" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        <line id="d3-ap-glow" class="d3-glow" x1="560" y1="760" x2="1380" y2="520" stroke="var(--orange)" stroke-width="16" stroke-linecap="round" opacity="0.18" vector-effect="non-scaling-stroke"/>
+        <line id="d3-ap" class="d3-beam" x1="560" y1="760" x2="1380" y2="520" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        <g transform="translate(470 260)"><g id="d3-B-in" class="d3-sym">
+          <path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round"/>
+          <circle r="6" fill="var(--navy)"/>
+        </g></g>
+        <g transform="translate(1380 520)"><g id="d3-P-in" class="d3-sym">
+          <circle class="d3-ring" r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
+          <circle class="d3-ring" r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
+        </g></g>
+        <g transform="translate(560 760)">
+          <g id="d3-ts">
+            <circle r="50" fill="none" stroke="var(--navy)" stroke-width="3"/>
+            <path d="M0 -50 V-66 M50 0 H66 M0 50 V66 M-50 0 H-66" stroke="var(--navy)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g id="d3-A-in" class="d3-sym">
+            <path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round"/>
+            <circle r="6" fill="var(--navy)"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- chain：P→Q→R→S（画面座標。縮小後の P は 759,473） -->
+      <g id="d3-chain">
+        <line id="d3-l1-glow" class="d3-glow" x1="779.5" y1="483.4" x2="1010" y2="600" stroke="var(--orange)" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <line id="d3-l1" class="d3-beam" x1="779.5" y1="483.4" x2="1010" y2="600" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <line id="d3-l2-glow" class="d3-glow" x1="1010" y1="600" x2="1260" y2="455" stroke="var(--orange)" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <line id="d3-l2" class="d3-beam" x1="1010" y1="600" x2="1260" y2="455" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <line id="d3-l3-glow" class="d3-glow" x1="1260" y1="455" x2="1500" y2="585" stroke="var(--orange)" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <line id="d3-l3" class="d3-beam" x1="1260" y1="455" x2="1500" y2="585" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <line id="d3-l4-glow" class="d3-glow" x1="1500" y1="585" x2="1725.6" y2="437.4" stroke="var(--orange)" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <line id="d3-l4" class="d3-beam" x1="1500" y1="585" x2="1725.6" y2="437.4" stroke="var(--orange)" stroke-width="5" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+        <!-- 右端の別の既知点 C -->
+        <g transform="translate(1730 445)"><g id="d3-C-in" opacity="0">
+          <path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round"/>
+          <circle r="6" fill="var(--navy)"/>
+        </g></g>
+        <g transform="translate(1010 600)"><g id="d3-Q-in" class="d3-sym" opacity="0">
+          <circle class="d3-ring" r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
+          <circle class="d3-ring" r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
+        </g></g>
+        <g transform="translate(1260 455)"><g id="d3-R-in" class="d3-sym" opacity="0">
+          <circle class="d3-ring" r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
+          <circle class="d3-ring" r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
+        </g></g>
+        <g transform="translate(1500 585)"><g id="d3-S-in" class="d3-sym" opacity="0">
+          <circle class="d3-ring" r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
+          <circle class="d3-ring" r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
+        </g></g>
+        <!-- 計算で求めた C の位置（オレンジの小さな点） -->
+        <circle id="d3-calc" cx="1725.6" cy="437.4" r="6" fill="var(--orange)" opacity="0"/>
+      </g>
+
+      <!-- 拡大の丸窓 -->
+      <circle id="d3-lens-small" cx="1730" cy="445" r="44" fill="none" stroke="var(--navy)" stroke-width="4"
+              pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0" transform="rotate(-90 1730 445)"/>
+      <line id="d3-lens-link" x1="1714.6" y1="486" x2="1645" y2="660.5" stroke="var(--navy)" stroke-width="4" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+      <circle id="d3-lens-bg" cx="1590" cy="800" r="150" fill="var(--paper)" opacity="0"/>
+      <g id="d3-lens-in" clip-path="url(#d3-lens-clip)" opacity="0">
+        <path d="M1590 724 L1655.8 838 L1524.2 838 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round"/>
+        <circle cx="1590" cy="800" r="8" fill="var(--navy)"/>
+        <line id="d3-mag-line" x1="1356.7" y1="916.2" x2="1579" y2="781" stroke="var(--orange)" stroke-width="5" stroke-linecap="round"/>
+        <circle id="d3-mag-calc" cx="1579" cy="781" r="10" fill="var(--orange)"/>
+      </g>
+      <circle id="d3-lens" cx="1590" cy="800" r="150" fill="none" stroke="var(--navy)" stroke-width="5"
+              pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0" transform="rotate(-120 1590 800)"/>
+      <!-- 確認の✓（紺） -->
+      <path id="d3-check" d="M1066 798 L1090 824 L1136 768" fill="none" stroke="var(--navy)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" opacity="0"/>
+    </svg>
+
+    <div id="d3-d2notes" data-layout-ignore>
+      <div id="d3-o-b" class="d3-lbl d3-navy">もう一つの<br>わかっている点</div>
+      <div id="d3-o-a" class="d3-lbl d3-navy d3-b">わかっている点</div>
+      <div id="d3-o-angle" class="d3-lbl d3-od d3-b">角度</div>
+      <div id="d3-o-dist" class="d3-lbl d3-od d3-b">距離</div>
+      <div id="d3-o-new" class="d3-lbl d3-od d3-b">新しい点</div>
+      <div id="d3-o-coords"><div class="d3-row"><span class="d3-ax">X</span><span>1234.567</span><span class="d3-unit">m</span></div><div class="d3-row"><span class="d3-ax">Y</span><span>2345.678</span><span class="d3-unit">m</span></div></div>
+      <div id="d3-o-note" class="d3-lbl">（数値は例）</div>
+    </div>
+    <div id="d3-lbl-check">ずれを確認</div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 7.2;
+      const cs = getComputedStyle(document.documentElement);
+      const tok = (n, fb) => (cs.getPropertyValue(n) || "").trim() || fb;
+      const NAVY = tok("--navy", "#1F3A5F"), ORANGE = tok("--orange", "#E8742A");
+
+      // 縮小：世界座標 → 画面 = 0.55 × 世界 + (0, 187)。記号は 0.8 倍の大きさに留める
+      const Z = 0.55, TX = 0, TY = 187, SYM = 0.8;
+      const tl = gsap.timeline({ paused: true });
+      const show = (s, at, op) => tl.fromTo(s, { opacity: 0 }, { opacity: op || 1, duration: 0.01, ease: "none" }, at);
+      const draw = (s, at, d, ease, op) => { show(s, at, op); tl.fromTo(s, { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: d, ease: ease || "power2.inOut" }, at); };
+      const pop = (s, at, sc, d) => tl.fromTo(s, { opacity: 0, scale: sc * 0.6, svgOrigin: "0 0" }, { opacity: 1, scale: sc, svgOrigin: "0 0", duration: d || 0.3, ease: "power3.out" }, at);
+
+      // ---- 冒頭：d2 の終わりの状態 → 注記を消し、0.9秒で全体を縮小（中心を左寄りに）
+      tl.fromTo(["#d3-d2notes", "#d3-ts", "#d3-arc", "#d3-ray"], { opacity: 1 }, { opacity: 0, duration: 0.28, ease: "power2.in" }, 0);
+      tl.fromTo("#d3-world", { x: 0, y: 0, scale: 1, svgOrigin: "0 0" }, { x: TX, y: TY, scale: Z, svgOrigin: "0 0", duration: 0.9, ease: "power2.inOut" }, 0.12);
+      tl.fromTo(["#d3-A-in", "#d3-B-in", "#d3-P-in"], { scale: 1, svgOrigin: "0 0" }, { scale: SYM / Z, svgOrigin: "0 0", duration: 0.9, ease: "power2.inOut" }, 0.12);
+
+      // ---- chain：P→Q→R→S、0.35秒おきに線と◎がつながる
+      const ch = c.chain;
+      ["Q", "R", "S"].forEach((id, i) => {
+        const t = ch + 0.35 * i;
+        draw("#d3-l" + (i + 1) + "-glow", t, 0.26, "power2.out", 0.18);
+        draw("#d3-l" + (i + 1), t, 0.26, "power2.out");
+        pop("#d3-" + id + "-in", t + 0.2, SYM, 0.3);
+      });
+
+      // ---- last：右端の既知点 C → 最後の点から線 → 計算した位置（オレンジの小点）→ 丸窓で比べる
+      const la = c.last;
+      pop("#d3-C-in", la, SYM, 0.4);
+      draw("#d3-l4-glow", la + 0.15, 0.45, "power2.inOut", 0.18);
+      draw("#d3-l4", la + 0.15, 0.45, "power2.inOut");
+      tl.fromTo("#d3-calc", { opacity: 0, attr: { r: 2 } }, { opacity: 1, attr: { r: 6 }, duration: 0.25, ease: "power3.out" }, la + 0.58);
+      draw("#d3-lens-small", la + 0.85, 0.35, "power2.inOut");
+      draw("#d3-lens-link", la + 1.12, 0.25, "power2.inOut");
+      tl.fromTo("#d3-lens-bg", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, la + 1.55);
+      draw("#d3-lens", la + 1.3, 0.5, "power2.inOut");
+      tl.fromTo("#d3-lens-in", { opacity: 0, scale: 0.85, svgOrigin: "1590 800" }, { opacity: 1, scale: 1, svgOrigin: "1590 800", duration: 0.5, ease: "power3.out" }, la + 1.55);
+      tl.fromTo("#d3-lbl-check", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, la + 1.85);
+
+      // ---- check：紺の✓。0.3秒後、オレンジだった点（と線）が順に紺へ（＝新しい基準点）
+      const k = c.check;
+      draw("#d3-check", k, 0.35, "power2.out");
+      const sweep = [["#d3-ap", "#d3-P-in .d3-ring"], ["#d3-l1", "#d3-Q-in .d3-ring"], ["#d3-l2", "#d3-R-in .d3-ring"], ["#d3-l3", "#d3-S-in .d3-ring"], ["#d3-l4", "#d3-mag-line"]];
+      sweep.forEach((grp, i) => {
+        const t = k + 0.3 + 0.08 * i;
+        tl.fromTo(grp, { stroke: ORANGE }, { stroke: NAVY, duration: 0.4, ease: "power2.inOut" }, t);
+      });
+      tl.fromTo(".d3-glow", { opacity: 0.18 }, { opacity: 0, duration: 0.4, ease: "power2.inOut", immediateRender: false }, k + 0.3);
+
+      // 以降は止まって待つ
+      tl.set({}, {}, dur);
+      window.__timelines["d3_traverse"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

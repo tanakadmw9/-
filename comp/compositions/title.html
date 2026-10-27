@@ -1,16 +1,103 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"reticle_in\":0.3,\"lock\":1.6,\"title_in\":1.8,\"sub_in\":2.0,\"out\":6.05}"},{"id":"dur","type":"number","label":"dur","default":6.4},{"id":"target_x","type":"number","label":"x","default":820},{"id":"target_y","type":"number","label":"y","default":268}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"reticle_in\":0.3,\"lock\":1.6,\"title_in\":1.8,\"sub_in\":2.0,\"out\":6.05}"},{"id":"dur","type":"number","label":"dur","default":6.4064},{"id":"target_x","type":"number","label":"照準 x（プリズム中心）","default":820},{"id":"target_y","type":"number","label":"照準 y（プリズム中心）","default":268}]'>
 <body>
 <template>
-  <style> #root { position: absolute; inset: 0; } #title-ph { position:absolute; left:1100px; top:820px; font-family: var(--font-ja); font-weight:700; font-size: var(--fs-title); color: var(--white); opacity:0; } </style>
+  <style>
+    #root { position: absolute; inset: 0; background: transparent; overflow: hidden; }
+
+    /* 照準：白2px＋外側の紺の縁取り（明るい曇り空でも見えるように） */
+    #title-ret { position: absolute; left: 580px; top: 28px; width: 480px; height: 480px; opacity: 0; }
+    #title-ret svg { position: absolute; inset: 0; width: 480px; height: 480px; overflow: visible; }
+    .title-ret-edge { stroke: var(--navy); stroke-width: 5; stroke-opacity: 0.8; fill: none; stroke-linecap: round; }
+    .title-ret-line { stroke: var(--white); stroke-width: 2; fill: none; stroke-linecap: round; }
+    #title-dot { fill: var(--white); stroke: var(--navy); stroke-width: 1.5; stroke-opacity: 0.8; }
+    #title-dot-on { fill: var(--orange); stroke: var(--white); stroke-width: 2; opacity: 0; }
+
+    /* 文字を守る、下からの紺のグラデーション（docs/04 §5 で許可されている唯一のグラデ） */
+    #title-grad { position: absolute; left: 0; right: 0; bottom: 0; height: 520px; opacity: 0;
+      background: linear-gradient(to top,
+        color-mix(in srgb, var(--ink) 62%, transparent) 0%,
+        color-mix(in srgb, var(--ink) 38%, transparent) 45%,
+        color-mix(in srgb, var(--ink) 0%, transparent) 100%); }
+
+    #title-block { position: absolute; left: 1128px; top: 742px; opacity: 0; }
+    #title-sub { position: absolute; left: 1128px; top: 920px; opacity: 0; }
+    .title-field { font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.2; color: var(--sub);
+      font-feature-settings: "palt"; letter-spacing: 0.08em; white-space: nowrap; }
+    .title-main { font-family: var(--font-ja); font-weight: 700; font-size: 112px; line-height: 1.12; color: var(--white);
+      font-feature-settings: "palt"; letter-spacing: 0.04em; white-space: nowrap; margin-top: 2px; }
+    .title-subline { font-family: var(--font-ja); font-weight: 700; font-size: 52px; line-height: 1.2; color: var(--white);
+      font-feature-settings: "palt"; white-space: nowrap; }
+  </style>
   <div id="root" data-composition-id="title" data-width="1920" data-height="1080">
-    <div id="title-ph">基準点測量</div>
+    <div id="title-grad"></div>
+
+    <div id="title-ret">
+      <svg viewBox="0 0 480 480" aria-hidden="true">
+        <defs>
+          <g id="title-ret-shape">
+            <circle cx="240" cy="240" r="118"/>
+            <!-- 十字線（中心は空けてプリズムを見せる） -->
+            <path d="M40 240H204M276 240H440M240 40V204M240 276V440"/>
+            <!-- 目盛り -->
+            <path d="M88 232V248M142 234V246M338 234V246M392 232V248M232 88H248M234 142H246M234 338H246M232 392H248"/>
+            <!-- 内側の短い目盛り（スタジア線風） -->
+            <path d="M226 186H254M226 294H254M186 226V254M294 226V254"/>
+          </g>
+        </defs>
+        <use href="#title-ret-shape" class="title-ret-edge"/>
+        <use href="#title-ret-shape" class="title-ret-line"/>
+        <circle id="title-dot" cx="240" cy="240" r="7.5"/>
+        <circle id="title-dot-on" cx="240" cy="240" r="9"/>
+      </svg>
+    </div>
+
+    <div id="title-block">
+      <div class="title-field">測量</div>
+      <div class="title-main">基準点測量</div>
+    </div>
+    <div id="title-sub"><div class="title-subline">まちづくりの“最初の一点”</div></div>
   </div>
   <script>
     (function () {
       const v = window.__hyperframes.getVariables();
       const c = JSON.parse(v.cues);
+      const tx = Number(v.target_x), ty = Number(v.target_y);
+      const ret = document.getElementById("title-ret");
+      ret.style.left = (tx - 240) + "px";
+      ret.style.top = (ty - 240) + "px";
+
+      // S04 はカメラがわずかに流れる（実測：lock 時 プリズムは最終位置より +9,-10px）。
+      // lock 以降は照準をプリズムに貼り付けたまま、静止画（3.2s〜）の位置 = target に収める。
+      const drift = [[1.6, 9, -9.7], [2.0, 5.3, -9.3], [2.4, 4.6, -7.6], [2.8, 1.8, -5.4], [3.0, 0.8, -3.6], [3.2, 0, 0]];
+
       const tl = gsap.timeline({ paused: true });
-      tl.fromTo("#title-ph", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.title_in);
+
+      // reticle_in：少しずれた位置から現れ、power2.inOut で寄る
+      tl.fromTo(ret, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power3.out" }, c.reticle_in);
+      tl.fromTo(ret, { x: 150, y: 96 }, { x: drift[0][1], y: drift[0][2], duration: c.lock - c.reticle_in, ease: "power2.inOut" }, c.reticle_in);
+
+      // lock：中心の点がオレンジに点る（効果音「ピッ」）
+      tl.fromTo("#title-dot-on", { opacity: 0, scale: 1.35, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.3, ease: "power3.out" }, c.lock);
+
+      // 追従（映像のカメラの流れに合わせるだけ。見かけ上は静止）
+      for (let i = 1; i < drift.length; i++) {
+        const a = drift[i - 1], b = drift[i];
+        const t0 = Math.max(a[0], c.lock);
+        if (b[0] <= t0) continue;
+        tl.fromTo(ret, { x: a[1], y: a[2] }, { x: b[1], y: b[2], duration: b[0] - t0, ease: "none", immediateRender: false }, t0);
+      }
+
+      // title_in：グラデーション → 分野名＋章タイトル
+      tl.fromTo("#title-grad", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, c.title_in - 0.1);
+      tl.fromTo("#title-block", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, c.title_in);
+
+      // sub_in：サブタイトル
+      tl.fromTo("#title-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, c.sub_in);
+
+      // out：照準と文字が 0.3 秒で消える
+      tl.fromTo(["#title-ret", "#title-block", "#title-sub", "#title-grad"], { opacity: 1 },
+        { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, c.out);
+
       window.__timelines["title"] = tl;
     })();
   </script>

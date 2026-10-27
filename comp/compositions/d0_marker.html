@@ -1,0 +1,91 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"marker_in\":0.0,\"tripod_in\":0.9,\"term_in\":1.65,\"out\":5.3}"},{"id":"dur","type":"number","label":"dur","default":5.6056}]'>
+<body>
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #d0-bg { position: absolute; inset: 0; background: var(--paper); }
+    #d0-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #d0-svg .d0-navy { stroke: var(--navy); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    #d0-svg .d0-fillp { fill: var(--paper); }
+    #d0-card { position: absolute; left: 1040px; top: 452px; width: 760px; padding: 4px 0 8px 40px; }
+    #d0-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--orange); border-radius: 3px; transform-origin: 50% 0%; }
+    #d0-term { font-family: var(--font-ja); font-weight: 700; font-size: 72px; line-height: 1.3; color: var(--ink);
+      font-feature-settings: "palt"; white-space: nowrap; letter-spacing: 0.04em; }
+    #d0-desc { margin-top: 10px; font-family: var(--font-ja); font-weight: 400; font-size: 48px; line-height: 1.35; color: var(--ink);
+      font-feature-settings: "palt"; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="d0_marker" data-width="1920" data-height="1080">
+    <div id="d0-bg"></div>
+    <svg id="d0-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <!-- 地面の下：標石（四角い柱）。紺の細線 -->
+      <path id="d0-pillar" class="d0-navy" stroke-width="2.5" d="M512 708 V940 H728 V708" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+      <!-- 地面の断面ハッチ（方眼色・ごく控えめ） -->
+      <g id="d0-hatch" stroke="var(--grid)" stroke-width="3" stroke-linecap="round" opacity="0">
+        <path d="M268 712 l-20 24 M304 712 l-20 24 M340 712 l-20 24 M376 712 l-20 24 M412 712 l-20 24 M448 712 l-20 24 M484 712 l-20 24
+                 M776 712 l-20 24 M812 712 l-20 24 M848 712 l-20 24 M884 712 l-20 24 M920 712 l-20 24 M956 712 l-20 24 M992 712 l-20 24"/>
+      </g>
+      <!-- 地面の線 -->
+      <line id="d0-ground" x1="230" y1="700" x2="1010" y2="700" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+      <!-- 金属標（少し見下ろした円盤） -->
+      <g id="d0-marker" opacity="0">
+        <path class="d0-navy d0-fillp" stroke-width="4" d="M544 698 v12 A76 21 0 0 0 696 710 v-12"/>
+        <ellipse class="d0-navy d0-fillp" stroke-width="5" cx="620" cy="698" rx="76" ry="21"/>
+        <line class="d0-navy" stroke-width="3" x1="580" y1="698" x2="660" y2="698"/>
+        <line class="d0-navy" stroke-width="3" x1="620" y1="687" x2="620" y2="709"/>
+        <circle id="d0-dot" cx="620" cy="698" r="7" fill="#1F3A5F" style="fill: var(--navy)"/>
+      </g>
+      <!-- 三脚＋機械（紺の線画） -->
+      <g id="d0-tripod" opacity="0">
+        <line class="d0-navy" stroke-width="5" x1="592" y1="404" x2="462" y2="700"/>
+        <line class="d0-navy" stroke-width="5" x1="648" y1="404" x2="778" y2="700"/>
+        <rect class="d0-navy d0-fillp" stroke-width="5" x="566" y="388" width="108" height="16" rx="3"/>
+        <rect class="d0-navy d0-fillp" stroke-width="4" x="590" y="364" width="60" height="24" rx="3"/>
+        <rect class="d0-navy d0-fillp" stroke-width="5" x="586" y="296" width="68" height="68" rx="8"/>
+        <circle class="d0-navy d0-fillp" stroke-width="4" cx="620" cy="330" r="17"/>
+        <path class="d0-navy" stroke-width="5" d="M596 296 Q620 268 644 296"/>
+      </g>
+      <!-- 求心：三脚の頭から標識の中心へ紺の点線 -->
+      <line id="d0-plumb" x1="620" y1="410" x2="620" y2="410" stroke="var(--navy)" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 14" opacity="0"/>
+    </svg>
+    <div id="d0-card">
+      <div id="d0-bar"></div>
+      <div id="d0-term">基準点</div>
+      <div id="d0-desc">位置の“ものさし”になる目印</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const cs = getComputedStyle(document.documentElement);
+      const tok = (n, fb) => (cs.getPropertyValue(n) || "").trim() || fb;
+      const NAVY = tok("--navy", "#1F3A5F"), ORANGE = tok("--orange", "#E8742A");
+      const tl = gsap.timeline({ paused: true });
+      const m = c.marker_in, t = c.tripod_in, k = c.term_in;
+
+      // marker_in：地面 → 標石 → 金属標。中心の点が1回だけオレンジに灯って紺に戻る
+      tl.fromTo("#d0-ground", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, m);
+      tl.fromTo("#d0-hatch", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, m + 0.2);
+      tl.fromTo("#d0-pillar", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, m + 0.2);
+      tl.fromTo("#d0-marker", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, m + 0.32);
+      tl.fromTo("#d0-dot", { fill: NAVY, attr: { r: 7 } }, { fill: ORANGE, attr: { r: 9 }, duration: 0.15, ease: "power2.out" }, m + 0.72);
+      tl.fromTo("#d0-dot", { fill: ORANGE, attr: { r: 9 } }, { fill: NAVY, attr: { r: 7 }, duration: 0.35, ease: "power2.inOut", immediateRender: false }, m + 1.15);
+
+      // tripod_in：三脚が上から下りて標識をまたいで立つ → 頭から中心へ点線（求心）
+      tl.fromTo("#d0-tripod", { opacity: 0, y: -170 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, t);
+      tl.fromTo("#d0-plumb", { opacity: 0 }, { opacity: 1, duration: 0.05, ease: "none" }, t + 0.5);
+      tl.fromTo("#d0-plumb", { attr: { y2: 410 } }, { attr: { y2: 690 }, duration: 0.4, ease: "power2.inOut" }, t + 0.5);
+
+      // term_in：用語カード（縦線 → 用語 → 説明）
+      tl.fromTo("#d0-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: "power3.out" }, k);
+      tl.fromTo("#d0-term", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.1);
+      tl.fromTo("#d0-desc", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.28);
+
+      // out 以降は最後の状態で止まる（次はカット）
+      tl.set({}, {}, Math.max(v.dur || 0, c.out || 0));
+      window.__timelines["d0_marker"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

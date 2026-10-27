@@ -457,22 +457,20 @@ def text_strips(path, outdir, tel, per_page=8, tw=384, th=216, lw=360, cw=440):
                 box = min(tr, key=lambda e: abs(e[0] - t))[1] if tr else None
                 if box:
                     sx, sy = tw / 1920, th / 1080
-                    cv2.rectangle(fr, (int(box[0] * sx) - 6, int(box[1] * sy) - 6), (int(box[2] * sx) + 6, int(box[3] * sy) + 6), (40, 120, 240), 2)
+                    cv2.rectangle(fr, (int(box[0] * sx) - 3, int(box[1] * sy) - 2), (int(box[2] * sx) + 3, int(box[3] * sy) + 2), (40, 120, 240), 1)
                 fr = with_tc(fr, f"{tc(t)} {lab}")
                 sheet.paste(Image.fromarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB)), (lw + 4 + c * (tw + 4), y0))
-            # 等倍の小窓（中間のコマ、文字の外接矩形＋余白。入りきらない大きな文字だけ縮める）
+            # 等倍の小窓（中間のコマ、文字そのものの外接矩形＋余白）。いつも等倍：入りきらない大きな文字は左上から切る（独立レビュー v4.10）
             box = min(tr, key=lambda e: abs(e[0] - ts[1]))[1] if tr else None
             full = next(frames(path, at=[ts[1]]))[1]
             if box and full is not None:
-                x0, y1 = max(0, box[0] - 24), max(0, box[1] - 24)
-                x1, y2 = min(1920, box[2] + 24), min(1080, box[3] + 24)
+                x0, y1 = max(0, box[0] - 16), max(0, box[1] - 16)
+                x1, y2 = min(1920, box[2] + 16, x0 + cw), min(1080, box[3] + 16, y1 + rh - 24)
                 crop = Image.fromarray(cv2.cvtColor(full[y1:y2, x0:x1], cv2.COLOR_BGR2RGB))
-                k_ = min(1.0, cw / crop.width, rh / crop.height)
-                if k_ < 1: crop = crop.resize((int(crop.width * k_), int(crop.height * k_)), Image.LANCZOS)
                 cx = lw + 4 + 3 * (tw + 4)
                 sheet.paste(crop, (cx, y0))
-                dr.text((cx + 4, y0 + min(rh, crop.height) + 2 if crop.height + 26 < rh else y0 + rh - 22),
-                        "1:1" if k_ >= 1 else f"×{k_:.2f}", font=font, fill=(240, 160, 60))
+                cut = box[2] + 16 > x1 or box[3] + 16 > y2
+                dr.text((cx + 4, y0 + crop.height + 2), "1:1" + ("（左上を切り出し）" if cut else ""), font=font, fill=(240, 160, 60))
         p = outdir / f"text_strips_{k + 1}of{pages}.jpg"
         sheet.save(p, quality=82); out.append(p.name)
     return out
@@ -509,12 +507,14 @@ def storyboard_compare(path, outdir, tw=384, th=216, lw=420):
     rh = th + 22
     sheet = Image.new("RGB", (lw + 3 * (tw + 4) + 4, 40 + len(seg) * (rh + 6)), (40, 40, 40))
     dr = ImageDraw.Draw(sheet)
-    dr.text((10, 8), "絵コンテ（編集計画のカット割り案）｜書き出し：頭＋0.3秒｜中間", font=font, fill=(255, 255, 255))
-    for i, (bt, (bar, b), nb, kind, label, *_rest) in enumerate(seg):
+    dr.text((10, 8), "計画＝編集プランのカット割り案（図解の画は v4.4 の書き出しで、文言は原稿 narration.json・content.md が正）｜書き出し：頭＋0.3秒｜中間",
+            font=font, fill=(255, 255, 255))
+    for i, (bt, (bar, b), nb, kind, label, _tin, _tout, move, _music) in enumerate(seg):
         y0 = 40 + i * (rh + 6)
         t0 = (bar - 1) * 4 * beat + (b - 1) * beat
         dr.text((10, y0 + 6), f"{bt}  {bar}小節{b}拍〜（{nb}拍）", font=font, fill=(240, 160, 60))
-        for j in range(0, len(label), 18): dr.text((10, y0 + 36 + j // 18 * 28), label[j:j + 18], font=font, fill=(255, 255, 255))
+        lines = [label[j:j + 18] for j in range(0, len(label), 18)] + [""] + [move[j:j + 20] for j in range(0, len(move), 20)][:3]
+        for j, ln in enumerate(lines): dr.text((10, y0 + 36 + j * 26), ln, font=font, fill=(255, 255, 255) if j < len(label) // 18 + 1 else (180, 180, 180))
         plan = board.crop((20, 90 + 240 * i + 8, 20 + 384, 90 + 240 * i + 8 + 216)).resize((tw, th))
         sheet.paste(plan, (lw + 4, y0))
         dr.text((lw + 8, y0 + th + 1), "計画", font=font, fill=(200, 200, 200))

@@ -116,7 +116,7 @@ layout: ok（エラー 0・警告 0・情報 2）
   - [info] connector_orphan @43.81s #ml-link-0：Connector shaft is visible while both endpoints are not on stage.
   - [info] connector_orphan @43.81s #ml-link-1：Connector shaft is visible while its endpoint #cd-item-2 is not on stage.
 motion: ok（エラー 0・警告 0・情報 0）
-contrast: ok（エラー 0・警告 0・情報 0、コントラスト 5/5 合格）
+contrast: ok（エラー 0・警告 0・情報 0、コントラスト 6/6 合格）
 craft: ok（エラー 0・警告 0・情報 0）
 audio: ok（エラー 0・警告 0・情報 0）
 ```

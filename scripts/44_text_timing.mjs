@@ -70,7 +70,10 @@ function probe() {
     const text = el.textContent.replace(/\s+/g, "");
     const key = comp + "|" + text;
     const prev = items.get(key);
-    const box = [r.left, r.top, r.right, r.bottom].map(Math.round);
+    // 文字そのものの外接矩形（要素の箱は文字より広いことがある：D0 の札など。QC の枠と等倍の小窓に使う）
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    const tr = rg.getBoundingClientRect();
+    const box = (tr.width > 0 ? [tr.left, tr.top, tr.right, tr.bottom] : [r.left, r.top, r.right, r.bottom]).map(Math.round);
     if (!prev) items.set(key, [comp, text, o, Math.round(parseFloat(getComputedStyle(el).fontSize)), box]);
     else prev[2] = 1 - (1 - prev[2]) * (1 - o);
   }

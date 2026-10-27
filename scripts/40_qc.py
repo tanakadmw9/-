@@ -210,8 +210,12 @@ def check_flash(path, thr=25.0):
         s = sgn[m]; flips = int(np.sum(s[1:] != s[:-1])) if len(s) > 1 else 0
         flashes = (flips + 1) // 2 if len(s) > 1 else 0
         if flashes > worst: worst, worst_t = flashes, t0
+    # 1コマだけの黒（blackdetect は 0.1秒未満を拾わない）：平均輝度 < 8 のフレーム。最後のフェードは除く
+    end = [s for s in T["scenes"] if s["id"] == "endcard"]
+    fade_from = end[0]["start"] + end[0]["cues"].get("fade", 1e9) if end else 1e9
+    dark = [round(i / fps, 3) for i, y in enumerate(ys) if y < 8 and i / fps < fade_from - 0.05]
     return {"transitions": [(round(float(t), 2), round(float(dy[e]), 1)) for t, e in zip(times, ev)],
-            "max_flashes_per_s": worst, "at": worst_t}
+            "max_flashes_per_s": worst, "at": worst_t, "dark_frames": dark}
 
 
 def check_telops():
@@ -389,6 +393,7 @@ def main():
     R.append(("意図しない静止（freezedetect）", "WARN" if (un_diag and not un_live) else not un_live,
               f"実写で意図外 {len(un_live)} 件、図解の静止 {len(un_diag)} 件（目視）、意図どおり {len(frz) - len(un_live) - len(un_diag)} 件"))
     R.append(("焼き込みテロップの漏れ（4fps）", not caps, f"検出 {len(caps)} フレーム" + (f"（{tc(caps[0][0])}〜{tc(caps[-1][0])}）" if caps else "")))
+    R.append(("1コマの黒（平均輝度<8）", not fl["dark_frames"], f"{len(fl['dark_frames'])} コマ" + (f"（{', '.join(tc(t) for t in fl['dark_frames'][:5])}）" if fl["dark_frames"] else "")))
     R.append(("点滅（>3回/秒）", fl["max_flashes_per_s"] <= 3, f"最大 {fl['max_flashes_per_s']} 回/秒" + (f" @ {tc(fl['at'])}" if fl["at"] is not None else "")))
     R.append(("テロップ表示時間", all(r[5] for r in tel), f"{sum(r[5] for r in tel)}/{len(tel)} 合格"))
     hf_ok = None if hf[0] is None else hf[0] == 0

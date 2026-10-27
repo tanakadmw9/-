@@ -16,6 +16,9 @@ VO_DIR = "assets/audio/vo"  # comp/ からの相対
 def f(t):  # フレームに丸める
     return round(round(t * FPS) / FPS, 4)
 
+def span(start, dur):  # 終わりもフレームに丸めてから長さを出す（隣の要素との1コマのすき間を防ぐ）
+    return round(f(start + dur) - f(start), 4)
+
 T = {"fps": "30000/1001", "width": 1920, "height": 1080, "vo_source": str(VO_PATH.relative_to(ROOT)),
      "beats": [], "shots": [], "stills": [], "scenes": [], "telops": [], "vo": [], "se": [], "bgm": {}, "amb": [],
      "intended_freezes": []}
@@ -30,21 +33,21 @@ def kw(id_, start, word):
 
 def shot(id_, start, dur, media_start=0.0, purpose=""):
     T["shots"].append({"id": f"{id_}@{f(start)}", "shot": id_, "src": f"assets/video/{id_}.mp4", "start": f(start),
-                       "dur": f(dur), "media_start": round(media_start, 4), "purpose": purpose})
+                       "dur": span(start, dur), "media_start": round(media_start, 4), "purpose": purpose})
 
 def still(name, start, dur, purpose=""):
-    T["stills"].append({"id": name, "src": f"assets/video/{name}.png", "start": f(start), "dur": f(dur), "purpose": purpose})
+    T["stills"].append({"id": name, "src": f"assets/video/{name}.png", "start": f(start), "dur": span(start, dur), "purpose": purpose})
     T["intended_freezes"].append([f(start), f(start + dur), name])
 
 def scene(id_, start, dur, cues, purpose="", overlay=False, variables=None):
-    T["scenes"].append({"id": id_, "comp": f"compositions/{id_}.html", "start": f(start), "dur": f(dur),
+    T["scenes"].append({"id": id_, "comp": f"compositions/{id_}.html", "start": f(start), "dur": span(start, dur),
                         "cues": {k: round(v, 3) for k, v in cues.items()}, "overlay": overlay,
                         "variables": variables or {}, "purpose": purpose})
 
 def telop(id_, text, start, dur, purpose=""):
     n = len(text.replace("\n", ""))
     need = max(1.5, n / 4 + 1.0)
-    T["telops"].append({"id": id_, "kind": "keyword", "text": text, "start": f(start), "dur": f(dur),
+    T["telops"].append({"id": id_, "kind": "keyword", "text": text, "start": f(start), "dur": span(start, dur),
                         "min_dur": round(need, 2), "ok": dur >= need, "purpose": purpose})
 
 def se(kind, t, note=""):
@@ -165,11 +168,13 @@ beat("B9", b, d5e, "毎日の道につながる")
 b = d5e
 s, n9ae = vo("N9a", b + 0.4)
 shot("S02", b, 3.1, 0.0, "指差して指示する2人＝チームで最初の一点をつくる")
-shot("S10", b + 3.1, 3.0, 0.0, "現場を見渡す背中＝誇りと余韻（冒頭と対）")
+shot("S10", b + 3.1, 2.6, 0.0, "現場を見渡す背中＝誇りと余韻（冒頭と対）")
 s2, n9be = vo("N9b", max(n9ae + 0.6, b + 4.3))
-endc = b + 6.1
-end = max(endc + 4.6, n9be + 2.0)
-scene("endcard", endc, end - endc, {"reticle": 0.0, "point": 0.6, "text_in": 0.9, "fade": (end - endc) - 0.8},
+endc = b + 5.7
+text_in = n9be + 0.3          # 締めの一文は N9b を言い終えてから（耳と目の言葉をずらさない）
+fade = text_in + 3.2          # 12字 → 表示 4.0秒（フェード込み）
+end = fade + 0.8
+scene("endcard", endc, end - endc, {"reticle": 0.0, "point": 0.6, "text_in": text_in - endc, "fade": fade - endc},
       "締めの一文。照準が一点に戻り、冒頭と閉じる")
 T["bgm"]["end"] = f(end)
 beat("B10", b, end, "誇りと余韻")

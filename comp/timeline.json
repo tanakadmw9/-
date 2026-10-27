@@ -70,8 +70,8 @@
   {
    "id": "B10",
    "start": 70.4704,
-   "end": 81.1477,
-   "dur": 10.7,
+   "end": 82.2155,
+   "dur": 11.74,
    "purpose": "誇りと余韻"
   }
  ],
@@ -117,7 +117,7 @@
    "shot": "S03",
    "src": "assets/video/S03.mp4",
    "start": 18.4851,
-   "dur": 2.3023,
+   "dur": 2.269,
    "media_start": 3.0,
    "purpose": "プリズムを据える手元＝目印の上に機械を立てる"
   },
@@ -153,7 +153,7 @@
    "shot": "S10",
    "src": "assets/video/S10.mp4",
    "start": 73.5735,
-   "dur": 3.003,
+   "dur": 2.6026,
    "media_start": 0.0,
    "purpose": "現場を見渡す背中＝誇りと余韻（冒頭と対）"
   }
@@ -277,7 +277,7 @@
    "id": "d5_everyday",
    "comp": "compositions/d5_everyday.html",
    "start": 65.2318,
-   "dur": 5.2052,
+   "dur": 5.2386,
    "cues": {
     "life_in": 0.0,
     "road_glow": 0.5
@@ -289,13 +289,13 @@
   {
    "id": "endcard",
    "comp": "compositions/endcard.html",
-   "start": 76.5765,
-   "dur": 4.6046,
+   "start": 76.1761,
+   "dur": 6.0394,
    "cues": {
     "reticle": 0.0,
     "point": 0.6,
-    "text_in": 0.9,
-    "fade": 3.8
+    "text_in": 2.04,
+    "fade": 5.24
    },
    "overlay": false,
    "variables": {},
@@ -308,7 +308,7 @@
    "kind": "keyword",
    "text": "正確な位置",
    "start": 15.5489,
-   "dur": 2.636,
+   "dur": 2.6359,
    "min_dur": 2.25,
    "ok": true,
    "purpose": "キーワードを耳と目で同時に"
@@ -435,7 +435,7 @@
    "end": 61.2278,
    "note": "答えの前の『間』。BGMを抜く"
   },
-  "end": 81.1477
+  "end": 82.2155
  },
  "amb": [
   {
@@ -456,6 +456,6 @@
    "S09_freeze（D1の背景）"
   ]
  ],
- "duration": 81.1477,
- "speech_ratio": 0.646
+ "duration": 82.2155,
+ "speech_ratio": 0.637
 }

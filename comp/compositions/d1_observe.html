@@ -41,13 +41,13 @@
         <circle id="d1-pr-dot" cx="1446" cy="137" r="5" fill="var(--white)" opacity="0"/>
       </g>
       <!-- 紙に溶けたあとの記号：TS＝紺の△、プリズム＝オレンジの◎ -->
-      <g id="d1-known" transform="translate(613 572)">
+      <g id="d1-known">
         <g id="d1-known-in" opacity="0">
           <path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round"/>
           <circle r="6" fill="var(--navy)"/>
         </g>
       </g>
-      <g id="d1-new" transform="translate(1446 137)">
+      <g id="d1-new">
         <g id="d1-new-in" opacity="0">
           <circle r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
           <circle r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
@@ -79,8 +79,6 @@
       setA("#d1-pr-line", { x1: px, y1: py, x2: px });
       setA("#d1-pr-dot", { cx: px, cy: py });
       setA("#d1-bounce", { cx: px, cy: py });
-      setA("#d1-known", { transform: "translate(" + tx + " " + ty + ")" });
-      setA("#d1-new", { transform: "translate(" + px + " " + py + ")" });
 
       const tl = gsap.timeline({ paused: true });
       const IN = { duration: 0.5, ease: "power3.out" };
@@ -112,13 +110,23 @@
       tl.fromTo("#d1-photon", { opacity: 1 }, { opacity: 0, duration: 0.15, ease: "power2.in", immediateRender: false }, d0 + 1.0);
 
       // to_paper：ラベルが消え、写真が紙に溶ける。TS＝紺△、プリズム＝オレンジ◎、オレンジの線だけ残る
+      // to_paper：ラベルが消え、写真が紙に溶ける。TS＝紺△、プリズム＝オレンジ◎ が現れ、
+      // 光の線をのばしたまま d2 の A・P の位置へひと続きに移る（d1 の最後のコマ ＝ d2 の最初のコマ）
+      const A = [560, 760], P = [1380, 520];   // d2_topview の A・P と同じ
       const p0 = c.to_paper;
+      const W = Math.max(0.5, dur - p0 - 0.05);
       tl.fromTo(["#d1-ts-plate", "#d1-pr-plate", "#d1-ts-lead", "#d1-pr-lead"], { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, p0);
-      const pd = Math.max(0.4, Math.min(0.7, dur - (p0 + 0.1) - 0.06));
-      tl.fromTo("#d1-paper", { opacity: 0 }, { opacity: 1, duration: pd, ease: "power2.inOut" }, p0 + 0.1);
-      const sd = Math.max(0.25, Math.min(0.4, dur - (p0 + 0.3) - 0.2));
-      tl.fromTo("#d1-known-in", { opacity: 0, scale: 0.6, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: sd, ease: "power3.out" }, p0 + 0.28);
-      tl.fromTo("#d1-new-in", { opacity: 0, scale: 0.6, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: sd, ease: "power3.out" }, p0 + 0.4);
+      const pd = Math.max(0.35, Math.min(0.7, W * 0.6));
+      tl.fromTo("#d1-paper", { opacity: 0 }, { opacity: 1, duration: pd, ease: "power2.inOut" }, p0 + 0.05);
+      tl.fromTo("#d1-known", { x: tx, y: ty }, { x: tx, y: ty, duration: 0.01 }, 0);
+      tl.fromTo("#d1-new", { x: px, y: py }, { x: px, y: py, duration: 0.01 }, 0);
+      tl.fromTo("#d1-known-in", { opacity: 0, scale: 0.6, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: 0.22, ease: "power3.out" }, p0 + 0.1);
+      tl.fromTo("#d1-new-in", { opacity: 0, scale: 0.6, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: 0.22, ease: "power3.out" }, p0 + 0.16);
+      const g0 = p0 + 0.26, gd = Math.max(0.3, Math.min(0.9, W - 0.26));
+      const G = { duration: gd, ease: "power2.inOut", immediateRender: false };
+      tl.fromTo("#d1-known", { x: tx, y: ty }, { x: A[0], y: A[1], ...G }, g0);
+      tl.fromTo("#d1-new", { x: px, y: py }, { x: P[0], y: P[1], ...G }, g0);
+      tl.fromTo(["#d1-beam", "#d1-beam-glow"], { attr: { x1: tx, y1: ty, x2: px, y2: py } }, { attr: { x1: A[0], y1: A[1], x2: P[0], y2: P[1] }, ...G }, g0);
 
       tl.set({}, {}, dur);
       window.__timelines["d1_observe"] = tl;

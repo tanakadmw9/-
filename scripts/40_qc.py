@@ -218,12 +218,41 @@ def check_flash(path, thr=25.0):
             "max_flashes_per_s": worst, "at": worst_t, "dark_frames": dark}
 
 
-def check_telops():
+TEXT_IGNORE = r"[\s“”「」『』、。，．・:：（）()]"   # 文字数に数えない記号（引用符・括弧・句読点）
+
+
+def check_telops(outdir, run_probe=True):
+    """画面に出る文字の表示時間（docs/04 §3：文字数÷4＋1.0秒、かつ 1.5秒以上）。
+    場面の中に書いた文字（ラベル・用語カード・締めの一文・章扉の作業名など）も数えるため、scripts/44_text_timing.mjs で
+    書き出しと同じページを開いて 0.05 秒ごとに「読める濃さ（見え方 ≥0.6）」で出ている区間を測る（独立レビュー v4.7）。
+    timeline.text_exceptions（場面・文・理由）に挙げた文字は、基準に届かなくても「例外」として理由つきで載せる。
+    返り値：[(場面, 文, 文字数, 表示秒, 必要秒, 'OK'|'NG'|'例外', 理由, 出, 消)]。0 件なら検査できていない（判定は FAIL）。"""
+    js = outdir / "text_timing.json"
+    if run_probe:
+        r = run(["node", "scripts/44_text_timing.mjs", str(js), "0.05"], cwd=ROOT, timeout=1200)
+        if r.returncode != 0: print("text timing failed:", (r.stdout + r.stderr)[-1500:])
+    items = json.loads(js.read_text())["items"] if js.exists() else []
+    # 場面をまたいで同じ文字が切れ目なく続くもの（章扉の見出し→タイトルの小見出しなど）は、見ている人には1つなので合わせる
+    items = sorted(items, key=lambda it: (it["start"] if it["start"] is not None else 1e9))
+    merged_items = []
+    for it in items:
+        prev = next((m for m in merged_items if m["text"] == it["text"] and m["end"] is not None and it["start"] is not None
+                     and 0 <= it["start"] - m["end"] <= 0.1), None)
+        if prev:
+            prev.update(comp=prev["comp"] + "→" + it["comp"], end=it["end"], dur=round(it["end"] - prev["start"], 3))
+        else:
+            merged_items.append(dict(it))
+    items = merged_items
+    exc = {(e["comp"], e["text"]): e["reason"] for e in T.get("text_exceptions", [])}
     rows = []
-    for tp in T.get("telops", []):
-        text = tp["text"]; chars = len(re.sub(r"\s", "", text))
+    for it in items + [{"comp": "telops", "text": tp["text"], "dur": tp["dur"], "start": tp["start"],
+                        "end": tp["start"] + tp["dur"]} for tp in T.get("telops", [])]:
+        chars = len(re.sub(TEXT_IGNORE, "", it["text"]))
         need = max(chars / 4 + 1.0, 1.5)
-        rows.append((tp["id"], text, chars, tp["dur"], round(need, 2), tp["dur"] >= need - 1e-6))
+        ok = it["dur"] >= need - 0.025          # 測る刻み 0.05 秒の半分まで
+        key = (it["comp"], it["text"])
+        rows.append((it["comp"], it["text"], chars, it["dur"], round(need, 2), "OK" if ok else ("例外" if key in exc else "NG"),
+                     exc.get(key, ""), it["start"], it["end"]))
     return rows
 
 
@@ -249,7 +278,12 @@ def check_vo_bgm():
 
 
 def check_clicks():
-    """mix.wav の波形の不連続（プチノイズ）候補：2階差分が局所RMSの12倍超かつ十分大きい所。SE の位置は除外表示。"""
+    """mix.wav の波形の不連続（プチノイズ）候補：2階差分が局所RMSの12倍超かつ十分大きい所。
+    候補ごとに、どのステムがその不連続を作っているかを見る（その点の前後 2 サンプルで 2階差分が最大のステム）。
+      se    ：効果音の位置（意図した打音）
+      voice ：ナレのステムの中（行の端から 20ms 以上内側）＝声そのものの子音の立ち上がり。編集の継ぎ目ではないので不合格にしないが、試聴で確かめる
+      その他：編集点・フェード・音の継ぎ目の可能性＝要確認（不合格）
+    返り値：[(時刻, 種類)]（v4.8：声の子音を誤ってプチノイズと数えていたため）"""
     import soundfile as sf
     p = ROOT / "audio/mix/mix.wav"
     if not p.exists(): return None
@@ -262,8 +296,19 @@ def check_clicks():
     for i in idx:
         t = i / sr
         if not ts or t - ts[-1] > 0.05: ts.append(t)
+    stems = {k: sf.read(str(ROOT / f"audio/mix/{k}.wav"), always_2d=True)[0].mean(1)
+             for k in ("vo", "bgm", "se", "amb") if (ROOT / f"audio/mix/{k}.wav").exists()}
     se_t = [e["start"] for e in T["se"]]
-    return [(round(t, 3), any(-0.01 <= t - s <= 0.3 for s in se_t)) for t in ts]
+    vo_iv = [(v["start"], v["start"] + v["dur"]) for v in T["vo"]]
+    out = []
+    for t in ts:
+        i = int(round(t * sr))
+        src = max(stems, key=lambda k: np.abs(np.diff(stems[k][max(0, i - 2):i + 5], 2)).max()) if stems else None
+        if any(-0.01 <= t - s <= 0.3 for s in se_t): kind = "se"
+        elif src == "vo" and any(s + 0.02 < t < e - 0.02 for s, e in vo_iv): kind = "voice"
+        else: kind = f"other({src})"
+        out.append((round(t, 3), kind))
+    return out
 
 
 def check_beats():
@@ -281,7 +326,8 @@ def check_beats():
 
 
 def count_kanshu():
-    files = [ROOT / "comp/narration.json", ROOT / "docs/03_direction_draft.md", ROOT / "docs/08_build_spec.md"]
+    # docs/12_kanshu.md は監修の対象表（content.md §7・正確さの質問・独立レビュー §3 を合わせた一覧。1行に1つ）
+    files = [ROOT / "docs/12_kanshu.md", ROOT / "comp/narration.json", ROOT / "docs/03_direction_draft.md", ROOT / "docs/08_build_spec.md"]
     files += sorted((ROOT / "comp/compositions").glob("*.html")) if (ROOT / "comp/compositions").exists() else []
     out = []
     for f in files:
@@ -310,11 +356,23 @@ def check_credits():
 
 
 def hf_check():
+    """`npx hyperframes check comp --json`：lint・実行時・はみ出し・動き・コントラスト・作りの検査。
+    返り値：(exit, 要約の行, 判定)。判定は全パスの errorCount が 0 で True。警告は要約に載せる（読み捨てない）。"""
     try:
-        r = run(["npx", "--no-install", "hyperframes", "check", "comp"], cwd=ROOT, timeout=600)
-        return r.returncode, (r.stdout + r.stderr).strip().splitlines()[-25:]
+        r = run(["npx", "--no-install", "hyperframes", "check", "comp", "--json"], cwd=ROOT, timeout=900)
+        d = json.loads(r.stdout[r.stdout.index("{"):])
     except Exception as e:  # noqa
-        return None, [f"実行できず: {e}"]
+        return None, [f"実行できず: {e}"], None
+    lines, errs = [], 0
+    for k in ["lint", "runtime", "layout", "motion", "contrast", "craft", "audio"]:
+        v = d.get(k) or {}
+        errs += v.get("errorCount", 0) or 0
+        extra = f"、コントラスト {v.get('passed')}/{v.get('checked')} 合格" if k == "contrast" and v.get("checked") is not None else ""
+        lines.append(f"{k}: {'ok' if v.get('ok') else 'NG'}（エラー {v.get('errorCount', 0)}・警告 {v.get('warningCount', 0)}・情報 {v.get('infoCount', 0)}{extra}）")
+        for fnd in v.get("findings", [])[:8]:
+            at = f" @{fnd['time']:.2f}s" if isinstance(fnd.get("time"), (int, float)) else ""
+            lines.append(f"  - [{fnd.get('severity')}] {fnd.get('code')}{at} {fnd.get('selector', '')}：{str(fnd.get('message', ''))[:160]}")
+    return r.returncode, lines, errs == 0
 
 
 # ---------------------------------------------------------------- sheets
@@ -393,11 +451,11 @@ def main():
     print("freezedetect…"); frz = check_freeze(path)
     print("captions…"); caps = check_captions(path, outdir)
     print("flash…"); fl = check_flash(path)
-    tel = check_telops()
+    print("text timing…"); tel = check_telops(outdir, run_probe=not a.no_hf)
     print("loudness…"); loud = check_loudness(path)
     vb = check_vo_bgm(); clicks = check_clicks()
     kan = count_kanshu(); cred = check_credits(); beats = check_beats()
-    hf = (None, ["--no-hf で省略"]) if a.no_hf else (print("hyperframes check…") or hf_check())
+    hf = (None, ["--no-hf で省略"], None) if a.no_hf else (print("hyperframes check…") or hf_check())
     print("sheets…"); sheets = contact_sheets(path, outdir); strips = telop_strips(path, outdir); lv = levels_plot(outdir)
 
     R = []  # (項目, 判定, 要約)
@@ -410,9 +468,12 @@ def main():
     R.append(("焼き込みテロップの漏れ（4fps）", not caps, f"検出 {len(caps)} フレーム" + (f"（{tc(caps[0][0])}〜{tc(caps[-1][0])}）" if caps else "")))
     R.append(("1コマの黒（平均輝度<8）", not fl["dark_frames"], f"{len(fl['dark_frames'])} コマ" + (f"（{', '.join(tc(t) for t in fl['dark_frames'][:5])}）" if fl["dark_frames"] else "")))
     R.append(("点滅（>3回/秒）", fl["max_flashes_per_s"] <= 3, f"最大 {fl['max_flashes_per_s']} 回/秒" + (f" @ {tc(fl['at'])}" if fl["at"] is not None else "")))
-    R.append(("テロップ表示時間", all(r[5] for r in tel), f"{sum(r[5] for r in tel)}/{len(tel)} 合格"))
-    hf_ok = None if hf[0] is None else hf[0] == 0
-    R.append(("hyperframes check（はみ出し・コントラスト）", "N/A" if hf_ok is None else hf_ok, "省略／実行不可" if hf_ok is None else f"exit {hf[0]}"))
+    n_ok, n_exc, n_ng = (sum(r[5] == k for r in tel) for k in ("OK", "例外", "NG"))
+    R.append(("画面の文字の表示時間", bool(tel) and n_ng == 0,
+              f"合格 {n_ok}、例外 {n_exc}（理由つき）、不合格 {n_ng}／全 {len(tel)}" if tel else "対象 0 件（測れていない）"))
+    hf_ok = hf[2]
+    R.append(("hyperframes check（lint・はみ出し・コントラストほか）", "N/A" if hf_ok is None else hf_ok,
+              "省略／実行不可" if hf_ok is None else f"exit {hf[0]}、" + "／".join(l.split("（")[0] + ("" if "エラー 0" in l else " エラーあり") for l in hf[1] if not l.startswith("  "))))
     if loud:
         R.append(("ラウドネス（ebur128）", abs(loud["I"] + 24) <= 1 and loud["TP"] <= -2.0, f"I {loud['I']} LUFS, TP {loud['TP']} dBTP"))
     else:
@@ -425,8 +486,9 @@ def main():
     else:
         R.append(("ナレとBGMの差（ステム）", "N/A", "audio/mix/ のステムなし"))
     if clicks is not None:
-        nonse = [c for c in clicks if not c[1]]
-        R.append(("プチノイズ（mix.wav の不連続）", not nonse, f"SE以外の候補 {len(nonse)} 件（SE位置 {len(clicks) - len(nonse)} 件は除外）"))
+        bad = [c for c in clicks if c[1].startswith("other")]; vc = [c for c in clicks if c[1] == "voice"]
+        R.append(("プチノイズ（mix.wav の不連続）", not bad,
+                  f"継ぎ目などの候補 {len(bad)} 件、声の中（子音・要試聴）{len(vc)} 件、SE の位置 {len(clicks) - len(bad) - len(vc)} 件"))
     if beats is not None:
         off = [b for b in beats if abs(b[3]) > 1.5]
         R.append(("カットと拍（格子）", "WARN" if off else True,
@@ -463,10 +525,14 @@ def main():
         L.append("検出なし")
     L += ["", "## 5. 点滅", "", f"平均輝度（0–255）の隣接フレーム変化 ≥25 を遷移とし、向きが逆の遷移2つで1回。最大 {fl['max_flashes_per_s']} 回/秒。",
           f"大きな遷移 {len(fl['transitions'])} 件（カット・フェード含む）: " + ", ".join(f"{tc(t)}({d:+})" for t, d in fl["transitions"][:40])]
-    L += ["", "## 6. テロップ（表示時間 ≥ 文字数÷4＋1.0秒、かつ ≥1.5秒）", "", "| id | 文 | 文字数 | 表示 | 必要 | 判定 |", "|---|---|---|---|---|---|"]
-    L += [f"| {i} | {t} | {c} | {d:.2f}s | {n}s | {'OK' if ok else 'NG'} |" for i, t, c, d, n, ok in tel]
-    L += ["", "3コマ（出た直後／中間／消える直前）: " + ", ".join(f"`{s}`" for s in strips),
-          "", "タイトルセーフ・はみ出し・コントラストは `npx hyperframes check comp`：", "", "```", *hf[1], "```"]
+    L += ["", "## 6. 画面の文字（表示時間 ≥ 文字数÷4＋1.0秒、かつ ≥1.5秒）", "",
+          "`scripts/44_text_timing.mjs` で書き出しと同じページを 0.05 秒ごとに止め、文字が読める濃さ（見え方 ≥0.6：不透明度の積と、上に重なる紙・黒などの覆い）"
+          "で出ている最長の区間を測った（`text_timing.json`）。文字数は引用符・括弧・句読点を数えない。", "",
+          "| 出 | 消 | 場面 | 文 | 文字数 | 表示 | 必要 | 判定 |", "|---|---|---|---|---|---|---|---|"]
+    L += [f"| {tc(a) if a is not None else '—'} | {tc(b) if b is not None else '—'} | {cp} | {t} | {c} | {d:.2f}s | {n}s | {v}{('：' + why) if why else ''} |"
+          for cp, t, c, d, n, v, why, a, b in tel] or ["| — | — | — | 対象 0 件 | | | | NG |"]
+    L += ["", "3コマ（出た直後／中間／消える直前）: " + (", ".join(f"`{s}`" for s in strips) or "timeline.telops なし（場面の中の文字は上の表）"),
+          "", "`npx hyperframes check comp --json` の要約：", "", "```", *hf[1], "```"]
     L += ["", "## 7. ラウドネス（ffmpeg ebur128=peak=true）", ""]
     L += [f"- 統合 {loud['I']} LUFS（基準 −24±1）、True Peak {loud['TP']} dBTP（基準 ≤−2）、LRA {loud['LRA']} LU"] if loud else ["- 測定不可"]
     L += ["", "## 8. ナレとBGMの差（audio/mix のステム）", ""]
@@ -480,11 +546,16 @@ def main():
     if lv: L += ["", "ステムの推移: `levels.png`"]
     L += ["", "## 9. プチノイズ候補（audio/mix/mix.wav）", ""]
     if clicks is None: L.append("mix.wav なし")
-    else: L += [f"- {tc(t)} {'(SE の位置：意図した打音)' if se else '**要確認**'}" for t, se in clicks] or ["- なし"]
+    else: L += [f"- {tc(t)} " + {"se": "(SE の位置：意図した打音)", "voice": "(ナレのステムの中＝声の子音の立ち上がり。継ぎ目ではない。試写でヘッドホンで確認)"}.get(k, f"**要確認**（{k}）")
+                for t, k in clicks] or ["- なし"]
     if beats is not None:
         L += ["", "## 9b. カットと拍（timeline.grid）", "", "| カット | 小節・拍 | ずれ（コマ、拍の1コマ前＝0） |", "|---|---|---|"]
         L += [f"| {tc(c)} | {b}小節{bb}拍 | {d:+} |" for c, b, bb, d in beats]
     L += ["", "## 10. 【要監修】の数", ""] + [f"- `{f}`: {n}" for f, n in kan]
+    kt = ROOT / "docs/12_kanshu.md"
+    if kt.exists():
+        rows = [l for l in kt.read_text(encoding="utf-8").splitlines() if l.startswith("| K") and "【要監修】" in l]
+        L += ["", "監修の対象表（`docs/12_kanshu.md`）で未確認の項目："] + [f"- {r.split('|')[1].strip()} {r.split('|')[2].strip()}：{r.split('|')[3].strip()[:60]}" for r in rows]
     L += ["", "## 11. 素材台帳（docs/credits_and_licenses.md）", ""] + [f"- {n}: {'記載あり' if ok else '**未記載**'}（確認語: {', '.join(k)}）" for n, k, ok in cred]
     L += ["", "## 12. 目視用シート", "", "- " + ", ".join(f"`{s}`" for s in sheets) + "（0.5秒おき、8列×7行、左下にタイムコード）",
           "", "## 自動化していない項目（人間・目視）", "",

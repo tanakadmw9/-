@@ -1,8 +1,8 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"text_in\":0.15,\"bg_in\":3.0,\"reticle\":3.4,\"door\":4.85,\"fade\":6.5}"},{"id":"dur","type":"number","label":"dur","default":7.0},{"id":"push_from","type":"number","label":"S10 の寄りの終わりの倍率","default":1.045},{"id":"push_rate","type":"number","label":"寄りの速さ（毎秒）","default":0.015},{"id":"icon_x","type":"number","label":"章扉の基準点アイコン x","default":340},{"id":"icon_y","type":"number","label":"章扉の基準点アイコン y","default":470},{"id":"point_x","type":"number","label":"照準が現れる位置 x（奥の三脚）","default":1037},{"id":"point_y","type":"number","label":"照準が現れる位置 y","default":202},{"id":"active","type":"number","label":"灯るアイコン","default":0}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"text_in\":0.15,\"bg_in\":3.0,\"reticle\":3.4,\"door\":4.85,\"fade\":6.5}"},{"id":"dur","type":"number","label":"dur","default":7.0},{"id":"push_from","type":"number","label":"S10 の寄りの終わりの倍率","default":1.045},{"id":"push_rate","type":"number","label":"寄りの速さ（毎秒）","default":0.015},{"id":"icon_x","type":"number","label":"章扉の基準点アイコン x","default":340},{"id":"icon_y","type":"number","label":"章扉の基準点アイコン y","default":470},{"id":"point_x","type":"number","label":"照準が現れる位置 x（2人の間の地面）","default":930},{"id":"point_y","type":"number","label":"照準が現れる位置 y","default":540},{"id":"active","type":"number","label":"灯るアイコン","default":0}]'>
 <body>
 <template>
   <style>
-    /* 締め：S10 の上に締めの一文 → 最後のコマで照準が縮み、章扉の基準点アイコンに戻る → 章扉の並びで閉じる → 黒へ */
+    /* 締め：S10 の上に締めの一文 → 2人の間の地面の一点に照準が合い、その場で縮む → 紙に溶けてから章扉の基準点アイコンへ戻る → 章扉の並びで閉じる → 黒へ */
     #root { position: absolute; inset: 0; background: transparent; overflow: hidden; }
     #ec-all { position: absolute; inset: 0; }
     #ec-bg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; opacity: 0; }
@@ -45,6 +45,8 @@
     #ec-credit { position: absolute; right: 132px; bottom: 72px; opacity: 0; font-family: var(--font-ja); font-weight: 400;
       font-size: 34px; line-height: 1.2; white-space: nowrap; }
     #ec-credit span { color: var(--sub); }
+    /* 白の文字は幅をとるためだけに置く（実写の上には出さない：デザイン G6）。紙の上の紺の文字だけを見せる */
+    #ec-credit > span:first-child { opacity: 0; }
     #ec-credit .ec-ink { position: absolute; right: 0; top: 0; opacity: 0; color: color-mix(in srgb, var(--ink) 80%, var(--paper)); }
     #ec-halo { position: absolute; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%;
       background: color-mix(in srgb, var(--orange) 16%, transparent); opacity: 0; }
@@ -71,6 +73,7 @@
           </defs>
           <use href="#ec-ret-shape" class="ec-ret-edge" id="ec-ret-edge" vector-effect="non-scaling-stroke"/>
           <use href="#ec-ret-shape" class="ec-ret-line" id="ec-ret-line" vector-effect="non-scaling-stroke"/>
+          <circle id="ec-ret-dot" cx="240" cy="240" r="9" fill="var(--orange)" stroke="var(--white)" stroke-width="3" opacity="0"/>
         </svg>
       </div>
 <svg id="ec-mini" viewBox="0 0 96 96" fill="none" stroke-linecap="round" aria-hidden="true">
@@ -136,27 +139,32 @@
       tl.fromTo("#ec-bg", { scale: Number(v.push_from), transformOrigin: "50% 40%" },
         { scale: Number(v.push_from) + Number(v.push_rate) * bgDur, transformOrigin: "50% 40%", duration: bgDur, ease: "none", immediateRender: false }, c.bg_in);
 
-      // reticle：見渡す先（奥の三脚）に照準が現れ、縮みながら章扉の基準点アイコンの位置・大きさへ戻る
+      // reticle：2人の間の地面の一点に照準が現れ、中心の点が灯る（照準は「点」をねらう。人にはかけない：独立レビュー v4.7）
       tl.fromTo(ret, { opacity: 0, scale: 1.1 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, c.reticle);
-      const mv = Math.max(0.6, c.door - c.reticle - 0.45);
+      tl.fromTo("#ec-ret-dot", { opacity: 0, scale: 1.35, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.3, ease: "power3.out" }, c.reticle + 0.35);
+      // その場で縮み、章扉のアイコンと同じ大きさの小さい照準に替わる（動かない＝人の上を通らない）
+      const paper = c.paper != null ? c.paper : c.door - 0.45;
       const mini = document.getElementById("ec-mini");
       mini.style.left = (px - 80) + "px"; mini.style.top = (py - 80) + "px";
-      const m0 = c.reticle + 0.45;
-      tl.fromTo(ret, { x: 0, y: 0, scale: 1 }, { x: ix - px, y: iy - py, scale: S_ICON, duration: mv, ease: "power2.inOut", immediateRender: false }, m0);
-      tl.fromTo(mini, { x: 0, y: 0, scale: 1 / S_ICON }, { x: ix - px, y: iy - py, scale: 1, duration: mv, ease: "power2.inOut" }, m0);
-      tl.fromTo(mini, { opacity: 0 }, { opacity: 1, duration: mv * 0.4, ease: "power1.inOut" }, m0 + mv * 0.2);
-      tl.to(ret, { opacity: 0, duration: mv * 0.4, ease: "power1.inOut" }, m0 + mv * 0.2);
+      const m0 = c.reticle + 0.6, sh = Math.max(0.4, paper + 0.1 - m0);
+      tl.fromTo(ret, { scale: 1 }, { scale: S_ICON, duration: sh, ease: "power2.inOut", immediateRender: false }, m0);
+      tl.fromTo(mini, { scale: 1 / S_ICON }, { scale: 1, duration: sh, ease: "power2.inOut" }, m0);
+      tl.fromTo(mini, { opacity: 0 }, { opacity: 1, duration: sh * 0.4, ease: "power1.inOut" }, m0 + sh * 0.4);
+      tl.to(ret, { opacity: 0, duration: sh * 0.4, ease: "power1.inOut" }, m0 + sh * 0.4);
 
-      // door：紙と方眼が戻り、章扉の並びがそろう。照準は灯ったアイコンに変わる（効果音「ピッ」小さめ）
-      tl.fromTo("#ec-paper", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
-      tl.fromTo("#ec-grad", { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power1.in", immediateRender: false }, c.door - 0.2);
-      tl.fromTo("#ec-text .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
+      // paper：紙と方眼が戻る。紙がほぼ覆ってから、小さい照準が章扉のアイコンの位置へ動く
+      tl.fromTo("#ec-paper", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, paper);
+      tl.fromTo("#ec-grad", { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power1.in", immediateRender: false }, paper);
+      tl.fromTo("#ec-text .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, paper);
+      const mv0 = paper + 0.15, mv = Math.max(0.3, c.door + 0.1 - mv0);
+      tl.fromTo(mini, { x: 0, y: 0 }, { x: ix - px, y: iy - py, duration: mv, ease: "power2.inOut" }, mv0);
       // 仮ナレのクレジットは紙の上だけに出す（締めの一文と同時に読ませない：デザイン G6）
-      tl.set("#ec-credit > span:first-child", { opacity: 0 }, 0);
-      tl.set("#ec-credit", { opacity: 1 }, c.door - 0.2);
+      tl.set("#ec-credit", { opacity: 1 }, paper);
       tl.fromTo("#ec-credit .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door + 0.2);
-      tl.to(["#ec-text > .ec-line", "#ec-credit > span:first-child"], { opacity: 0, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
-      tl.to(mini, { opacity: 0, duration: 0.25, ease: "power2.in" }, c.door);
+      tl.to("#ec-text > .ec-line", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, paper);
+
+      // door：章扉の並びがそろう。照準は灯ったアイコンに変わる（言葉「基準点測量」）
+      tl.to(mini, { opacity: 0, duration: 0.25, ease: "power2.in" }, c.door + 0.05);
       tl.fromTo("#ec-item-" + active, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" }, c.door);
       JOBS.forEach((_, i) => {
         if (i !== active) tl.fromTo("#ec-item-" + i, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },

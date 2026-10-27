@@ -2,6 +2,8 @@
 使い方: python3 scripts/34_prep_bgm.py <曲.mp3> [bpm_fit_beat0 秒] [beat 周期 秒]
 timeline.bgm.bars（例 "1-12,25-36"）があれば、その小節範囲だけを順につなぐ（小節1の頭＝映像の bgm.start）。
   最後の範囲が曲の最後の小節（36 以上）なら、曲の余韻まで残す。つなぎ目は 60ms の等パワーで重ねる。
+  timeline.bgm.hold（{at, len, xfade}）があれば、つないだ曲の時刻 at で len 秒前の所へ戻って続ける＝同じ響きが続く伸ばし（最後の和音）を
+  len 秒のばす。at の前後 xfade 秒を等パワー（相関の低い持続音向き）で重ねる。のばした分、曲の自然な減衰が後ろへずれる。
 無いときは以下の自動モード：
   - 曲の頭は最初の拍（照準が合う拍＝timeline.bgm.start に置く）から始める
   - 必要な長さ（timeline.bgm.end − start）になるよう、本編の途中から 2 小節単位（4 の倍数を優先）で抜き、曲の終わりを映像の終わりの 0〜1.5 秒前に置く。
@@ -49,13 +51,24 @@ if T["bgm"].get("bars"):
             splices.append(round((len(y) - xf // 2) / SR, 3))
             y[-xf:] = y[-xf:] * w[::-1] + seg[:xf] * w
             y = np.concatenate([y, seg[xf:]])
+    hold = T["bgm"].get("hold")
+    if hold:
+        ia, L, h = int(round(hold["at"] * SR)), int(round(hold["len"] * SR)), int(round(hold["xfade"] * SR))
+        u = np.linspace(0, 1, h)[:, None]
+        a_out, b_in = np.cos(u * np.pi / 2), np.sin(u * np.pi / 2)          # 等パワー
+        y = np.concatenate([y[:ia - h // 2], y[ia - h // 2:ia + h - h // 2] * a_out + y[ia - L - h // 2:ia - L + h - h // 2] * b_in,
+                            y[ia - L + h - h // 2:]])
+        splices.append(round(hold["at"], 3))
     n = int(round(NEED * SR))
-    if len(y) > n: print(f"warning: edited song {len(y)/SR:.2f}s > need {NEED:.2f}s, tail cut")
+    if len(y) > n:
+        # 曲の終わりの減衰が映像の終わりを越える分は切る（映像の黒へのフェードと音の最後のフェードはミックスで合わせる）
+        print(f"note: edited song {len(y)/SR:.2f}s > need {NEED:.2f}s, tail cut (level at cut "
+              f"{20 * np.log10(np.sqrt((y[n - SR // 2:n] ** 2).mean()) + 1e-12):.1f} dBFS)")
     y = y[:n] if len(y) >= n else np.concatenate([y, np.zeros((n - len(y), 2))])
     f = int(0.01 * SR); y[:f] *= np.linspace(0, 1, f)[:, None]
     out = ROOT / "audio/bgm/bgm.wav"; out.parent.mkdir(parents=True, exist_ok=True)
     sf.write(out, y, SR, subtype="PCM_24")
-    meta = {"source": SRC.name, "beat0": B0, "beat_period": BP, "bars": T["bgm"]["bars"], "splices": splices,
+    meta = {"source": SRC.name, "beat0": B0, "beat_period": BP, "bars": T["bgm"]["bars"], "hold": hold, "splices": splices,
             "length": round(len(y) / SR, 3), "need": round(NEED, 3)}
     (ROOT / "audio/bgm/bgm_edit.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
     print(meta); raise SystemExit(0)

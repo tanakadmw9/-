@@ -27,11 +27,13 @@
   <div id="root" data-composition-id="map_link" data-width="1920" data-height="1080">
     <div id="ml-all">
       <div id="ml-paper"></div>
+      <div id="ml-fit" style="position: absolute; inset: 0;">
       <div id="ml-push" style="position: absolute; inset: 0;">
       <svg id="ml-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
         <defs><clipPath id="ml-road-clip"><rect id="ml-road-clip-rect" x="0" y="0" width="0" height="1080"/></clipPath></defs>
         <g id="ml-zoom">
 <g id="ml-grid" stroke="#D9D3C4" stroke-width="1.5">
+<path d="M0 -120V0M60 -120V0M120 -120V0M180 -120V0M240 -120V0M300 -120V0M360 -120V0M420 -120V0M480 -120V0M540 -120V0M600 -120V0M660 -120V0M720 -120V0M780 -120V0M840 -120V0M900 -120V0M960 -120V0M1020 -120V0M1080 -120V0M1140 -120V0M1200 -120V0M1260 -120V0M1320 -120V0M1380 -120V0M1440 -120V0M1500 -120V0M1560 -120V0M1620 -120V0M1680 -120V0M1740 -120V0M1800 -120V0M1860 -120V0M1920 -120V0M0 -60H1920M0 -120H1920"/>
 <path d="M0 0V1080"/>
 <path d="M60 0V1080"/>
 <path d="M120 0V1080"/>
@@ -103,7 +105,7 @@
 <path id="ml-road-edge-r" stroke-width="4" d="M54.4 934.6 L86.0 927.5 L116.9 920.1 L147.1 912.5 L176.7 904.6 L205.6 896.6 L234.0 888.3 L261.9 879.8 L289.3 871.1 L316.2 862.3 L342.7 853.2 L368.8 844.0 L394.6 834.7 L420.1 825.3 L445.2 815.7 L470.2 806.0 L494.9 796.2 L519.5 786.3 L543.9 776.3 L568.3 766.3 L592.6 756.2 L616.8 746.0 L641.1 735.8 L665.3 725.6 L689.7 715.4 L714.2 705.2 L738.8 695.0 L763.6 684.8 L788.6 674.7 L813.9 664.6 L839.4 654.5 L865.3 644.6 L891.5 634.7 L918.1 624.9 L945.1 615.2 L972.6 605.7 L1000.5 596.3 L1029.0 587.0 L1058.0 577.9 L1087.6 569.0 L1117.8 560.3 L1148.6 551.7 L1180.2 543.4 L1212.5 535.3 L1245.5 527.4 L1279.3 519.8 L1313.9 512.4 L1349.4 505.3 L1385.7 498.5 L1423.0 491.9 L1461.3 485.7 L1500.5 479.8 L1540.7 474.2 L1582.0 469.0 L1624.4 464.1 L1668.0 459.6 L1712.6 455.4 L1758.5 451.7 L1805.6 448.3 L1854.0 445.4"/>
 <path id="ml-road-center" stroke-width="5" stroke-dasharray="28 18" d="M60.0 960.0 L91.9 952.8 L123.1 945.4 L153.6 937.7 L183.5 929.7 L212.7 921.6 L241.4 913.2 L269.6 904.6 L297.3 895.8 L324.4 886.9 L351.2 877.8 L377.6 868.5 L403.5 859.1 L429.2 849.6 L454.6 839.9 L479.7 830.2 L504.6 820.3 L529.3 810.4 L553.8 800.4 L578.2 790.3 L602.6 780.2 L626.9 770.0 L651.1 759.8 L675.4 749.6 L699.8 739.4 L724.2 729.2 L748.7 719.0 L773.4 708.9 L798.4 698.8 L823.5 688.7 L848.9 678.8 L874.6 668.9 L900.6 659.1 L927.0 649.4 L953.8 639.8 L981.0 630.3 L1008.7 621.0 L1036.9 611.8 L1065.6 602.8 L1094.9 593.9 L1124.9 585.3 L1155.4 576.8 L1186.7 568.6 L1218.6 560.5 L1251.3 552.7 L1284.8 545.2 L1319.2 537.9 L1354.3 530.8 L1390.4 524.0 L1427.3 517.6 L1465.3 511.4 L1504.2 505.5 L1544.1 500.0 L1585.2 494.8 L1627.3 490.0 L1670.5 485.5 L1714.9 481.3 L1760.5 477.6 L1807.3 474.3 L1855.5 471.3"/>
 </g>
-<g id="ml-links" fill="none" stroke="#1F3A5F" stroke-width="3" stroke-dasharray="7 10" stroke-linecap="round">
+<g id="ml-links" fill="none" stroke="#E8742A" stroke-width="4" stroke-dasharray="6 11" stroke-linecap="round">
 <path class="link" id="ml-link-0" d="M260 765 L820 600"/>
 <path class="link" id="ml-link-1" d="M820 600 L1240 335"/>
 </g>
@@ -126,11 +128,12 @@
       <div id="ml-lbl-map" class="ml-lbl">地図</div>
       <div id="ml-lbl-road" class="ml-lbl">道路の図面</div>
       </div>
+      </div>
       <div id="ml-band"></div>
       <svg id="ml-arcs" viewBox="0 0 1920 270" aria-hidden="true" fill="none" stroke="var(--orange)" stroke-width="4" stroke-linecap="round">
-        <path id="ml-arc-0" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" d="M340 108 C520 50,780 50,960 108"/>
+        <path id="ml-arc-0" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" d="M340 108 C500 78,800 78,960 108"/>
         <circle id="ml-arc-src" cx="340" cy="108" r="6" fill="var(--orange)" stroke="none" opacity="0"/>
-        <path id="ml-arc-1" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" d="M340 108 C600 46,1040 46,1270 108"/>
+        <path id="ml-arc-1" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" d="M340 108 C560 22,1050 22,1270 108"/>
       </svg>
       <div id="ml-items"></div>
     </div>
@@ -183,14 +186,15 @@
       ["#ml-link-0", "#ml-link-1"].forEach((id, i) => {
         const el = document.querySelector(id); const L = el.getTotalLength();
         tl.fromTo(el, { attr: { "stroke-dasharray": `0 ${L}` } }, { attr: { "stroke-dasharray": `${L} 0` }, duration: 0.35, ease: "power2.inOut" }, c.points + 0.55 + i * 0.35);
-        tl.set(el, { attr: { "stroke-dasharray": "7 10" } }, c.points + 0.55 + i * 0.35 + 0.36);
+        tl.set(el, { attr: { "stroke-dasharray": "6 11" } }, c.points + 0.55 + i * 0.35 + 0.36);
       });
       // つながったら、新しい点も「基準点」に（◎ → オレンジの△）。名前の札は「地図」が描かれる前に消す
       const nb = c.points + 1.25;
       tl.to("#ml-new-point", { opacity: 0, duration: 0.3, ease: "power2.in" }, nb);
       tl.fromTo("#ml-new-tri", { opacity: 0, scale: 0.6, svgOrigin: NP }, { opacity: 1, scale: 1, svgOrigin: NP, duration: 0.4, ease: "power3.out" }, nb + 0.1);
-      tl.fromTo("#ml-lbl-np", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, nb + 0.25);
-      tl.to("#ml-lbl-np", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.road - 0.1);
+      tl.fromTo("#ml-lbl-np", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, nb + 0.15);
+      // 消すのは道路の線が札の位置（x≈860）に来る少し前。6字＝2.5秒を確保（独立レビュー v4.7）
+      tl.to("#ml-lbl-np", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.road + 0.2);
 
       // contours：「地図」の言葉で等高線がすっと描かれる
       gsap.utils.toArray("#ml-contours .contour").forEach((el, i) => {
@@ -204,8 +208,9 @@
       tl.fromTo("#ml-lead-road", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.road + 0.35);
       tl.fromTo("#ml-lbl-road", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.road + 0.4);
 
-      // icons：章扉のアイコン列が上から下りてくる（20小節頭）
+      // icons：章扉のアイコン列が上から下りてくる（20小節頭）。帯が地図を 100px 押し下げる（一番上の△が「水準測量」の下に来ないように：独立レビュー v4.7）
       tl.fromTo("#ml-band", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.icons);
+      tl.fromTo("#ml-fit", { y: 0 }, { y: 100, duration: 0.5, ease: "power3.out" }, c.icons);
       JOBS.forEach((_, i) => {
         tl.fromTo("#ml-item-" + i, { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, c.icons + 0.1 + i * 0.06);
       });

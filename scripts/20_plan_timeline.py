@@ -93,10 +93,13 @@ def beat(id_, start, end, purpose):
 
 DOOR_ICON = (340, 470)          # 章扉の基準点アイコンの中心（chapter_door.html と同じ）
 PRISM = (820, 268)              # S04 のプリズム（タイトルの照準の行き先）
+# 照準がカットをまたぐ点：章扉のアイコンからプリズムへの線上 45%。S04 では作業員の右の空（人の体の上を通らない：独立レビュー v4.7）
+HAND = (round(DOOR_ICON[0] + 0.45 * (PRISM[0] - DOOR_ICON[0])), round(DOOR_ICON[1] + 0.45 * (PRISM[1] - DOOR_ICON[1])))
 
 # ---------------- B1 章扉 → タイトル（1〜3小節） ----------------
-scene("chapter_door", 0, cut(2), {"icons_in": at(1, 2), "lit": at(1, 3), "morph": at(1, 4)},
-      "部門の中の1作業だと、言葉でなく形で示す（全パート共通）", variables={"active": 0})
+# fly：照準に変わったアイコンが紙の上で動き出し、S04 の上へ動きながら切り替わる（動きでカットをつなぐ）
+scene("chapter_door", 0, cut(2), {"icons_in": at(1, 2), "lit": at(1, 3), "morph": at(1, 4), "fly": at(1, 4) + 0.1},
+      "部門の中の1作業だと、言葉でなく形で示す（全パート共通）", variables={"active": 0, "to_x": HAND[0], "to_y": HAND[1]})
 se("glow", at(1, 3), "章扉で基準点のアイコンが灯る")
 s04_live = META["S04"]["dur"] - 0.05
 shot("S04", cut(2), cut(2) + s04_live, 14.65, "ローアングルのプリズム。照準モチーフ")
@@ -107,9 +110,10 @@ lock = at(2, 3)
 # N1 は2つに分ける（v4.7）：「ひとつ、」はアイコンが灯った約0.5秒後、「基準点測量です。」は照準が合って「ピッ」が鳴った直後
 vo("N1a", at(1, 3) + 0.55 - VO["N1a"]["keywords"]["ひとつ"])
 vo("N1b", lock + 0.12 - VO["N1b"]["keywords"]["基準点測量"])   # 「ピッ」→ひと呼吸→「基準点測量」（音のレビュー A4）
-scene("title", cut(2), cut(4), {"reticle_in": cut(2) + 0.05, "lock": lock, "title_in": lock + 0.2, "out": cut(4) - 0.3},
+# サブタイトル「位置の“目印”をつくる」（9字＝3.25秒）が読めるよう、題と 0.12 秒ずらしで出し、消えはカットの 0.2 秒前から（独立レビュー v4.7）
+scene("title", cut(2), cut(4), {"reticle_in": cut(2), "lock": lock, "title_in": lock + 0.2, "sub_in": lock + 0.32, "out": cut(4) - 0.2},
       "章の提示。照準がプリズムに合う", overlay=True, diagram=False, cut_point=False,
-      variables={"target_x": PRISM[0], "target_y": PRISM[1], "from_x": DOOR_ICON[0], "from_y": DOOR_ICON[1]})
+      variables={"target_x": PRISM[0], "target_y": PRISM[1], "from_x": HAND[0], "from_y": HAND[1]})
 se("lock", lock, "照準が合う電子音（シリーズ共通の合図）")
 beat("B1", 0, at(4), "章扉→タイトル")
 
@@ -123,7 +127,7 @@ beat("B2", at(4), at(7), "人と現場。目印が要る理由")
 shot("S03", cut(7), cut(7, 4), 12.00, "プリズムを据える＝目印の上に立てる")
 # N3「その目印を」は D0 の地面のしるしが出てから読む（S03 のプリズムの上で言うと「目印＝プリズム」と覚えるおそれ：内容 K1）
 s, _ = vo("N3", cut(7, 4) + 0.13)
-scene("d0_marker", cut(7, 4), cut(9), {"marker_in": cut(7, 4), "tripod_in": cut(7, 4), "term_in": cut(7, 4) + 0.6,
+scene("d0_marker", cut(7, 4), cut(9), {"marker_in": cut(7, 4), "tripod_in": cut(7, 4), "term_in": cut(7, 4) + 0.5,
                                        "pulse": kw("N3", s, "基準点"), "out": cut(9) - 0.05},
       "用語「基準点」を、地面のしるしの形と一緒に（S03 の三脚から形でつなぐ）")
 beat("B3", at(7), at(9), "基準点とは")
@@ -188,19 +192,33 @@ move("v_S10", s10s, s10e, push0, push1, "50% 40%", "見渡す先へ気持ちを�
 s, n8e = vo("N8", at(21) + 0.9)   # 「はじまりの点」を締めの文字が出る瞬間に合わせる（独立レビュー v4.5）
 end = DUR
 # 照準が章扉のアイコンに戻る瞬間を、N8 の「基準点測量」に合わせる（冒頭の N1b と対）。「ピッ」は文が終わってから（言葉と重ねない）
+# 照準は 2 人の間の草地の一点（＝地面の点）に出て、その場で縮む。アイコンの位置へ動くのは紙がほぼ覆ってから（人の体の上を通らない：独立レビュー v4.7）
+GROUND = (930, 540)
 door = kw("N8", s, "基準点測量"); ec_lock = n8e + 0.12
-scene("endcard", s10s, end, {"text_in": s10s + 0.15, "bg_in": s10e - 1 / FPS, "reticle": door - 1.45, "door": door, "lock": ec_lock,
-                             "fade": end - 0.5},
+scene("endcard", s10s, end, {"text_in": s10s + 0.15, "bg_in": s10e - 1 / FPS, "reticle": door - 1.45, "paper": door - 0.45, "door": door,
+                             "lock": ec_lock, "fade": end - 0.5},
       "締めの一文。照準が縮んで章扉の基準点アイコンに戻る（章扉と同じ形で閉じる）", overlay=True, diagram=False, cut_point=False,
       variables={"push_from": round(push1, 4), "push_rate": push_rate, "icon_x": DOOR_ICON[0], "icon_y": DOOR_ICON[1],
+                 "point_x": GROUND[0], "point_y": GROUND[1],
                  "active": 0})
 T["intended_freezes"].append([f(s10e), f(end), "endcard（S10 最後のコマに寄り続ける）"])
 se("lock", ec_lock, "照準が章扉のアイコンに戻り、文が終わった後の合図（小さめ）", gain_db=-6.0)
 beat("B8", at(21), end, "締め")
 
-T["bgm"] = {"start": 0.0, "end": f(end), "pause": None, "bars": "1-12,25-36",
-            "note": "曲の小節1の頭＝映像の0秒。1〜12＋25〜36小節（つなぎ目は 13 小節頭）"}
+# hold：最後の和音（21 小節頭の一打のあと、4 秒ほど同じ響きが続く所）を 2 秒のばし、N8 の最後まで伴奏を残す（独立レビュー v4.7）。
+#   編集した曲の時刻 at で、len 秒前の同じ伸ばしを xfade 秒の等パワーで重ねてつなぐ。のばした分、曲の自然な減衰が映像の終わりに来る
+T["bgm"] = {"start": 0.0, "end": f(end), "pause": None, "bars": "1-12,25-36", "hold": {"at": 55.0, "len": 2.0, "xfade": 0.4},
+            "note": "曲の小節1の頭＝映像の0秒。1〜12＋25〜36小節（つなぎ目は 13 小節頭）。最後の和音を 2 秒のばす"}
+# N8 の下だけ曲を前に出す案（under −15dB）は、VO−BGM の p5 が 14.0dB（基準 15）に下がるので採らない（v4.8）
 T["amb"].append({"start": 0.0, "end": None, "note": "風・草の環境音。図解区間は下げる（ミックスで指定）"})
+# 画面の文字の表示時間（docs/04 §3）の例外。基準に届かない理由を言えるものだけ。QC（scripts/40_qc.py §6）に理由つきで載る
+JOB_NAMES = ["基準点測量", "水準測量", "地形測量", "路線測量", "用地測量"]
+T["text_exceptions"] = (
+    [{"comp": "chapter_door", "text": n, "reason": "章扉の作業名は「5つのうち1つが灯る」形を見せる1回目。名前は点つなぎの帯と締めの章扉で読める長さで2回出す"}
+     for n in JOB_NAMES]
+    + [{"comp": "d1_observe", "text": "トータルステーション",
+        "reason": "主ラベル「はかる機械」の下の補足（小さい灰色）。読めなくても意味は主ラベルとナレ「この機械で」で通る"},
+       {"comp": "endcard", "text": "ナレーション（仮）VOICEVOX:冥鳴ひまり", "reason": "仮ナレの規約上の表示。本ナレに差し替えたら消す"}])
 T["duration"] = f(end)
 T["speech_ratio"] = round(sum(v["dur"] for v in T["vo"]) / end, 3)
 

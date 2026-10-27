@@ -119,15 +119,19 @@
   ],
   [
    51.4014,
-   -16.8
+   -18.16
   ],
   [
-   59.16,
-   -16.8
+   58.8689,
+   -18.16
+  ],
+  [
+   59.2189,
+   -14.16
   ],
   [
    60.6606,
-   -16.8
+   -14.16
   ]
  ],
  "amb_keyframes": [
@@ -216,12 +220,16 @@
    -21.5
   ],
   [
-   54.687,
-   -31.5
+   56.81,
+   -21.5
   ],
   [
-   60.3606,
-   -90.0
+   57.41,
+   -29.5
+  ],
+  [
+   60.172,
+   -29.5
   ],
   [
    60.6606,
@@ -274,7 +282,7 @@
   {
    "kind": "lock",
    "src": "/mnt/project-files/assets/se/tones/decision6.mp3",
-   "t": 59.1925,
+   "t": 58.8922,
    "gain_db": -9.15,
    "target_re_vo_ref_db": -9.0
   }
@@ -330,8 +338,8 @@
    {
     "type": "under_vo",
     "start": 51.451,
-    "end": 59.06,
-    "fader_db": -16.8
+    "end": 58.769,
+    "fader_db": -18.16
    },
    {
     "type": "free",
@@ -383,14 +391,14 @@
    },
    {
     "type": "free",
-    "start": 59.51,
+    "start": 59.219,
     "end": 60.661,
-    "fader_db": null
+    "fader_db": -14.16
    }
   ],
   "integrated_lufs_py": -24.0,
   "integrated_lufs_ffmpeg": -24.0,
-  "true_peak_dbtp_py": -10.13,
+  "true_peak_dbtp_py": -10.12,
   "true_peak_dbtp_ffmpeg": -10.1,
   "limiter_max_gr_db": null,
   "stems_sum_residual": 1.1102230246251565e-16,
@@ -405,18 +413,18 @@
    "N6": 17.1,
    "N7a": 17.4,
    "N7b": 17.1,
-   "N8": 18.5
+   "N8": 18.2
   },
   "vo_minus_bgm_short_term_inside_lines": {
    "median": 16.3,
    "p5": 15.2,
-   "min": 14.6,
-   "n_windows": 142
+   "min": 14.3,
+   "n_windows": 139
   },
   "vo_median_short_term_lufs": -24.2,
   "bgm_free_max_short_term_re_vo": -8.0,
   "amb_re_vo_live_median": -20.0,
-  "amb_re_vo_diagram_median": -27.6,
+  "amb_re_vo_diagram_median": -27.7,
   "se_max_100ms_re_vo_max_100ms": -10.0,
   "se_max_100ms_re_vo_integrated": -3.1,
   "se_peak_re_vo_peak_db": -8.1,

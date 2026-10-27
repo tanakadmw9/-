@@ -1,0 +1,532 @@
+{
+ "step": 0.05,
+ "readable": 0.6,
+ "duration": 60.6606,
+ "items": [
+  {
+   "comp": "chapter_door",
+   "text": "測量部門のしごと",
+   "font_px": 52,
+   "max_vis": 1,
+   "runs": [
+    [
+     0.25,
+     2.55
+    ]
+   ],
+   "start": 0.25,
+   "end": 2.55,
+   "dur": 2.3
+  },
+  {
+   "comp": "chapter_door",
+   "text": "基準点測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     0.75,
+     2.1
+    ]
+   ],
+   "start": 0.75,
+   "end": 2.1,
+   "dur": 1.35
+  },
+  {
+   "comp": "chapter_door",
+   "text": "水準測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     0.85,
+     2.15
+    ]
+   ],
+   "start": 0.85,
+   "end": 2.15,
+   "dur": 1.3
+  },
+  {
+   "comp": "chapter_door",
+   "text": "地形測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     0.95,
+     2.15
+    ]
+   ],
+   "start": 0.95,
+   "end": 2.15,
+   "dur": 1.2
+  },
+  {
+   "comp": "chapter_door",
+   "text": "路線測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     1.05,
+     2.15
+    ]
+   ],
+   "start": 1.05,
+   "end": 2.15,
+   "dur": 1.1
+  },
+  {
+   "comp": "chapter_door",
+   "text": "用地測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     1.15,
+     2.15
+    ]
+   ],
+   "start": 1.15,
+   "end": 2.15,
+   "dur": 1
+  },
+  {
+   "comp": "title",
+   "text": "測量部門のしごと",
+   "font_px": 44,
+   "max_vis": 1,
+   "runs": [
+    [
+     2.55,
+     7.55
+    ]
+   ],
+   "start": 2.55,
+   "end": 7.55,
+   "dur": 5
+  },
+  {
+   "comp": "title",
+   "text": "基準点測量",
+   "font_px": 112,
+   "max_vis": 1,
+   "runs": [
+    [
+     4.15,
+     7.55
+    ]
+   ],
+   "start": 4.15,
+   "end": 7.55,
+   "dur": 3.4
+  },
+  {
+   "comp": "title",
+   "text": "位置の“目印”をつくる",
+   "font_px": 48,
+   "max_vis": 1,
+   "runs": [
+    [
+     4.25,
+     7.55
+    ]
+   ],
+   "start": 4.25,
+   "end": 7.55,
+   "dur": 3.3
+  },
+  {
+   "comp": "d0_marker",
+   "text": "基準点",
+   "font_px": 72,
+   "max_vis": 1,
+   "runs": [
+    [
+     17.7,
+     20.2
+    ]
+   ],
+   "start": 17.7,
+   "end": 20.2,
+   "dur": 2.5
+  },
+  {
+   "comp": "d0_marker",
+   "text": "地面のしるし",
+   "font_px": 48,
+   "max_vis": 1,
+   "runs": [
+    [
+     17.7,
+     20.2
+    ]
+   ],
+   "start": 17.7,
+   "end": 20.2,
+   "dur": 2.5
+  },
+  {
+   "comp": "d1_observe",
+   "text": "はかる機械",
+   "font_px": 48,
+   "max_vis": 1,
+   "runs": [
+    [
+     24.3,
+     27.05
+    ]
+   ],
+   "start": 24.3,
+   "end": 27.05,
+   "dur": 2.75
+  },
+  {
+   "comp": "d1_observe",
+   "text": "トータルステーション",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     24.3,
+     27.05
+    ]
+   ],
+   "start": 24.3,
+   "end": 27.05,
+   "dur": 2.75
+  },
+  {
+   "comp": "d1_observe",
+   "text": "プリズム",
+   "font_px": 48,
+   "max_vis": 1,
+   "runs": [
+    [
+     24.55,
+     27.05
+    ]
+   ],
+   "start": 24.55,
+   "end": 27.05,
+   "dur": 2.5
+  },
+  {
+   "comp": "d2_topview",
+   "text": "わかっている点",
+   "font_px": 48,
+   "max_vis": 1,
+   "runs": [
+    [
+     27.9,
+     35.4
+    ]
+   ],
+   "start": 27.9,
+   "end": 35.4,
+   "dur": 7.5
+  },
+  {
+   "comp": "d2_topview",
+   "text": "もう一つのわかっている点",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     28.65,
+     35.4
+    ]
+   ],
+   "start": 28.65,
+   "end": 35.4,
+   "dur": 6.75
+  },
+  {
+   "comp": "d2_topview",
+   "text": "角度",
+   "font_px": 52,
+   "max_vis": 1,
+   "runs": [
+    [
+     30.5,
+     33.7
+    ]
+   ],
+   "start": 30.5,
+   "end": 33.7,
+   "dur": 3.2
+  },
+  {
+   "comp": "d2_topview",
+   "text": "距離",
+   "font_px": 52,
+   "max_vis": 1,
+   "runs": [
+    [
+     30.9,
+     33.7
+    ]
+   ],
+   "start": 30.9,
+   "end": 33.7,
+   "dur": 2.8
+  },
+  {
+   "comp": "d2_topview",
+   "text": "新しい点",
+   "font_px": 48,
+   "max_vis": 1,
+   "runs": [
+    [
+     31.55,
+     35.4
+    ]
+   ],
+   "start": 31.55,
+   "end": 35.4,
+   "dur": 3.85
+  },
+  {
+   "comp": "map_link",
+   "text": "新しい基準点",
+   "font_px": 40,
+   "max_vis": 1,
+   "runs": [
+    [
+     44.4,
+     47.2
+    ]
+   ],
+   "start": 44.4,
+   "end": 47.2,
+   "dur": 2.8
+  },
+  {
+   "comp": "map_link",
+   "text": "地図",
+   "font_px": 44,
+   "max_vis": 1,
+   "runs": [
+    [
+     46.05,
+     50.55
+    ]
+   ],
+   "start": 46.05,
+   "end": 50.55,
+   "dur": 4.5
+  },
+  {
+   "comp": "map_link",
+   "text": "道路の図面",
+   "font_px": 44,
+   "max_vis": 1,
+   "runs": [
+    [
+     47.3,
+     50.55
+    ]
+   ],
+   "start": 47.3,
+   "end": 50.55,
+   "dur": 3.25
+  },
+  {
+   "comp": "map_link",
+   "text": "基準点測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     48.25,
+     50.55
+    ]
+   ],
+   "start": 48.25,
+   "end": 50.55,
+   "dur": 2.3
+  },
+  {
+   "comp": "map_link",
+   "text": "水準測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     48.3,
+     50.55
+    ]
+   ],
+   "start": 48.3,
+   "end": 50.55,
+   "dur": 2.25
+  },
+  {
+   "comp": "map_link",
+   "text": "地形測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     48.35,
+     50.55
+    ]
+   ],
+   "start": 48.35,
+   "end": 50.55,
+   "dur": 2.2
+  },
+  {
+   "comp": "map_link",
+   "text": "路線測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     48.45,
+     50.55
+    ]
+   ],
+   "start": 48.45,
+   "end": 50.55,
+   "dur": 2.1
+  },
+  {
+   "comp": "map_link",
+   "text": "用地測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     48.5,
+     50.55
+    ]
+   ],
+   "start": 48.5,
+   "end": 50.55,
+   "dur": 2.05
+  },
+  {
+   "comp": "endcard",
+   "text": "ほかの測量が使う",
+   "font_px": 72,
+   "max_vis": 1,
+   "runs": [
+    [
+     54,
+     60.4
+    ]
+   ],
+   "start": 54,
+   "end": 60.4,
+   "dur": 6.4
+  },
+  {
+   "comp": "endcard",
+   "text": "“はじまりの点”",
+   "font_px": 72,
+   "max_vis": 1,
+   "runs": [
+    [
+     54,
+     60.4
+    ]
+   ],
+   "start": 54,
+   "end": 60.4,
+   "dur": 6.4
+  },
+  {
+   "comp": "endcard",
+   "text": "基準点測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     57.35,
+     60.4
+    ]
+   ],
+   "start": 57.35,
+   "end": 60.4,
+   "dur": 3.05
+  },
+  {
+   "comp": "endcard",
+   "text": "水準測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     57.6,
+     60.4
+    ]
+   ],
+   "start": 57.6,
+   "end": 60.4,
+   "dur": 2.8
+  },
+  {
+   "comp": "endcard",
+   "text": "地形測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     57.7,
+     60.4
+    ]
+   ],
+   "start": 57.7,
+   "end": 60.4,
+   "dur": 2.7
+  },
+  {
+   "comp": "endcard",
+   "text": "ナレーション（仮）VOICEVOX:冥鳴ひまり",
+   "font_px": 34,
+   "max_vis": 1,
+   "runs": [
+    [
+     57.75,
+     60.4
+    ]
+   ],
+   "start": 57.75,
+   "end": 60.4,
+   "dur": 2.65
+  },
+  {
+   "comp": "endcard",
+   "text": "路線測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     57.75,
+     60.4
+    ]
+   ],
+   "start": 57.75,
+   "end": 60.4,
+   "dur": 2.65
+  },
+  {
+   "comp": "endcard",
+   "text": "用地測量",
+   "font_px": 36,
+   "max_vis": 1,
+   "runs": [
+    [
+     57.85,
+     60.4
+    ]
+   ],
+   "start": 57.85,
+   "end": 60.4,
+   "dur": 2.55
+  }
+ ]
+}

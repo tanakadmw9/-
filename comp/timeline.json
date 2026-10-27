@@ -185,12 +185,15 @@
    "cues": {
     "icons_in": 0.632,
     "lit": 1.264,
-    "morph": 1.896
+    "morph": 1.896,
+    "fly": 1.996
    },
    "overlay": false,
    "diagram": true,
    "variables": {
-    "active": 0
+    "active": 0,
+    "to_x": 556,
+    "to_y": 379
    },
    "purpose": "部門の中の1作業だと、言葉でなく形で示す（全パート共通）"
   },
@@ -201,18 +204,19 @@
    "start": 2.5025,
    "dur": 5.0384,
    "cues": {
-    "reticle_in": 0.05,
+    "reticle_in": 0.0,
     "lock": 1.297,
     "title_in": 1.497,
-    "out": 4.756
+    "sub_in": 1.617,
+    "out": 4.856
    },
    "overlay": true,
    "diagram": false,
    "variables": {
     "target_x": 820,
     "target_y": 268,
-    "from_x": 340,
-    "from_y": 470
+    "from_x": 556,
+    "from_y": 379
    },
    "purpose": "章の提示。照準がプリズムに合う"
   },
@@ -225,7 +229,7 @@
    "cues": {
     "marker_in": 0.0,
     "tripod_in": 0.0,
-    "term_in": 0.6,
+    "term_in": 0.5,
     "pulse": 1.73,
     "out": 3.11
    },
@@ -308,9 +312,10 @@
    "cues": {
     "text_in": 0.15,
     "bg_in": 2.89,
-    "reticle": 2.413,
-    "door": 3.863,
-    "lock": 5.503,
+    "reticle": 2.123,
+    "paper": 3.123,
+    "door": 3.573,
+    "lock": 5.213,
     "fade": 6.485
    },
    "overlay": true,
@@ -320,6 +325,8 @@
     "push_rate": 0.015,
     "icon_x": 340,
     "icon_y": 470,
+    "point_x": 930,
+    "point_y": 540,
     "active": 0
    },
    "purpose": "締めの一文。照準が縮んで章扉の基準点アイコンに戻る（章扉と同じ形で閉じる）"
@@ -401,7 +408,7 @@
    "id": "N8",
    "src": "assets/audio/vo/N8.wav",
    "start": 51.4514,
-   "dur": 7.61,
+   "dur": 7.32,
    "text": "ほかの測量が使う、“はじまりの点”をつくる。それが、基準点測量です。"
   }
  ],
@@ -460,7 +467,7 @@
   },
   {
    "kind": "lock",
-   "start": 59.1925,
+   "start": 58.8922,
    "note": "照準が章扉のアイコンに戻り、文が終わった後の合図（小さめ）",
    "gain_db": -3.0,
    "src": "/mnt/project-files/assets/se/tones/decision6.mp3",
@@ -472,7 +479,12 @@
   "end": 60.6606,
   "pause": null,
   "bars": "1-12,25-36",
-  "note": "曲の小節1の頭＝映像の0秒。1〜12＋25〜36小節（つなぎ目は 13 小節頭）"
+  "hold": {
+   "at": 55.0,
+   "len": 2.0,
+   "xfade": 0.4
+  },
+  "note": "曲の小節1の頭＝映像の0秒。1〜12＋25〜36小節（つなぎ目は 13 小節頭）。最後の和音を 2 秒のばす"
  },
  "amb": [
   {
@@ -544,6 +556,43 @@
    "endcard（S10 最後のコマに寄り続ける）"
   ]
  ],
+ "text_exceptions": [
+  {
+   "comp": "chapter_door",
+   "text": "基準点測量",
+   "reason": "章扉の作業名は「5つのうち1つが灯る」形を見せる1回目。名前は点つなぎの帯と締めの章扉で読める長さで2回出す"
+  },
+  {
+   "comp": "chapter_door",
+   "text": "水準測量",
+   "reason": "章扉の作業名は「5つのうち1つが灯る」形を見せる1回目。名前は点つなぎの帯と締めの章扉で読める長さで2回出す"
+  },
+  {
+   "comp": "chapter_door",
+   "text": "地形測量",
+   "reason": "章扉の作業名は「5つのうち1つが灯る」形を見せる1回目。名前は点つなぎの帯と締めの章扉で読める長さで2回出す"
+  },
+  {
+   "comp": "chapter_door",
+   "text": "路線測量",
+   "reason": "章扉の作業名は「5つのうち1つが灯る」形を見せる1回目。名前は点つなぎの帯と締めの章扉で読める長さで2回出す"
+  },
+  {
+   "comp": "chapter_door",
+   "text": "用地測量",
+   "reason": "章扉の作業名は「5つのうち1つが灯る」形を見せる1回目。名前は点つなぎの帯と締めの章扉で読める長さで2回出す"
+  },
+  {
+   "comp": "d1_observe",
+   "text": "トータルステーション",
+   "reason": "主ラベル「はかる機械」の下の補足（小さい灰色）。読めなくても意味は主ラベルとナレ「この機械で」で通る"
+  },
+  {
+   "comp": "endcard",
+   "text": "ナレーション（仮）VOICEVOX:冥鳴ひまり",
+   "reason": "仮ナレの規約上の表示。本ナレに差し替えたら消す"
+  }
+ ],
  "duration": 60.6606,
- "speech_ratio": 0.715
+ "speech_ratio": 0.711
 }

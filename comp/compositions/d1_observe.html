@@ -89,15 +89,15 @@
       // desat：色の写真 → 落ち着いた写真（画像のクロスフェード）
       tl.fromTo("#d1-desat", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.inOut" }, c.desat);
 
-      // ts_label：点 → 引き出し線 → 板
+      // ts_label：点 → 引き出し線 → 板（板は早めに：補足「トータルステーション」の読む時間を少しでも長く。独立レビュー v4.7）
       tl.fromTo("#d1-ts-dot", { opacity: 0, attr: { r: 2 } }, { opacity: 1, attr: { r: 5 }, duration: 0.25, ease: "power3.out" }, c.ts_label);
-      draw("#d1-ts-line", c.ts_label + 0.12, 0.35, "power2.out");
-      tl.fromTo("#d1-ts-plate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.ts_label + 0.32);
+      draw("#d1-ts-line", c.ts_label + 0.06, 0.3, "power2.out");
+      tl.fromTo("#d1-ts-plate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.ts_label + 0.18);
 
       // prism_label：点 → 下へ引き出し線（2人の間）→ 板
       tl.fromTo("#d1-pr-dot", { opacity: 0, attr: { r: 2 } }, { opacity: 1, attr: { r: 5 }, duration: 0.25, ease: "power3.out" }, c.prism_label);
-      draw("#d1-pr-line", c.prism_label + 0.12, 0.35, "power2.out");
-      tl.fromTo("#d1-pr-plate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.prism_label + 0.32);
+      draw("#d1-pr-line", c.prism_label + 0.06, 0.3, "power2.out");
+      tl.fromTo("#d1-pr-plate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.prism_label + 0.18);
 
       // angle：TS からプリズムへオレンジの線が 0.6秒でのびる
       draw("#d1-beam", c.angle, 0.6, "power2.inOut");

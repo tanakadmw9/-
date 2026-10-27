@@ -1,4 +1,4 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"reticle_in\":0.3,\"lock\":1.6,\"title_in\":1.8,\"sub_in\":2.0,\"out\":6.05}"},{"id":"dur","type":"number","label":"dur","default":6.4064},{"id":"target_x","type":"number","label":"照準 x（プリズム中心）","default":820},{"id":"target_y","type":"number","label":"照準 y（プリズム中心）","default":268},{"id":"from_x","type":"number","label":"照準の出発点 x（章扉のアイコン）","default":340},{"id":"from_y","type":"number","label":"照準の出発点 y","default":470}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"reticle_in\":0.3,\"lock\":1.6,\"title_in\":1.8,\"sub_in\":2.0,\"out\":6.05}"},{"id":"dur","type":"number","label":"dur","default":6.4064},{"id":"target_x","type":"number","label":"照準 x（プリズム中心）","default":820},{"id":"target_y","type":"number","label":"照準 y（プリズム中心）","default":268},{"id":"from_x","type":"number","label":"照準の出発点 x（章扉から動いてきてカットをまたぐ点）","default":556},{"id":"from_y","type":"number","label":"照準の出発点 y","default":379}]'>
 <body>
 <template>
   <style>
@@ -89,11 +89,12 @@
       const mini = document.getElementById("title-mini");
       mini.style.left = (tx - 80) + "px"; mini.style.top = (ty - 80) + "px";
       const mv = c.lock - c.reticle_in;
-      tl.fromTo(mini, { opacity: 1 }, { opacity: 1, duration: 0.01 }, c.reticle_in - 0.02);
+      // 章扉で照準はすでに動いている（カットをまたぐ点 from_x, from_y に着いたところ）。最初のコマから見せ、同じ速さで減速しながら寄る
+      tl.fromTo(mini, { opacity: 1 }, { opacity: 1, duration: 0.01 }, Math.max(0, c.reticle_in - 0.02));
       tl.fromTo(mini, { x: fx - tx, y: fy - ty, scale: 1 },
-        { x: drift[0][1], y: drift[0][2], scale: 1 / S0, duration: mv, ease: "power2.inOut", immediateRender: false }, c.reticle_in);
+        { x: drift[0][1], y: drift[0][2], scale: 1 / S0, duration: mv, ease: "power2.out", immediateRender: false }, c.reticle_in);
       tl.fromTo(ret, { x: fx - tx, y: fy - ty, scale: S0 },
-        { x: drift[0][1], y: drift[0][2], scale: 1, duration: mv, ease: "power2.inOut" }, c.reticle_in);
+        { x: drift[0][1], y: drift[0][2], scale: 1, duration: mv, ease: "power2.out" }, c.reticle_in);
       tl.fromTo(ret, { opacity: 0 }, { opacity: 1, duration: mv * 0.4, ease: "power1.inOut" }, c.reticle_in + mv * 0.35);
       tl.fromTo(mini, { opacity: 1 }, { opacity: 0, duration: mv * 0.4, ease: "power1.inOut", immediateRender: false }, c.reticle_in + mv * 0.35);
 

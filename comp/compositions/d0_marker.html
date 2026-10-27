@@ -67,25 +67,25 @@
       const tl = gsap.timeline({ paused: true });
       const m = c.marker_in, t = c.tripod_in, k = c.term_in;
 
-      // 0コマ目：S03 の三脚の大きさ・位置（脚の先が画面の下端）から線画の三脚へ縮む＝形のつなぎ（v4.5 レビュー、E1 案b）
-      tl.fromTo("#d0-tripod", { opacity: 1, scale: 1.74, x: -15, y: 380, transformOrigin: "620px 700px" },
-                { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.6, ease: "power3.out" }, m);
-      // 地面 → 金属標（足は短く）
-      tl.fromTo("#d0-ground", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, m + 0.25);
-      tl.fromTo("#d0-hatch", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, m + 0.45);
-      tl.fromTo("#d0-pillar", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.inOut" }, m + 0.45);
-      tl.fromTo("#d0-marker", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, m + 0.5);
-      // 求心：三脚の頭から標識の中心へ点線
-      tl.fromTo("#d0-plumb", { opacity: 0 }, { opacity: 1, duration: 0.05, ease: "none" }, m + 0.8);
-      tl.fromTo("#d0-plumb", { attr: { y2: 410 } }, { attr: { y2: 690 }, duration: 0.4, ease: "power2.inOut" }, m + 0.8);
+      // 0コマ目：S03 の三脚（プリズムの位置・大きさ、脚の先は画面の下）から線画の三脚へ縮む＝形のつなぎ（v4.5 レビュー、E1 案b）。
+      // 機械の頭（620,330）を S03 の最後のコマのプリズム（約 576,212）に重ねる（独立レビュー v4.7）。原点は SVG の座標（svgOrigin）
+      tl.fromTo("#d0-tripod", { opacity: 1, scale: 1.9, x: -44, y: 215, svgOrigin: "620 700" },
+                { opacity: 1, scale: 1, x: 0, y: 0, svgOrigin: "620 700", duration: 0.55, ease: "power3.out" }, m);
+      // 地面 → 金属標（足は短く）。用語カードを早く出すため、しるしまでを 0.6 秒に詰める
+      tl.fromTo("#d0-ground", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.4, ease: "power2.inOut" }, m + 0.05);
+      tl.fromTo("#d0-hatch", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, m + 0.25);
+      tl.fromTo("#d0-pillar", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.inOut" }, m + 0.2);
+      tl.fromTo("#d0-marker", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, m + 0.2);
+      // 求心：三脚の頭から標識の中心へ点線（三脚が縮み終わってから）
+      tl.fromTo("#d0-plumb", { opacity: 0 }, { opacity: 1, duration: 0.05, ease: "none" }, m + 0.6);
+      tl.fromTo("#d0-plumb", { attr: { y2: 410 } }, { attr: { y2: 690 }, duration: 0.4, ease: "power2.inOut" }, m + 0.6);
 
-      // term_in：引き出し線（しるしから）→ 用語カード。言葉「基準点」より先に出す（画が先）
-      tl.fromTo("#d0-lead-gap", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.3);
-      tl.fromTo("#d0-lead-dot", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.3);
-      tl.fromTo("#d0-lead", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, k - 0.25);
+      // term_in：引き出し線（しるしから）→ 用語カード（用語と説明は1つのかたまりで出す）。言葉「基準点」より先に出す（画が先）
+      tl.fromTo("#d0-lead-gap", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.22);
+      tl.fromTo("#d0-lead-dot", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.22);
+      tl.fromTo("#d0-lead", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out" }, k - 0.18);
       tl.fromTo("#d0-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: "power3.out" }, k);
-      tl.fromTo("#d0-term", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.1);
-      tl.fromTo("#d0-desc", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.28);
+      tl.fromTo(["#d0-term", "#d0-desc"], { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.05);
 
       // pulse：言葉「基準点」で、しるしの中心が1回だけオレンジに灯って紺に戻る
       const pl = c.pulse != null ? c.pulse : k + 0.8;

@@ -21,7 +21,10 @@
         間隔 1.5 秒未満のナレは1つの区間として扱う（ポンピング防止）。
         bgm.start より前は無音。bgm.pause の間は 0.12 秒で −40dB まで下げ、pause.end で戻す。
   AMB : 実写 約−20dB（校正値 −18.5：突風で上下するため実測の中央値が約−20になる値）、図解（id が d で始まる場面、2秒未満のすき間は結合）さらに −10dB、タイトル下 −6dB、
-        エンドカードで下げて最後に無音へ。
+        エンドカードでは、紙に溶けるまで実写と同じ大きさ（S10 が見えている間は現場の音）、紙の上で AMB_PAPER 下げ、
+        黒へのフェード（endcard の fade）と一緒に無音へ（最後まで「デジタルの無音」にしない：独立レビュー v4.7）。
+  BGM の最後：最後のナレの後は BGM_TAIL_RELEASE だけ戻す（区間の大きさで割り戻さない＝減衰中の余韻を持ち上げすぎない）。
+        黒へのフェードと一緒に 0 へ。
   SE  : 種類ごとの目標（0.1秒窓ラウドネスの最大値で、ナレ VO_REF より lock −10 / join −12 / measure・click −16 dB）。
         短い音は 0.4 秒窓だと小さく測られ過大になりやすいので 0.1 秒窓で決める。ナレより大きくしない。
   切れ目：VO・BGM・AMB はすべての端に 10ms 以上のフェード。SE は合成時に 0 から立ち上がる（編集点ではない）＋末尾 10ms フェード。
@@ -54,6 +57,8 @@ GAP_HOLD_MIN = 0.25
 BGM_MAX_BOOST = 8.0          # 曲の静かな所（入り）を持ち上げる上限。曲のダイナミクスをつぶし切らない
 DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, MERGE_GAP = 0.35, 0.05, 0.10, 0.35, 1.2
 AMB_LIVE, AMB_DIAG, AMB_TITLE = -21.5, -10.0, -6.0      # AMB_DIAG / AMB_TITLE は AMB_LIVE からの追加分（VO をステレオで測るようにしたので −3）
+AMB_PAPER = -8.0             # エンドカードの紙の上（章扉の並び）での AMB_LIVE からの追加分
+BGM_TAIL_RELEASE = 4.0       # 最後のナレの後、ナレ下の位置から戻す量（dB）
 SE_TARGET = {"lock": -10.0, "join": -12.0, "measure": -16.0, "click": -16.0, "glow": -14.0}   # 0.1秒窓ラウドネスの最大値、VO_REF 比
 TARGET_LUFS, TP_MAX = -24.0, -2.0
 
@@ -204,8 +209,9 @@ def main():
     for s, e in gaps:
         s = max(s, B0)
         free_fader.append(None if e - s < GAP_HOLD_MIN else min(BGM_FREE + VO_REF - local_level(s, e), BGM_MAX_BOOST))
-    # 最後のナレの後は上げない（曲の余韻がもう小さいので、上げると曲を替えたときに最後がふくらむ：音のレビュー S6）
-    free_fader[-1] = None
+    # 最後のナレの後は、区間の大きさでは割り戻さない（余韻が小さいので、割り戻すと曲を替えたときに最後がふくらむ：音のレビュー S6）。
+    # ナレ下の位置から BGM_TAIL_RELEASE だけ戻して、最後の和音の減衰を聞かせる（v4.8）
+    free_fader[-1] = duck_fader[-1] + BGM_TAIL_RELEASE
     base = []                                            # 手書き相当のキーフレーム (t, fader dB)
     for i, (s, e) in enumerate(duck_iv):
         if free_fader[i] is not None: base.append((s - DUCK_PRE, free_fader[i]))
@@ -222,6 +228,10 @@ def main():
     bgm_kf = [(round(float(t), 4), round(float(d), 2)) for t, d in zip(kt, kdb)]
     gain = keyframes_to_gain(bgm_kf, N)
     gain[: int(round(B0 * SR))] = 0.0
+    endc_ = [sc for sc in T["scenes"] if sc["id"] == "endcard"]
+    if endc_ and "fade" in endc_[0]["cues"]:                 # 黒へのフェード（映像）と同じ区間で、曲の残りの余韻を 0 へ（等パワーの下り）
+        f0 = int(round((endc_[0]["start"] + endc_[0]["cues"]["fade"]) * SR))
+        if f0 < N: gain[f0:] *= np.cos(np.linspace(0, 1, N - f0) * np.pi / 2)
     # ナレの区間だけ、声の帯域（1〜4kHz）を BGM_CARVE_DB あける（手書きの区間の包絡。サイドチェインではない）
     tt = np.arange(N) / SR
     env = interval_env(duck_iv, DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, tt)
@@ -249,13 +259,14 @@ def main():
     for s, e in diag + title: kt |= {s - 0.3, s + 0.5, e - 0.5, e + 0.3}
     kt = np.array(sorted(t for t in kt if 0 <= t <= DUR) + [DUR])
     if endc:
-        es = endc[0]["start"]; kt = np.array(sorted(set(kt[kt < es]) | {es, es + 1.0, DUR - 0.3, DUR}))
+        es = endc[0]["start"]; cu = endc[0]["cues"]
+        e_paper = es + cu.get("paper", cu.get("door", 1.0) - 0.45); e_fade = es + cu.get("fade", DUR - es - 0.5)
+        kt = np.array(sorted(set(kt[kt < es]) | {es, e_paper, e_paper + 0.6, e_fade, DUR}))
     lvl = (AMB_LIVE + AMB_DIAG * interval_env(diag, 0.3, -0.5, -0.5, 0.8, kt)
            + AMB_TITLE * interval_env(title, 0.3, -0.5, -0.5, 0.8, kt))
     if endc:
-        es = endc[0]["start"]
-        lvl = np.where(kt >= es + 1.0, AMB_LIVE - 10, lvl)
-        lvl = np.where(kt >= DUR - 0.3, -90.0, lvl)
+        lvl = np.where(kt >= e_paper + 0.6 - 1e-6, AMB_LIVE + AMB_PAPER, lvl)
+        lvl = np.where(kt >= DUR - 1e-6, -90.0, lvl)
     amb_kf = [(round(float(t), 4), round(float(d), 2)) for t, d in zip(kt, lvl)]
     amb *= keyframes_to_gain(amb_kf, N)[:, None]
     amb = fade_edges(amb, 0.0, 0.010)

@@ -82,7 +82,10 @@
       tl.fromTo("#d0-desc", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.28);
 
       // out 以降は最後の状態で止まる（次はカット）
-      tl.set({}, {}, Math.max(v.dur || 0, c.out || 0));
+      // 場面全体：しるしへごくゆっくり寄る（毎秒0.6%。止まって見えないように）
+      const D0 = Math.max(v.dur || 0, c.out || 0);
+      tl.fromTo("#d0-svg", { scale: 1, transformOrigin: "620px 698px" }, { scale: 1 + 0.006 * D0, transformOrigin: "620px 698px", duration: D0, ease: "none" }, 0);
+      tl.set({}, {}, D0);
       window.__timelines["d0_marker"] = tl;
     })();
   </script>

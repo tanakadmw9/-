@@ -7,6 +7,8 @@ VER=${1:?版を指定（例 v4.1）}; Q=${2:-draft}
 DIR=renders/$([ "$Q" = delivery ] && echo master || ([ "$Q" = looks ] && echo review || echo draft))
 mkdir -p "$DIR"
 export HYPERFRAMES_BROWSER_PATH=${HYPERFRAMES_BROWSER_PATH:-/opt/pw-browsers/chromium-1243/chrome-linux64/chrome}
+python3 scripts/20_plan_timeline.py
+python3 scripts/30_mix.py   # timeline が変わったら音も必ず作り直す（古い mix を合わせない）
 python3 scripts/21_build_index.py
 npx hyperframes lint comp
 npx hyperframes render comp -q "$Q" --fps 30000/1001 -o "$DIR/${VER}_video.mp4"

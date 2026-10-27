@@ -17,6 +17,7 @@
   </style>
   <div id="root" data-composition-id="d2_topview" data-width="1920" data-height="1080">
     <div id="d2-bg"></div>
+    <div id="d2-push" style="position: absolute; inset: 0;">
     <svg id="d2-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <!-- 方眼：80px 間隔。A(560,760) が交点に乗るよう y を 40 ずらす -->
@@ -76,6 +77,7 @@
     <div id="d2-lbl-angle" class="d2-lbl d2-od d2-b">角度</div>
     <div id="d2-lbl-dist" class="d2-lbl d2-od d2-b">距離</div>
     <div id="d2-lbl-new" class="d2-lbl d2-od d2-b">新しい点</div>
+    </div>
   </div>
   <script>
     (function () {
@@ -145,7 +147,8 @@
       tl.fromTo("#d2-P-dot", { opacity: 0, attr: { r: 4 } }, { opacity: 1, attr: { r: 11 }, duration: 0.18, ease: "power3.out" }, f);
       tl.fromTo("#d2-P-pulse", { opacity: 0.9, attr: { r: 28 } }, { opacity: 0, attr: { r: 70 }, duration: 0.55, ease: "power2.out" }, f);
 
-      // 以降は止まって待つ
+      // 場面全体：A と P の間へごくゆっくり寄る（段の合間に止まって見えないように。毎秒0.4%）
+      tl.fromTo("#d2-push", { scale: 1, transformOrigin: "50% 59%" }, { scale: 1 + 0.004 * dur, transformOrigin: "50% 59%", duration: dur, ease: "none" }, 0);
       tl.set({}, {}, dur);
       window.__timelines["d2_topview"] = tl;
     })();

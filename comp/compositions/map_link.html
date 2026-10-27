@@ -26,6 +26,7 @@
   <div id="root" data-composition-id="map_link" data-width="1920" data-height="1080">
     <div id="ml-all">
       <div id="ml-paper"></div>
+      <div id="ml-push" style="position: absolute; inset: 0;">
       <svg id="ml-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
         <defs><clipPath id="ml-road-clip"><rect id="ml-road-clip-rect" x="0" y="0" width="0" height="1080"/></clipPath></defs>
         <g id="ml-zoom">
@@ -120,6 +121,7 @@
       </svg>
       <div id="ml-lbl-map" class="ml-lbl">地図</div>
       <div id="ml-lbl-road" class="ml-lbl">道路の図面</div>
+      </div>
       <div id="ml-band"></div>
       <svg id="ml-arcs" viewBox="0 0 1920 262" aria-hidden="true" fill="none" stroke="var(--orange)" stroke-width="4" stroke-linecap="round">
         <path id="ml-arc-0" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100" d="M392 60 C 560 -10, 800 -10, 908 60"/>
@@ -195,6 +197,9 @@
         tl.fromTo("#ml-icon-" + u, { color: NAVY }, { color: ORANGE, duration: 0.2, ease: "power2.out" }, c.links + 0.35 + k * 0.12);
         tl.to("#ml-item-" + u + " .ml-label", { color: tok("--ink", "#14202E"), duration: 0.2, ease: "power2.out" }, c.links + 0.35 + k * 0.12);
       });
+      // 引き終わった後も地図がごくゆっくり引き続ける（毎秒0.5%。言葉を待つ間に止まって見えないように）
+      const p1 = c.points + 1.3;
+      tl.fromTo("#ml-push", { scale: 1, transformOrigin: "50% 60%" }, { scale: 1 - 0.005 * (dur - p1), transformOrigin: "50% 60%", duration: dur - p1, ease: "none" }, p1);
       tl.set({}, {}, dur);
       window.__timelines["map_link"] = tl;
     })();

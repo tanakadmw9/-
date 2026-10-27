@@ -53,7 +53,7 @@ def where(t):
 
 
 def is_diagram_hold(t):
-    return any(s["start"] <= t < s["start"] + s["dur"] and not s.get("overlay") for s in T["scenes"])
+    return any(s["start"] <= t < s["start"] + s["dur"] and s.get("diagram", not s.get("overlay")) for s in T["scenes"])
 
 
 def frames(path, fps=None, w=None, h=None, gray=False, at=None):
@@ -364,7 +364,8 @@ def levels_plot(outdir, W=1600, H=420):
     img = np.full((H, W, 3), 255, np.uint8); dur = T["duration"]
     X = lambda t: int(50 + (W - 70) * t / dur); Y = lambda l: int(20 + (H - 60) * (-(l + 10)) / 60)  # -10..-70 LUFS
     for v in T["vo"]: cv2.rectangle(img, (X(v["start"]), 20), (X(v["start"] + v["dur"]), H - 40), (238, 238, 238), -1)
-    ps = T["bgm"]["pause"]; cv2.rectangle(img, (X(ps["start"]), 20), (X(ps["end"]), H - 40), (220, 220, 255), -1)
+    ps = T["bgm"].get("pause")
+    if ps: cv2.rectangle(img, (X(ps["start"]), 20), (X(ps["end"]), H - 40), (220, 220, 255), -1)
     for l in range(-10, -71, -10):
         cv2.line(img, (50, Y(l)), (W - 20, Y(l)), (210, 210, 210), 1)
         cv2.putText(img, str(l), (8, Y(l) + 4), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (90, 90, 90), 1)

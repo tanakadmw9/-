@@ -168,7 +168,6 @@ scene("endcard", s10s, end, {"text_in": s10s + 0.15, "bg_in": s10e, "reticle": a
       "締めの一文。照準が縮んで章扉の基準点アイコンに戻る（章扉と同じ形で閉じる）", overlay=True, diagram=False, cut_point=False,
       variables={"push_from": round(push1, 4), "push_rate": push_rate, "icon_x": DOOR_ICON[0], "icon_y": DOOR_ICON[1],
                  "active": 0})
-T["cuts"].append(f(s10e))
 T["intended_freezes"].append([f(s10e), f(end), "endcard（S10 最後のコマに寄り続ける）"])
 se("lock", at(23, 3) + 1.45, "照準が章扉のアイコンに戻る（小さめ）", gain_db=-6.0)
 beat("B8", at(21), end, "締め")

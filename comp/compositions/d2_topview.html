@@ -13,7 +13,7 @@
     #d2-lbl-a { left: 112px; top: 727px; width: 360px; text-align: right; font-size: 48px; }
     #d2-lbl-angle { left: 580px; top: 560px; width: 160px; text-align: center; font-size: 52px; }
     #d2-lbl-dist { left: 870px; top: 534px; width: 160px; text-align: center; font-size: 52px; }
-    #d2-lbl-new { left: 1200px; top: 414px; width: 360px; text-align: center; font-size: 48px; }
+    #d2-lbl-new, #d2-lbl-new2 { left: 1200px; top: 376px; width: 360px; text-align: center; font-size: 48px; }
   </style>
   <div id="root" data-composition-id="d2_topview" data-width="1920" data-height="1080">
     <div id="d2-bg"></div>
@@ -59,6 +59,13 @@
         </g>
         <circle id="d2-P-pulse" r="28" fill="none" stroke="var(--orange)" stroke-width="4" opacity="0"/>
       </g>
+      <!-- 照準：「決まります」で P に合う（章扉・タイトル・締めと同じ記号。デザイン G5） -->
+      <g id="d2-ret" transform="translate(1380 520)">
+        <g id="d2-ret-in" opacity="0" fill="none" stroke="var(--orange)" stroke-linecap="round">
+          <circle r="47" stroke-width="5"/>
+          <path d="M0 -67V-33M0 33V67M-67 0H-33M33 0H67" stroke-width="5"/>
+        </g>
+      </g>
       <!-- A：わかっている点（d1 の TS 位置から移ってくる）＋真上から見た TS -->
       <g id="d2-A" transform="translate(560 760)">
         <g id="d2-ts" opacity="0">
@@ -77,6 +84,7 @@
     <div id="d2-lbl-angle" class="d2-lbl d2-od d2-b">角度</div>
     <div id="d2-lbl-dist" class="d2-lbl d2-od d2-b">距離</div>
     <div id="d2-lbl-new" class="d2-lbl d2-od d2-b">新しい点</div>
+    <div id="d2-lbl-new2" class="d2-lbl d2-od d2-b" style="opacity:0">新しい基準点</div>
     </div>
   </div>
   <script>
@@ -155,8 +163,19 @@
       tl.fromTo("#d2-P-dot", { opacity: 0, attr: { r: 4 } }, { opacity: 1, attr: { r: 11 }, duration: 0.18, ease: "power3.out" }, f);
       tl.fromTo("#d2-P-pulse", { opacity: 0.9, attr: { r: 28 } }, { opacity: 0, attr: { r: 70 }, duration: 0.55, ease: "power2.out" }, f);
 
-      // 場面全体：A と P の間へごくゆっくり寄る（段の合間に止まって見えないように。毎秒0.4%）
-      tl.fromTo("#d2-push", { scale: 1, transformOrigin: "50% 59%" }, { scale: 1 + 0.004 * dur, transformOrigin: "50% 59%", duration: dur, ease: "none" }, 0);
+      // 照準が P に合う（1.6→1倍、0.45秒）→ 0.6秒とどまって消える。合わせて角度・距離の補助を半分に下げ、P を主役にする
+      tl.fromTo("#d2-ret-in", { opacity: 0, scale: 1.6, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: 0.45, ease: "power3.out" }, f - 0.3);
+      tl.to("#d2-ret-in", { opacity: 0, duration: 0.3, ease: "power2.in" }, f + 0.75);
+      tl.to(["#d2-arc", "#d2-ray", "#d2-lbl-angle", "#d2-lbl-dist"], { opacity: 0.5, duration: 0.4, ease: "power2.inOut" }, f);
+      // 決まった点は、新しい「基準点」になる（監修 K1）。札を「新しい点」→「新しい基準点」に替える
+      const f2 = f + 0.8;
+      tl.to("#d2-lbl-new", { opacity: 0, duration: 0.25, ease: "power2.in" }, f2);
+      tl.fromTo("#d2-lbl-new2", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, f2 + 0.1);
+
+      // 場面全体：A と P の間へごくゆっくり寄り（毎秒0.4%）、決まった後はゆっくり引いて次の「点つなぎ」へ
+      const pk = Math.min(dur, f + 0.9);
+      tl.fromTo("#d2-push", { scale: 1, transformOrigin: "50% 59%" }, { scale: 1 + 0.004 * pk, transformOrigin: "50% 59%", duration: pk, ease: "none" }, 0);
+      if (dur - pk > 0.3) tl.to("#d2-push", { scale: 0.95, duration: dur - pk, ease: "power1.inOut" }, pk);
       tl.set({}, {}, dur);
       window.__timelines["d2_topview"] = tl;
     })();

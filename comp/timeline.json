@@ -150,11 +150,11 @@
    "purpose": "前を指差す2人＝次へ向かう人。曲の最後の一打で切り替え"
   },
   {
-   "id": "S10@53.6202",
+   "id": "S10@53.687",
    "shot": "S10",
    "src": "assets/video/S10.mp4",
-   "start": 53.6202,
-   "dur": 2.9697,
+   "start": 53.687,
+   "dur": 2.9362,
    "media_start": 0.0,
    "purpose": "現場を見渡す背中＝誇りと余韻"
   }
@@ -166,6 +166,13 @@
    "start": 5.639,
    "dur": 1.9019,
    "purpose": "タイトルのための静止（固定カメラ）。ゆっくり寄る"
+  },
+  {
+   "id": "S02_last",
+   "src": "assets/video/S02_last.png",
+   "start": 53.6202,
+   "dur": 0.0668,
+   "purpose": "S02 を拍までのばす2コマ（ほぼ固定の画）"
   }
  ],
  "scenes": [
@@ -217,14 +224,15 @@
    "dur": 3.1698,
    "cues": {
     "marker_in": 0.0,
-    "tripod_in": 0.35,
-    "term_in": 0.965,
+    "tripod_in": 0.0,
+    "term_in": 0.6,
+    "pulse": 1.73,
     "out": 3.11
    },
    "overlay": false,
    "diagram": true,
    "variables": {},
-   "purpose": "用語「基準点」を、地面のしるしの形と一緒に"
+   "purpose": "用語「基準点」を、地面のしるしの形と一緒に（S03 の三脚から形でつなぐ）"
   },
   {
    "id": "d1_observe",
@@ -234,8 +242,8 @@
    "dur": 3.7705,
    "cues": {
     "desat": 0.0,
-    "ts_label": 0.1,
-    "prism_label": 0.5,
+    "ts_label": 0.0,
+    "prism_label": 0.25,
     "angle": 1.0,
     "distance": 1.55,
     "to_paper": 2.792
@@ -258,11 +266,11 @@
    "dur": 7.6076,
    "cues": {
     "setup": 0.0,
-    "known": 0.3,
+    "known": 0.0,
     "angle": 1.991,
     "distance": 2.561,
-    "new_point": 3.271,
-    "fix": 5.391
+    "new_point": 3.521,
+    "fix": 5.641
    },
    "overlay": false,
    "diagram": true,
@@ -295,19 +303,20 @@
    "id": "endcard",
    "comp": "compositions/endcard.html",
    "template": null,
-   "start": 53.6202,
-   "dur": 7.0404,
+   "start": 53.687,
+   "dur": 6.9736,
    "cues": {
     "text_in": 0.15,
-    "bg_in": 2.953,
-    "reticle": 3.255,
-    "door": 4.705,
-    "fade": 6.547
+    "bg_in": 2.89,
+    "reticle": 2.413,
+    "door": 3.863,
+    "lock": 5.503,
+    "fade": 6.485
    },
    "overlay": true,
    "diagram": false,
    "variables": {
-    "push_from": 1.0443,
+    "push_from": 1.0438,
     "push_rate": 0.015,
     "icon_x": 340,
     "icon_y": 470,
@@ -319,11 +328,18 @@
  "telops": [],
  "vo": [
   {
-   "id": "N1",
-   "src": "assets/audio/vo/N1.wav",
-   "start": 1.0344,
-   "dur": 4.18,
-   "text": "測量部門の仕事のひとつ、基準点測量です。"
+   "id": "N1a",
+   "src": "assets/audio/vo/N1a.wav",
+   "start": 0.3003,
+   "dur": 1.97,
+   "text": "測量部門の仕事のひとつ、"
+  },
+  {
+   "id": "N1b",
+   "src": "assets/audio/vo/N1b.wav",
+   "start": 3.9039,
+   "dur": 1.45,
+   "text": "基準点測量です。"
   },
   {
    "id": "N2",
@@ -335,7 +351,7 @@
   {
    "id": "N3",
    "src": "assets/audio/vo/N3.wav",
-   "start": 16.383,
+   "start": 17.1505,
    "dur": 2.9,
    "text": "その目印を、「基準点」といいます。"
   },
@@ -356,7 +372,7 @@
   {
    "id": "N5b",
    "src": "assets/audio/vo/N5b.wav",
-   "start": 31.031,
+   "start": 31.2979,
    "dur": 2.78,
    "text": "新しい点の位置が、決まります。"
   },
@@ -378,14 +394,14 @@
    "id": "N7b",
    "src": "assets/audio/vo/N7b.wav",
    "start": 45.6122,
-   "dur": 4.1,
+   "dur": 3.97,
    "text": "地図や、道路の図面が、描かれていきます。"
   },
   {
    "id": "N8",
    "src": "assets/audio/vo/N8.wav",
    "start": 51.4514,
-   "dur": 7.49,
+   "dur": 7.61,
    "text": "ほかの測量が使う、“はじまりの点”をつくる。それが、基準点測量です。"
   }
  ],
@@ -394,37 +410,61 @@
    "kind": "glow",
    "start": 1.2679,
    "note": "章扉で基準点のアイコンが灯る",
-   "gain_db": 0.0
+   "gain_db": 0.0,
+   "src": "/mnt/project-files/assets/se/tones/decision28.mp3",
+   "target": -12.0
   },
   {
    "kind": "lock",
    "start": 3.8038,
    "note": "照準が合う電子音（シリーズ共通の合図）",
-   "gain_db": 0.0
+   "gain_db": 0.0,
+   "src": "/mnt/project-files/assets/se/tones/decision6.mp3",
+   "target": -9.0
   },
   {
    "kind": "measure",
    "start": 25.5255,
    "note": "測距の短い電子音",
-   "gain_db": 0.0
+   "gain_db": 0.0,
+   "src": "/mnt/project-files/assets/se/tones/cursor3.mp3",
+   "target": -10.0
   },
   {
    "kind": "click",
-   "start": 33.1665,
+   "start": 33.4,
    "note": "新しい点が決まる",
-   "gain_db": 0.0
+   "gain_db": 0.0,
+   "src": "/mnt/project-files/assets/se/tones/decision28.mp3",
+   "target": -8.0
   },
   {
    "kind": "click",
    "start": 49.1825,
    "note": "アイコンが灯る（小さめ）",
-   "gain_db": -6.0
+   "gain_db": -3.0,
+   "src": "/mnt/project-files/assets/se/tones/decision28.mp3",
+   "target": -8.0
+  },
+  {
+   "kind": "foley",
+   "start": 45.6122,
+   "note": "等高線・道路の線が描かれる間のシャーペンの音（ごく小さく）",
+   "src": "/mnt/project-files/assets/se/foley/mechanical-pencil-write1.mp3",
+   "dur": 2.4,
+   "target": -26.0,
+   "level": "p90",
+   "highpass": 400,
+   "fade_in": 0.15,
+   "fade_out": 0.3
   },
   {
    "kind": "lock",
-   "start": 58.3249,
-   "note": "照準が章扉のアイコンに戻る（小さめ）",
-   "gain_db": -6.0
+   "start": 59.1925,
+   "note": "照準が章扉のアイコンに戻り、文が終わった後の合図（小さめ）",
+   "gain_db": -3.0,
+   "src": "/mnt/project-files/assets/se/tones/decision6.mp3",
+   "target": -9.0
   }
  ],
  "bgm": {
@@ -455,11 +495,11 @@
   },
   {
    "target": "v_S10",
-   "start": 53.6202,
-   "dur": 2.9533,
+   "start": 53.687,
+   "dur": 2.9233,
    "scale": [
     1.0,
-    1.0442995000000002
+    1.0438495
    ],
    "origin": "50% 40%",
    "purpose": "見渡す先へ気持ちを運ぶ（毎秒1.5%）"
@@ -480,7 +520,7 @@
   39.7731,
   42.9429,
   50.5171,
-  53.6202
+  53.687
  ],
  "intended_freezes": [
   [
@@ -494,11 +534,16 @@
    "S09_freeze（D1の背景）"
   ],
   [
-   56.5899,
+   53.6202,
+   53.687,
+   "S02_last"
+  ],
+  [
+   56.6232,
    60.6606,
    "endcard（S10 最後のコマに寄り続ける）"
   ]
  ],
  "duration": 60.6606,
- "speech_ratio": 0.728
+ "speech_ratio": 0.715
 }

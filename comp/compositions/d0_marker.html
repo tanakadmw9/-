@@ -17,8 +17,8 @@
   <div id="root" data-composition-id="d0_marker" data-width="1920" data-height="1080">
     <div id="d0-bg"></div>
     <svg id="d0-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
-      <!-- 地面の下：標石（四角い柱）。紺の細線 -->
-      <path id="d0-pillar" class="d0-navy" stroke-width="2.5" d="M512 708 V940 H728 V708" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+      <!-- 地面の下：金属標の短い足（標石と混ざった形にしない。監修 K5 案a）。紺の細線 -->
+      <path id="d0-pillar" class="d0-navy" stroke-width="3" d="M606 716 V776 H634 V716" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
       <!-- 地面の断面ハッチ（方眼色・ごく控えめ） -->
       <g id="d0-hatch" stroke="var(--grid)" stroke-width="3" stroke-linecap="round" opacity="0">
         <path d="M268 712 l-20 24 M304 712 l-20 24 M340 712 l-20 24 M376 712 l-20 24 M412 712 l-20 24 M448 712 l-20 24 M484 712 l-20 24
@@ -34,19 +34,20 @@
         <line class="d0-navy" stroke-width="3" x1="620" y1="687" x2="620" y2="709"/>
         <circle id="d0-dot" cx="620" cy="698" r="7" fill="#1F3A5F" style="fill: var(--navy)"/>
       </g>
+      <!-- 三脚＋機械（紺の線画） -->
+      <g id="d0-tripod" opacity="0" stroke-opacity="0.6">
+        <line class="d0-navy" stroke-width="3.5" x1="592" y1="404" x2="462" y2="700"/>
+        <line class="d0-navy" stroke-width="3.5" x1="648" y1="404" x2="778" y2="700"/>
+        <rect class="d0-navy d0-fillp" stroke-width="3.5" x="566" y="388" width="108" height="16" rx="3"/>
+        <rect class="d0-navy d0-fillp" stroke-width="3" x="590" y="364" width="60" height="24" rx="3"/>
+        <rect class="d0-navy d0-fillp" stroke-width="3.5" x="586" y="296" width="68" height="68" rx="8"/>
+        <circle class="d0-navy d0-fillp" stroke-width="3" cx="620" cy="330" r="17"/>
+        <path class="d0-navy" stroke-width="3.5" d="M596 296 Q620 268 644 296"/>
+      </g>
       <!-- 引き出し線：しるし → 用語 -->
+      <line id="d0-lead-gap" x1="700" y1="700" x2="1024" y2="660" stroke="var(--paper)" stroke-width="11" stroke-linecap="round" opacity="0"/>
       <line id="d0-lead" x1="700" y1="700" x2="1024" y2="660" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100"/>
       <circle id="d0-lead-dot" cx="700" cy="700" r="6" fill="var(--ink)" opacity="0"/>
-      <!-- 三脚＋機械（紺の線画） -->
-      <g id="d0-tripod" opacity="0">
-        <line class="d0-navy" stroke-width="5" x1="592" y1="404" x2="462" y2="700"/>
-        <line class="d0-navy" stroke-width="5" x1="648" y1="404" x2="778" y2="700"/>
-        <rect class="d0-navy d0-fillp" stroke-width="5" x="566" y="388" width="108" height="16" rx="3"/>
-        <rect class="d0-navy d0-fillp" stroke-width="4" x="590" y="364" width="60" height="24" rx="3"/>
-        <rect class="d0-navy d0-fillp" stroke-width="5" x="586" y="296" width="68" height="68" rx="8"/>
-        <circle class="d0-navy d0-fillp" stroke-width="4" cx="620" cy="330" r="17"/>
-        <path class="d0-navy" stroke-width="5" d="M596 296 Q620 268 644 296"/>
-      </g>
       <!-- 求心：三脚の頭から標識の中心へ紺の点線 -->
       <line id="d0-plumb" x1="620" y1="410" x2="620" y2="410" stroke="var(--navy)" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 14" opacity="0"/>
     </svg>
@@ -66,30 +67,34 @@
       const tl = gsap.timeline({ paused: true });
       const m = c.marker_in, t = c.tripod_in, k = c.term_in;
 
-      // marker_in：地面 → 標石 → 金属標。中心の点が1回だけオレンジに灯って紺に戻る
-      tl.fromTo("#d0-ground", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, m);
-      tl.fromTo("#d0-hatch", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, m + 0.2);
-      tl.fromTo("#d0-pillar", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, m + 0.2);
-      tl.fromTo("#d0-marker", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, m + 0.32);
-      tl.fromTo("#d0-dot", { fill: NAVY, attr: { r: 7 } }, { fill: ORANGE, attr: { r: 9 }, duration: 0.15, ease: "power2.out" }, m + 0.72);
-      tl.fromTo("#d0-dot", { fill: ORANGE, attr: { r: 9 } }, { fill: NAVY, attr: { r: 7 }, duration: 0.35, ease: "power2.inOut", immediateRender: false }, m + 1.15);
+      // 0コマ目：S03 の三脚の大きさ・位置（脚の先が画面の下端）から線画の三脚へ縮む＝形のつなぎ（v4.5 レビュー、E1 案b）
+      tl.fromTo("#d0-tripod", { opacity: 1, scale: 1.74, x: -15, y: 380, transformOrigin: "620px 700px" },
+                { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.6, ease: "power3.out" }, m);
+      // 地面 → 金属標（足は短く）
+      tl.fromTo("#d0-ground", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, m + 0.25);
+      tl.fromTo("#d0-hatch", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, m + 0.45);
+      tl.fromTo("#d0-pillar", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.inOut" }, m + 0.45);
+      tl.fromTo("#d0-marker", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, m + 0.5);
+      // 求心：三脚の頭から標識の中心へ点線
+      tl.fromTo("#d0-plumb", { opacity: 0 }, { opacity: 1, duration: 0.05, ease: "none" }, m + 0.8);
+      tl.fromTo("#d0-plumb", { attr: { y2: 410 } }, { attr: { y2: 690 }, duration: 0.4, ease: "power2.inOut" }, m + 0.8);
 
-      // tripod_in：三脚が上から下りて標識をまたいで立つ → 頭から中心へ点線（求心）
-      tl.fromTo("#d0-tripod", { opacity: 0, y: -170 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, t);
-      tl.fromTo("#d0-plumb", { opacity: 0 }, { opacity: 1, duration: 0.05, ease: "none" }, t + 0.5);
-      tl.fromTo("#d0-plumb", { attr: { y2: 410 } }, { attr: { y2: 690 }, duration: 0.4, ease: "power2.inOut" }, t + 0.5);
-
-      // term_in：用語カード（縦線 → 用語 → 説明）
+      // term_in：引き出し線（しるしから）→ 用語カード。言葉「基準点」より先に出す（画が先）
+      tl.fromTo("#d0-lead-gap", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.3);
       tl.fromTo("#d0-lead-dot", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.3);
       tl.fromTo("#d0-lead", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, k - 0.25);
       tl.fromTo("#d0-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: "power3.out" }, k);
       tl.fromTo("#d0-term", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.1);
       tl.fromTo("#d0-desc", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.28);
 
-      // out 以降は最後の状態で止まる（次はカット）
-      // 場面全体：しるしへごくゆっくり寄る（毎秒0.6%。止まって見えないように）
+      // pulse：言葉「基準点」で、しるしの中心が1回だけオレンジに灯って紺に戻る
+      const pl = c.pulse != null ? c.pulse : k + 0.8;
+      tl.fromTo("#d0-dot", { fill: NAVY, attr: { r: 7 } }, { fill: ORANGE, attr: { r: 11 }, duration: 0.15, ease: "power2.out" }, pl);
+      tl.fromTo("#d0-dot", { fill: ORANGE, attr: { r: 11 } }, { fill: NAVY, attr: { r: 7 }, duration: 0.4, ease: "power2.inOut", immediateRender: false }, pl + 0.45);
+
+      // 場面全体：しるしへゆっくり寄る（毎秒1.5%、合計5%以内。止まって見えないように、目をしるしへ）
       const D0 = Math.max(v.dur || 0, c.out || 0);
-      tl.fromTo("#d0-svg", { scale: 1, transformOrigin: "620px 698px" }, { scale: 1 + 0.006 * D0, transformOrigin: "620px 698px", duration: D0, ease: "none" }, 0);
+      tl.fromTo("#d0-svg", { scale: 1, transformOrigin: "620px 698px" }, { scale: 1 + 0.015 * D0, transformOrigin: "620px 698px", duration: D0, ease: "none" }, 0);
       tl.set({}, {}, D0);
       window.__timelines["d0_marker"] = tl;
     })();

@@ -70,8 +70,23 @@ def move(target, start, end, scale0, scale1, origin, purpose):
     T["moves"].append({"target": target, "start": f(start), "dur": round(end - start, 4), "scale": [scale0, scale1],
                        "origin": origin, "purpose": purpose})
 
+# 効果音の組（v4.7）："lab"＝効果音ラボの音（声の帯域より上にあり、ナレの最中でも聞こえる：音のレビュー A3）／"synth"＝v4.6 までの自作の合成音
+# 効果音ラボの規約で素材の再配布は禁止 → mp3 は /mnt/project-files/assets/se/ から読み、リポジトリには入れない
+SE_SET = "lab"
+SE_ASSETS = "/mnt/project-files/assets/se"
+SE_LAB = {"glow": ("tones/decision28.mp3", -12.0), "lock": ("tones/decision6.mp3", -9.0),
+          "measure": ("tones/cursor3.mp3", -10.0), "click": ("tones/decision28.mp3", -8.0)}   # (素材, 0.4秒窓の最大の VO_REF 比)
+
 def se(kind, t, note="", gain_db=0.0):
-    T["se"].append({"kind": kind, "start": f(t), "note": note, "gain_db": gain_db})
+    e = {"kind": kind, "start": f(t), "note": note, "gain_db": gain_db}
+    if SE_SET == "lab" and kind in SE_LAB:
+        src, tgt = SE_LAB[kind]
+        e.update({"src": f"{SE_ASSETS}/{src}", "target": tgt, "gain_db": gain_db * 0.5})
+    T["se"].append(e)
+
+def foley(src, t, dur, target, note="", **kw):
+    T["se"].append({"kind": "foley", "start": f(t), "note": note, "src": f"{SE_ASSETS}/{src}", "dur": dur, "target": target,
+                    "level": "p90", **kw})
 
 def beat(id_, start, end, purpose):
     T["beats"].append({"id": id_, "start": f(start), "end": f(end), "dur": round(end - start, 3), "purpose": purpose})
@@ -89,7 +104,9 @@ still("S04_last", cut(2) + s04_live, cut(4), "タイトルのための静止（�
 move("still_S04_last", cut(2) + s04_live, cut(4), 1.0, 1.0 + 0.02 * (cut(4) - cut(2) - s04_live),
      f"{PRISM[0] / 19.2:.2f}% {PRISM[1] / 10.8:.2f}%", "静止を感じさせず、照準へ視線を集める（毎秒2%）")
 lock = at(2, 3)
-s, _ = vo("N1", lock - VO["N1"]["keywords"]["基準点測量"])
+# N1 は2つに分ける（v4.7）：「ひとつ、」はアイコンが灯った約0.5秒後、「基準点測量です。」は照準が合って「ピッ」が鳴った直後
+vo("N1a", at(1, 3) + 0.55 - VO["N1a"]["keywords"]["ひとつ"])
+vo("N1b", lock + 0.12 - VO["N1b"]["keywords"]["基準点測量"])   # 「ピッ」→ひと呼吸→「基準点測量」（音のレビュー A4）
 scene("title", cut(2), cut(4), {"reticle_in": cut(2) + 0.05, "lock": lock, "title_in": lock + 0.2, "out": cut(4) - 0.3},
       "章の提示。照準がプリズムに合う", overlay=True, diagram=False, cut_point=False,
       variables={"target_x": PRISM[0], "target_y": PRISM[1], "from_x": DOOR_ICON[0], "from_y": DOOR_ICON[1]})
@@ -104,9 +121,11 @@ beat("B2", at(4), at(7), "人と現場。目印が要る理由")
 
 # ---------------- B3 基準点とは（7〜8小節） ----------------
 shot("S03", cut(7), cut(7, 4), 12.00, "プリズムを据える＝目印の上に立てる")
-s, _ = vo("N3", at(8) + 0.3 - VO["N3"]["keywords"]["基準点"])   # 「基準点」を 8 小節（曲の息つぎ）に
-scene("d0_marker", cut(7, 4), cut(9), {"marker_in": cut(7, 4), "tripod_in": cut(7, 4) + 0.35, "term_in": kw("N3", s, "基準点"),
-                                       "out": cut(9) - 0.05}, "用語「基準点」を、地面のしるしの形と一緒に")
+# N3「その目印を」は D0 の地面のしるしが出てから読む（S03 のプリズムの上で言うと「目印＝プリズム」と覚えるおそれ：内容 K1）
+s, _ = vo("N3", cut(7, 4) + 0.13)
+scene("d0_marker", cut(7, 4), cut(9), {"marker_in": cut(7, 4), "tripod_in": cut(7, 4), "term_in": cut(7, 4) + 0.6,
+                                       "pulse": kw("N3", s, "基準点"), "out": cut(9) - 0.05},
+      "用語「基準点」を、地面のしるしの形と一緒に（S03 の三脚から形でつなぐ）")
 beat("B3", at(7), at(9), "基準点とは")
 
 # ---------------- B4 はかる（9〜11小節） ----------------
@@ -114,7 +133,7 @@ shot("S09", cut(9), cut(10, 3), 30.70, "肩越しのTS。パンとピント送�
 d1s, d1e = cut(10, 3), cut(12)
 # 9 小節頭の強い一打の後を開け、「角度」が D1 のラベルの後（D1 の頭 +1.0 秒）に来るように置く
 s, n4e = vo("N4", max(at(9) + 0.55, d1s + 1.0 - VO["N4"]["keywords"]["角度"]))
-scene("d1_observe", d1s, d1e, {"desat": d1s, "ts_label": d1s + 0.1, "prism_label": d1s + 0.5,
+scene("d1_observe", d1s, d1e, {"desat": d1s, "ts_label": d1s, "prism_label": d1s + 0.25,
                                 "angle": kw("N4", s, "角度"), "distance": kw("N4", s, "距離"), "to_paper": d1e - 1.0},
       "何をどの道具ではかるか（ラベルと光の線）。最後に写真が倒れて真上の図へ",
       variables={"ts_x": 613, "ts_y": 572, "prism_x": 1446, "prism_y": 137})
@@ -124,9 +143,9 @@ beat("B4", at(9), at(12), "はかる")
 
 # ---------------- B5 しくみ（12〜14小節） ----------------
 s, e = vo("N5a", at(13) - VO["N5a"]["keywords"]["距離"])   # 「距離」を 13 小節頭（曲のつなぎ目）に
-s2, _ = vo("N5b", e + 0.26)
+s2, _ = vo("N5b", e + 0.51)   # 計画どおり 0.5 秒の間（v4.7）
 d2s, d2e = cut(12), cut(15)
-scene("d2_topview", d2s, d2e, {"setup": d2s, "known": max(d2s + 0.3, kw("N5a", s, "わかっている点")), "angle": kw("N5a", s, "角度"),
+scene("d2_topview", d2s, d2e, {"setup": d2s, "known": max(d2s, kw("N5a", s, "わかっている点")), "angle": kw("N5a", s, "角度"),
                                "distance": kw("N5a", s, "距離"), "new_point": kw("N5b", s2, "新しい点"),
                                "fix": kw("N5b", s2, "決まります")}, "しくみの核心。角度→距離→新しい点の3段")
 se("click", kw("N5b", s2, "決まります"), "新しい点が決まる")
@@ -150,26 +169,33 @@ scene("map_link", map_s, cut(21), {"dissolve": map_s, "points": at(18) - 0.1, "c
       variables={"active": 0})
 T["cuts"].append(f(cut(18)))
 se("click", at(20) + 0.8 + 0.35, "アイコンが灯る（小さめ）", gain_db=-6.0)
+foley("foley/mechanical-pencil-write1.mp3", kw("N7b", s2, "地図"), 2.4, -26.0, "等高線・道路の線が描かれる間のシャーペンの音（ごく小さく）",
+      highpass=400, fade_in=0.15, fade_out=0.3)
 beat("B7", at(18), at(21), "ほかの測量へ")
 
 # ---------------- B8 締め（21〜24小節） ----------------
 # S02 は元の長さが 5 拍に 2 コマ足りない。曲の最後の一打（21 小節頭）は動かさず、S10 を 2 コマ早く入れる
 s02_room = META["S02"]["dur"] - 0.005
 shot("S02", cut(21), min(cut(22, 2), cut(21) + s02_room), 5.70, "前を指差す2人＝次へ向かう人。曲の最後の一打で切り替え")
-s10s = min(cut(22, 2), cut(21) + s02_room); s10e = s10s + META["S10"]["dur"] - 0.05
+# 足りない2コマは S02 の最後のコマを止めて足し、S10 を格子（22小節2拍）に置く（v4.7）
+if cut(21) + s02_room < cut(22, 2):
+    still("S02_last", cut(21) + s02_room, cut(22, 2), "S02 を拍までのばす2コマ（ほぼ固定の画）")
+s10s = cut(22, 2); s10e = s10s + META["S10"]["dur"] - 0.08   # 終わりがコマの境目で丸め上がって最後の1コマが欠けないよう余裕を持つ
 shot("S10", s10s, s10e, 36.70, "現場を見渡す背中＝誇りと余韻")
 push0, push_rate = 1.0, 0.015
 push1 = push0 + push_rate * (s10e - s10s)
 move("v_S10", s10s, s10e, push0, push1, "50% 40%", "見渡す先へ気持ちを運ぶ（毎秒1.5%）")
 s, n8e = vo("N8", at(21) + 0.9)   # 「はじまりの点」を締めの文字が出る瞬間に合わせる（独立レビュー v4.5）
 end = DUR
-scene("endcard", s10s, end, {"text_in": s10s + 0.15, "bg_in": s10e, "reticle": at(23, 3), "door": at(23, 3) + 1.45,
+# 照準が章扉のアイコンに戻る瞬間を、N8 の「基準点測量」に合わせる（冒頭の N1b と対）。「ピッ」は文が終わってから（言葉と重ねない）
+door = kw("N8", s, "基準点測量"); ec_lock = n8e + 0.12
+scene("endcard", s10s, end, {"text_in": s10s + 0.15, "bg_in": s10e - 1 / FPS, "reticle": door - 1.45, "door": door, "lock": ec_lock,
                              "fade": end - 0.5},
       "締めの一文。照準が縮んで章扉の基準点アイコンに戻る（章扉と同じ形で閉じる）", overlay=True, diagram=False, cut_point=False,
       variables={"push_from": round(push1, 4), "push_rate": push_rate, "icon_x": DOOR_ICON[0], "icon_y": DOOR_ICON[1],
                  "active": 0})
 T["intended_freezes"].append([f(s10e), f(end), "endcard（S10 最後のコマに寄り続ける）"])
-se("lock", at(23, 3) + 1.45, "照準が章扉のアイコンに戻る（小さめ）", gain_db=-6.0)
+se("lock", ec_lock, "照準が章扉のアイコンに戻り、文が終わった後の合図（小さめ）", gain_db=-6.0)
 beat("B8", at(21), end, "締め")
 
 T["bgm"] = {"start": 0.0, "end": f(end), "pause": None, "bars": "1-12,25-36",

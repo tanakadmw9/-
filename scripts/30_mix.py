@@ -32,7 +32,7 @@
 import json, pathlib, shutil, subprocess, re, sys
 import numpy as np
 import soundfile as sf
-from scipy.signal import resample_poly
+from scipy.signal import resample_poly, butter, sosfiltfilt, lfilter
 from scipy.ndimage import minimum_filter1d, uniform_filter1d
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -44,12 +44,16 @@ DUR = T["duration"]; N = int(round(DUR * SR))
 MIX = ROOT / "audio/mix"
 
 VO_REF = -20.0          # 各ナレ行をこの統合ラウドネスにそろえてから並べる（最後に全体を −24 に移す）
-BGM_UNDER, BGM_FREE, BGM_PAUSE = -16.0, -7.0, -40.0
+# v4.7（音のレビュー A1・A2・S1）：曲の大きさは区間の「平均」で測る（90%点だと大きく見積もって下げすぎる）。
+# ナレ中は声の帯域（1〜4kHz）だけさらに −4dB あけるので、全体の下げは −16（声の帯域では実質 −20）。
+# すき間は上げきって 0.25 秒以上保てる所だけ上げる（短いすき間の上限 +5dB はやめた）。
+BGM_UNDER, BGM_FREE, BGM_PAUSE = -16.5, -8.0, -40.0
 BGM_UNDER_OPEN_BONUS = 0.5   # 「間」明け（開く区間）はナレ下でも 0.5dB だけ上げる
-SHORT_GAP, SHORT_GAP_RISE = 3.0, 5.0
+BGM_CARVE_DB, BGM_CARVE_BAND = -4.0, (1000, 4000)
+GAP_HOLD_MIN = 0.25
 BGM_MAX_BOOST = 8.0          # 曲の静かな所（入り）を持ち上げる上限。曲のダイナミクスをつぶし切らない
-DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, MERGE_GAP = 0.45, 0.05, 0.10, 0.60, 1.5
-AMB_LIVE, AMB_DIAG, AMB_TITLE = -18.5, -10.0, -6.0      # AMB_DIAG / AMB_TITLE は AMB_LIVE からの追加分
+DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, MERGE_GAP = 0.35, 0.05, 0.10, 0.35, 1.2
+AMB_LIVE, AMB_DIAG, AMB_TITLE = -21.5, -10.0, -6.0      # AMB_DIAG / AMB_TITLE は AMB_LIVE からの追加分（VO をステレオで測るようにしたので −3）
 SE_TARGET = {"lock": -10.0, "join": -12.0, "measure": -16.0, "click": -16.0, "glow": -14.0}   # 0.1秒窓ラウドネスの最大値、VO_REF 比
 TARGET_LUFS, TP_MAX = -24.0, -2.0
 
@@ -67,6 +71,30 @@ def put(buf, x, t):
     n0 = int(round(t * SR))
     a, b = max(n0, 0), min(n0 + len(x), len(buf))
     if b > a: buf[a:b] += x[a - n0:b - n0]
+
+
+def peq(x, f0, gdb, q):
+    """RBJ のピーキング EQ。"""
+    A = 10 ** (gdb / 40); w = 2 * np.pi * f0 / SR; al = np.sin(w) / (2 * q)
+    b = np.array([1 + al * A, -2 * np.cos(w), 1 - al * A]); a = np.array([1 + al / A, -2 * np.cos(w), 1 - al / A])
+    return lfilter(b / a[0], a / a[0], x, axis=0)
+
+
+def vo_eq(x):
+    """仮ナレの EQ（音のレビュー B1）：80Hz 以下カット、300Hz −2dB、3.2kHz +3dB。会場のスピーカーでこもらないように。"""
+    x = sosfiltfilt(butter(2, 80, "highpass", fs=SR, output="sos"), x, axis=0)
+    return peq(peq(x, 300, -2.0, 1.2), 3200, 3.0, 1.0)
+
+
+def load_any(path):
+    """mp3 も読む（効果音ラボの素材は mp3 のまま /mnt/project-files/assets/se/ に置く。リポジトリには入れない）。"""
+    path = pathlib.Path(path)
+    if path.suffix.lower() == ".mp3":
+        tmp = ROOT / "dev/se_ext" / (path.stem + ".wav"); tmp.parent.mkdir(parents=True, exist_ok=True)
+        if not tmp.exists():
+            subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(path), "-ar", str(SR), "-ac", "2", str(tmp)], check=True)
+        path = tmp
+    return load(path)
 
 
 def write(path, x):
@@ -128,10 +156,10 @@ def main():
         if not p.exists(): p = ROOT / "audio/vo_temp" / f"{v['id']}.wav"
         x = load(p, want_stereo=False)[:, 0]
         n = min(len(x), int(round(v["dur"] * SR))) if v.get("dur") else len(x)
-        x = x[:n]
-        g = VO_REF - integrated(x)
+        x = vo_eq(np.repeat(x[:n, None], 2, 1))
+        g = VO_REF - integrated(x)          # 2チャンネルにしてから測る（モノラルで測ると +3dB 大きくなる：音のレビュー S1）
         x = fade_edges(x * db(g))
-        put(vo, np.repeat(x[:, None], 2, 1), v["start"])
+        put(vo, x, v["start"])
         vo_iv.append((v["start"], v["start"] + n / SR))
     report["vo_lines"] = len(vo_iv)
 
@@ -154,29 +182,30 @@ def main():
     t_st, st = short_term(bgm_raw)
 
     def local_level(s, e):
-        """区間 [s,e] の曲の大きさ（短時間ラウドネスの90%点）。BGM が鳴っていない区間は VO_REF（＝補正なし）。"""
+        """区間 [s,e] の曲の大きさ（短時間ラウドネスのエネルギー平均）。BGM が鳴っていない区間は VO_REF（＝補正なし）。"""
         if e <= s: return VO_REF
         m = (t_st >= s) & (t_st <= e) & (st > -70)
         if not m.any():
             m = (np.abs(t_st - (s + e) / 2) == np.abs(t_st - (s + e) / 2).min()) & (st > -70)
-        return float(np.percentile(st[m], 90)) if m.any() else VO_REF
+        return float(10 * np.log10(np.mean(10 ** (st[m] / 10)))) if m.any() else VO_REF
 
     # ナレ区間（「間」で分けてから、1.5秒未満のすき間を結合）
     duck_iv = (merged([iv for iv in vo_iv if iv[1] <= PS + 0.2], MERGE_GAP)
                + merged([iv for iv in vo_iv if iv[1] > PS + 0.2], MERGE_GAP))
     # 区間ごとの目標レベル（VO_REF からの相対）→ 曲のその区間の大きさで割り戻した「フェーダー位置」
     under = [BGM_UNDER + (BGM_UNDER_OPEN_BONUS if s >= PE - 0.01 else 0) for s, e in duck_iv]
+    for o in T["bgm"].get("under", []):              # 区間ごとの上書き（例：N8 の下は曲の伸ばしを聞かせる）
+        for i, (s, e) in enumerate(duck_iv):
+            if s <= o["t"] <= e: under[i] = o["db"]
     duck_fader = [min(u + VO_REF - local_level(max(s, B0), e), BGM_MAX_BOOST) for u, (s, e) in zip(under, duck_iv)]
     gaps = [(B0, duck_iv[0][0] - DUCK_PRE)] + [(duck_iv[i][1] + REL_DELAY + REL_LEN, duck_iv[i + 1][0] - DUCK_PRE)
                                               for i in range(len(duck_iv) - 1)] + [(duck_iv[-1][1] + REL_DELAY + REL_LEN, BEND)]
     free_fader = []
     for s, e in gaps:
         s = max(s, B0)
-        free_fader.append(None if e - s < 0.3 else min(BGM_FREE + VO_REF - local_level(s, e), BGM_MAX_BOOST))
-    # 短いすき間（ナレ間 3 秒未満）は上げ幅を +5dB までに抑える（ポンピングに聞こえないように）
-    for i in range(1, len(gaps) - 1):
-        if free_fader[i] is not None and duck_iv[i][0] - duck_iv[i - 1][1] < SHORT_GAP:
-            free_fader[i] = min(free_fader[i], max(duck_fader[i - 1], duck_fader[i]) + SHORT_GAP_RISE)
+        free_fader.append(None if e - s < GAP_HOLD_MIN else min(BGM_FREE + VO_REF - local_level(s, e), BGM_MAX_BOOST))
+    # 最後のナレの後は上げない（曲の余韻がもう小さいので、上げると曲を替えたときに最後がふくらむ：音のレビュー S6）
+    free_fader[-1] = None
     base = []                                            # 手書き相当のキーフレーム (t, fader dB)
     for i, (s, e) in enumerate(duck_iv):
         if free_fader[i] is not None: base.append((s - DUCK_PRE, free_fader[i]))
@@ -193,7 +222,11 @@ def main():
     bgm_kf = [(round(float(t), 4), round(float(d), 2)) for t, d in zip(kt, kdb)]
     gain = keyframes_to_gain(bgm_kf, N)
     gain[: int(round(B0 * SR))] = 0.0
-    bgm = bgm_raw * gain[:, None]
+    # ナレの区間だけ、声の帯域（1〜4kHz）を BGM_CARVE_DB あける（手書きの区間の包絡。サイドチェインではない）
+    tt = np.arange(N) / SR
+    env = interval_env(duck_iv, DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, tt)
+    mid = sosfiltfilt(butter(2, list(BGM_CARVE_BAND), "bandpass", fs=SR, output="sos"), bgm_raw, axis=0)
+    bgm = (bgm_raw + mid * ((db(BGM_CARVE_DB) - 1) * env)[:, None]) * gain[:, None]
     report["bgm_source"] = str(bgm_src.relative_to(ROOT))
     report["bgm_regions"] = ([{"type": "under_vo", "start": round(s, 3), "end": round(e, 3), "fader_db": round(f, 2)}
                               for (s, e), f in zip(duck_iv, duck_fader)]
@@ -230,14 +263,29 @@ def main():
     # ---------------- SE ----------------
     se = np.zeros((N, 2)); se_gain = []
     for e in T["se"]:
-        x = load(ROOT / f"audio/se/{e['kind']}.wav", want_stereo=False)[:, 0]
-        pad = np.concatenate([np.zeros(int(0.2 * SR)), x, np.zeros(int(0.4 * SR))])
-        mmax = sliding_loudness(pad, 0.1, 0.01)[1].max()   # 短い音は 0.1 秒窓で（耳の積分時間に近い）
-        g = VO_REF + SE_TARGET.get(e["kind"], -12.0) - mmax + e.get("gain_db", 0.0)   # gain_db：その回だけ小さく
-        x = fade_edges(x * db(g), 0.0, 0.010)
-        put(se, np.repeat(x[:, None], 2, 1), e["start"])
-        se_gain.append({"kind": e["kind"], "t": e["start"], "gain_db": round(g, 2),
-                        "loudness100ms_re_vo_ref_db": SE_TARGET.get(e["kind"], -12.0)})
+        if e.get("src"):
+            # 素材の音（効果音ラボ）：頭の無音を詰めて画の時刻にそろえ、0.4 秒窓の最大を VO_REF + target に（音のレビュー A3）
+            x = load_any(e["src"])
+            if e.get("highpass"): x = sosfiltfilt(butter(2, e["highpass"], "highpass", fs=SR, output="sos"), x, axis=0)
+            mono = np.abs(x).max(1); nz = np.where(mono > mono.max() * 0.02)[0]
+            x = x[nz[0]:] if len(nz) else x
+            if e.get("dur"): x = x[:int(e["dur"] * SR)]
+            pad = np.concatenate([np.zeros((int(0.2 * SR), 2)), x, np.zeros((int(0.5 * SR), 2))])
+            ref = (float(np.percentile(momentary(pad)[1][momentary(pad)[1] > -70], 90)) if e.get("level") == "p90"
+                   else momentary(pad)[1].max())
+            g = VO_REF + e["target"] - ref + e.get("gain_db", 0.0)
+            x = fade_edges(x * db(g), e.get("fade_in", 0.0), e.get("fade_out", 0.020))
+            tgt = e["target"]
+        else:
+            x = load(ROOT / f"audio/se/{e['kind']}.wav", want_stereo=False)[:, 0]
+            x = np.repeat(x[:, None], 2, 1)
+            pad = np.concatenate([np.zeros((int(0.2 * SR), 2)), x, np.zeros((int(0.4 * SR), 2))])
+            mmax = sliding_loudness(pad, 0.1, 0.01)[1].max()   # 短い音は 0.1 秒窓で（耳の積分時間に近い）。2ch で測る
+            tgt = SE_TARGET.get(e["kind"], -12.0)
+            g = VO_REF + tgt - mmax + e.get("gain_db", 0.0)   # gain_db：その回だけ小さく
+            x = fade_edges(x * db(g), 0.0, 0.010)
+        put(se, x, e["start"])
+        se_gain.append({"kind": e["kind"], "src": e.get("src"), "t": e["start"], "gain_db": round(g, 2), "target_re_vo_ref_db": tgt})
 
     # ---------------- 合成・ラウドネス合わせ ----------------
     stems = {"vo": vo, "bgm": bgm, "se": se, "amb": amb}

@@ -38,11 +38,13 @@ GRADES = {
 }
 # カットどうしの色合わせ（編集プラン §9：基準は S01・S07。強い補正はしない）。GRADES の後に足す
 SHOT_ADJ = {
-    "S02": "eq=brightness=-0.025:gamma=0.97,colorbalance=rm=0.02:bm=-0.02,curves=all='0/0 0.75/0.73 1/0.9'",  # 明るく冷たい・空が白い
-    "S04": "eq=brightness=-0.025:gamma=0.97,colorbalance=rm=0.02:bm=-0.02,curves=all='0/0 0.75/0.73 1/0.9'",
+    # v4.7：カット間の明るさ（目標 110〜140）と暖かさ（R−B 30〜50）をそろえる（編集レビュー E6）
+    "S01": "eq=gamma=1.12",                                                                                     # 一番暗い
+    "S02": "eq=brightness=-0.025:gamma=0.97:saturation=1.15,colorbalance=rm=0.04:bm=-0.04,curves=all='0/0 0.75/0.73 1/0.9'",  # 明るく冷たい・空が白い
+    "S04": "eq=brightness=-0.025:gamma=0.97:saturation=1.15,colorbalance=rm=0.04:bm=-0.04,curves=all='0/0 0.75/0.73 1/0.9'",
     "S10": "eq=brightness=-0.02:gamma=0.98,colorbalance=rm=0.02:bm=-0.02,curves=all='0/0 0.75/0.73 1/0.9'",
-    "S06": "colorbalance=rm=-0.015:bm=0.015",                                                                  # 暖かすぎ
-    "S08": "colorbalance=rm=-0.015:bm=0.015",
+    "S06": "colorbalance=rm=-0.03:bm=0.03",                                                                    # 暖かすぎ
+    "S08": "colorbalance=rm=-0.03:bm=0.03",
     "S09": "colorbalance=rm=0.02:bm=-0.02",                                                                    # 冷たい
 }
 POST = "deband=1thr=0.015:2thr=0.015:3thr=0.015:range=16:blur=1,noise=c0s=3:c0f=t+u"
@@ -64,7 +66,8 @@ for i, (shot, (x, y, w, h)) in enumerate(CROPS.items()):
     print(shot, meta[shot])
 
 # 静止用フレーム（D1：S09、タイトル：S04 の末尾）— 秒は元動画の時刻
-STILLS = {"S09_freeze": ("S09", 34.40), "S04_last": ("S04", CUTS[4] - 2 / FPS), "S10_last": ("S10", CUTS[10] - 2 / FPS)}
+STILLS = {"S09_freeze": ("S09", 34.40), "S04_last": ("S04", CUTS[4] - 2 / FPS), "S10_last": ("S10", CUTS[10] - 2 / FPS),
+          "S02_last": ("S02", CUTS[2] - 2 / FPS)}   # S02 を拍まで2コマのばす（v4.7）
 for name, (shot, t) in STILLS.items():
     rel = t - meta[shot]["src_in"]
     run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", f"{rel:.4f}", "-i", str(OUT / f"{shot}.mp4"),

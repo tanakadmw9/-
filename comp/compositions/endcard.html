@@ -29,13 +29,16 @@
     #ec-mini .mini-edge { stroke: var(--white); stroke-width: 9; }
     #ec-mini .mini-line { stroke: var(--orange); stroke-width: 4; }
     #ec-ret-shape * { vector-effect: non-scaling-stroke; }
-    .ec-ret-edge { stroke: var(--navy); stroke-width: 5; stroke-opacity: 0.8; fill: none; stroke-linecap: round; }
-    .ec-ret-line { stroke: var(--white); stroke-width: 3; fill: none; stroke-linecap: round; }
+    /* 明るい空の上でも見えるよう、タイトル・章扉と同じオレンジの線＋白の縁（編集 X3） */
+    .ec-ret-edge { stroke: var(--white); stroke-width: 9; stroke-opacity: 0.9; fill: none; stroke-linecap: round; }
+    .ec-ret-line { stroke: var(--orange); stroke-width: 4; fill: none; stroke-linecap: round; }
 
     /* 締めの一文：左下、2行、72px */
     #ec-text { position: absolute; left: 132px; top: 790px; opacity: 0; }
     .ec-line { font-family: var(--font-ja); font-weight: 700; font-size: 72px; line-height: 1.3; color: var(--white);
       font-feature-settings: "palt"; white-space: nowrap; letter-spacing: 0.02em; }
+    /* 2行目の頭の “ を左へぶら下げ、1行目と文字の左端をそろえる */
+    #ec-text .ec-line:nth-child(2) { text-indent: -0.5em; }
     #ec-text .ec-ink { position: absolute; left: 0; top: 0; opacity: 0; }
     #ec-text .ec-ink .ec-line { color: var(--ink); }
     /* 仮ナレのクレジット（VOICEVOX の規約で表示が必要。本ナレに差し替えたら消す） */
@@ -43,6 +46,8 @@
       font-size: 34px; line-height: 1.2; white-space: nowrap; }
     #ec-credit span { color: var(--sub); }
     #ec-credit .ec-ink { position: absolute; right: 0; top: 0; opacity: 0; color: color-mix(in srgb, var(--ink) 80%, var(--paper)); }
+    #ec-halo { position: absolute; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%;
+      background: color-mix(in srgb, var(--orange) 16%, transparent); opacity: 0; }
     #ec-black { position: absolute; inset: 0; background: #000; opacity: 0; }
   </style>
   <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
@@ -52,6 +57,7 @@
       <div id="ec-paper">
         <svg id="ec-grid" viewBox="0 0 1920 1080" aria-hidden="true"><g id="ec-grid-lines" stroke="var(--grid)" stroke-width="1.5"></g></svg>
       </div>
+      <div id="ec-halo"></div>
       <div id="ec-items"></div>
       <div id="ec-ret">
         <svg viewBox="0 0 480 480" aria-hidden="true">
@@ -123,7 +129,6 @@
       // text_in：S10 の上に締めの一文（左下）。下からの紺のグラデーションで守る
       tl.fromTo("#ec-grad", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, c.text_in - 0.1);
       tl.fromTo("#ec-text", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, c.text_in);
-      tl.fromTo("#ec-credit", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.out" }, c.text_in + 0.4);
 
       // bg_in：S10 の最後のコマ。S10 と同じ中心・同じ速さで寄り続ける（止まって見えないように）
       const bgDur = Math.max(0.1, dur - c.bg_in);
@@ -146,7 +151,10 @@
       tl.fromTo("#ec-paper", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
       tl.fromTo("#ec-grad", { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power1.in", immediateRender: false }, c.door - 0.2);
       tl.fromTo("#ec-text .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
-      tl.fromTo("#ec-credit .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
+      // 仮ナレのクレジットは紙の上だけに出す（締めの一文と同時に読ませない：デザイン G6）
+      tl.set("#ec-credit > span:first-child", { opacity: 0 }, 0);
+      tl.set("#ec-credit", { opacity: 1 }, c.door - 0.2);
+      tl.fromTo("#ec-credit .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door + 0.2);
       tl.to(["#ec-text > .ec-line", "#ec-credit > span:first-child"], { opacity: 0, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
       tl.to(mini, { opacity: 0, duration: 0.25, ease: "power2.in" }, c.door);
       tl.fromTo("#ec-item-" + active, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" }, c.door);
@@ -154,6 +162,15 @@
         if (i !== active) tl.fromTo("#ec-item-" + i, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
           c.door + 0.15 + Math.abs(i - active) * 0.08);
       });
+
+      // 灯り：章扉と同じオレンジの光の輪。lock（文の終わり、効果音「ピッ」）でもう一度ふくらむ
+      const hl = document.getElementById("ec-halo");
+      hl.style.left = ix + "px"; hl.style.top = iy + "px";
+      tl.fromTo(hl, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, c.door + 0.1);
+      if (c.lock != null) {
+        tl.fromTo(hl, { scale: 1 }, { scale: 1.18, duration: 0.18, ease: "power2.out", immediateRender: false }, c.lock);
+        tl.to(hl, { scale: 1, duration: 0.4, ease: "power2.inOut" }, c.lock + 0.18);
+      }
 
       // fade：最後の 0.5 秒で黒へ（場面の終わりの 2 コマ前に完全な黒）
       const fd = Math.max(0.3, Math.min(0.5, dur - 0.07 - c.fade));

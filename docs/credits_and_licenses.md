@@ -4,8 +4,12 @@
 
 | 種別 | 素材名 | 入手元URL | ライセンス／規約 | 規約確認日 | クレジット要否と表記 | 使った場所 |
 |---|---|---|---|---|---|---|
-| 映像 | 基準点測量（元動画） | 社内 | 自社映像（要確認） | | | 全編 |
-| フォント | BIZ UDPゴシック | | SIL OFL 1.1 | | 不要 | テロップ |
+| 映像 | 基準点測量（元動画、YouTube 再圧縮版） | 社内 | 自社映像（**要確認**：ヘルメットの社名・出演者の上映同意） | | | 実写の全カット（音声は破棄） |
+| フォント | BIZ UDPゴシック（npm @fontsource/biz-udpgothic 5.x 経由） | https://github.com/googlefonts/morisawa-biz-ud-gothic | SIL OFL 1.1（comp/assets/fonts/OFL-biz-udpgothic.txt） | 2026-10-27 | 不要 | テロップ・図解の文字 |
+| フォント | BIZ UDゴシック（npm @fontsource/biz-udgothic 経由） | 同上 | SIL OFL 1.1（comp/assets/fonts/OFL-biz-udgothic.txt） | 2026-10-27 | 不要 | 図解の座標の数字 |
+| ソフト | HyperFrames 0.8.206（npm、ローカル実行のみ。クラウド機能は不使用） | https://github.com/heygen-com/hyperframes | Apache-2.0 | 2026-10-27 | 不要 | 組み立て・書き出し |
+| ソフト | GSAP 3（npm、ローカル読み込み） | https://gsap.com | Standard "no charge" License | 2026-10-27 | 不要 | 図解・テロップの動き |
+| ソフト | FFmpeg 6.1（Ubuntu パッケージ） | https://ffmpeg.org | LGPL/GPL | 2026-10-27 | 不要 | 切り出し・色補正・音・書き出し |
 | 音声合成（仮ナレ） | pyopenjtalk-plus 0.4.1.post10（Python パッケージ、ローカル実行） | https://github.com/tsukumijima/pyopenjtalk-plus （PyPI） | MIT（"pyopenjtalk" © 2018 Ryuichi Yamamoto。同梱 `pyopenjtalk_plus-0.4.1.post10.dist-info/licenses/LICENSE.md`） | 2026-10-27 | 不要（ソフト） | 仮ナレ N1〜N9b（audio/vo_temp, scripts/10_tts_temp.py） |
 | 音声合成（仮ナレ・辞書） | Open JTalk 辞書（pyopenjtalk-plus 同梱 `pyopenjtalk/dictionary`） | 同上 | 修正BSD（© 2009 Nara Institute of Science and Technology。同梱 `pyopenjtalk/dictionary/COPYING`） | 2026-10-27 | 不要 | 仮ナレの読み・アクセント |
 | 音声合成（仮ナレ・声） | HTS Voice "Mei"（`mei_normal.htsvoice`、MMDAgent Project Team 公開。pyopenjtalk-plus 同梱の既定音声） | http://www.mmdagent.jp/ | **CC BY 3.0**（© 2009-2013 Nagoya Institute of Technology, Department of Computer Science。同梱 `pyopenjtalk/htsvoice/LICENSE_mei_normal.htsvoice`）。※ 指示書・vo_timing.json には「nitech_jp_atr503_m001」とあるが、インストール済みパッケージに m001 は同梱されておらず、10_tts_temp.py は音声を指定していないため、実際の声は Mei（女声、ナレの基本周波数の実測でも確認） | 2026-10-27 | **要**（仮ナレのまま上映・配布する場合）。表記例：「音声合成：HTS Voice "Mei" © Nagoya Institute of Technology（CC BY 3.0）」。本ナレ（社員の声）に差し替えれば不要 | 仮ナレ（試写用） |

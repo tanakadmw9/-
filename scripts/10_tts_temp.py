@@ -1,4 +1,4 @@
-"""仮ナレーション生成（ローカルの pyopenjtalk / HTS音声 nitech_jp_atr503_m001）。
+"""仮ナレーション生成（ローカルの pyopenjtalk-plus / 同梱の HTS音声 "Mei"（名古屋工業大学、CC BY 3.0・クレジット要））。
 comp/narration.json → audio/vo_temp/<id>.wav（48kHz mono）と audio/vo_temp/vo_timing.json。
 キーワードの発話開始は「キーワード直前までの文」を単独合成した長さで近似する（±0.1秒程度）。
 """
@@ -23,7 +23,7 @@ def trim(x, sr, thr=200):
     a = max(idx[0] - int(0.01 * sr), 0); b = min(idx[-1] + int(0.03 * sr), len(x))
     return x[a:b], a / sr
 
-timing = {"speed": SPEED, "engine": "pyopenjtalk-plus (HTS m001)", "lines": {}}
+timing = {"speed": SPEED, "engine": "pyopenjtalk-plus (HTS voice Mei, CC BY 3.0)", "lines": {}}
 for ln in nar["lines"]:
     x, sr = synth(ln["text"]); x, lead = trim(x, sr)
     x = np.clip(x / max(1, np.abs(x).max()) * 0.89 * 32767, -32767, 32767).astype(np.int16)

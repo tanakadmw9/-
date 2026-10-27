@@ -1,0 +1,103 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"reticle\":0.0,\"point\":0.6,\"text_in\":0.9,\"fade\":3.8}"},{"id":"dur","type":"number","label":"dur","default":4.6046},{"id":"point_x","type":"number","label":"照準 x","default":960},{"id":"point_y","type":"number","label":"照準 y","default":640}]'>
+<body>
+<template>
+  <style>
+    /* fade の行き先は黒（仕様 §4 endcard「全体が 0.8秒で黒へ」） */
+    #root { position: absolute; inset: 0; background: #000; overflow: hidden; }
+    #endcard-all { position: absolute; inset: 0; }
+    #endcard-bg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; }
+
+    /* 下からの紺のグラデーション（文字を守る） */
+    #endcard-grad { position: absolute; left: 0; right: 0; bottom: 0; height: 600px; opacity: 0;
+      background: linear-gradient(to top,
+        color-mix(in srgb, var(--ink) 84%, transparent) 0%,
+        color-mix(in srgb, var(--ink) 60%, transparent) 40%,
+        color-mix(in srgb, var(--ink) 0%, transparent) 100%); }
+
+    /* 照準（title と同じ形） */
+    #endcard-ret { position: absolute; left: 720px; top: 400px; width: 480px; height: 480px; }
+    #endcard-ret-in { position: absolute; inset: 0; opacity: 0; }
+    #endcard-ret svg, #endcard-pt svg { position: absolute; inset: 0; width: 480px; height: 480px; overflow: visible; }
+    .endcard-ret-edge { stroke: var(--navy); stroke-width: 5; stroke-opacity: 0.8; fill: none; stroke-linecap: round; }
+    .endcard-ret-line { stroke: var(--white); stroke-width: 2; fill: none; stroke-linecap: round; }
+    #endcard-pt { position: absolute; inset: 0; }
+    #endcard-dot { fill: var(--white); stroke: var(--navy); stroke-width: 1.5; stroke-opacity: 0.8; }
+    #endcard-dot-on { fill: var(--orange); stroke: var(--white); stroke-width: 3; opacity: 0; }
+
+    /* 締めの一文：章タイトルと同じ配置ルール（右下・タイトルセーフ内） */
+    #endcard-block { position: absolute; right: 132px; top: 800px; opacity: 0; }
+    .endcard-field { font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.2; color: var(--sub);
+      font-feature-settings: "palt"; letter-spacing: 0.08em; white-space: nowrap; }
+    .endcard-main { font-family: var(--font-ja); font-weight: 700; font-size: 88px; line-height: 1.2; color: var(--white);
+      font-feature-settings: "palt"; white-space: nowrap; margin-top: 4px; }
+  </style>
+  <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
+    <div id="endcard-all">
+      <img id="endcard-bg" src="assets/video/S10_last.png" alt="">
+      <div id="endcard-grad"></div>
+
+      <div id="endcard-ret">
+        <div id="endcard-ret-in">
+          <svg viewBox="0 0 480 480" aria-hidden="true">
+            <defs>
+              <g id="endcard-ret-shape">
+                <circle cx="240" cy="240" r="118"/>
+                <path d="M40 240H204M276 240H440M240 40V204M240 276V440"/>
+                <path d="M88 232V248M142 234V246M338 234V246M392 232V248M232 88H248M234 142H246M234 338H246M232 392H248"/>
+                <path d="M226 186H254M226 294H254M186 226V254M294 226V254"/>
+              </g>
+            </defs>
+            <use href="#endcard-ret-shape" class="endcard-ret-edge"/>
+            <use href="#endcard-ret-shape" class="endcard-ret-line"/>
+          </svg>
+        </div>
+        <div id="endcard-pt">
+          <svg viewBox="0 0 480 480" aria-hidden="true">
+            <circle id="endcard-dot" cx="240" cy="240" r="7.5"/>
+            <circle id="endcard-dot-on" cx="240" cy="240" r="12"/>
+          </svg>
+        </div>
+      </div>
+
+      <div id="endcard-block">
+        <div class="endcard-field">基準点測量</div>
+        <div class="endcard-main">まちづくりの“最初の一点”</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const ret = document.getElementById("endcard-ret");
+      ret.style.left = (Number(v.point_x) - 240) + "px";
+      ret.style.top = (Number(v.point_y) - 240) + "px";
+
+      const tl = gsap.timeline({ paused: true });
+
+      // 動画の最後のコマから入るので、グラデーションはゆっくり敷く（カットで跳ねない）
+      tl.fromTo("#endcard-grad", { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "power1.inOut" }, c.reticle + 0.1);
+
+      // reticle：照準が現れる
+      tl.fromTo("#endcard-ret-in", { opacity: 0, scale: 1.12, transformOrigin: "50% 50%" },
+        { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.5, ease: "power3.out" }, c.reticle);
+      tl.fromTo("#endcard-dot", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.reticle + 0.1);
+
+      // point：照準が縮んで消え、オレンジの点が一つ残る（＝最初の一点に戻る）
+      tl.fromTo("#endcard-ret-in", { scale: 1, opacity: 1 },
+        { scale: 0.06, opacity: 0, transformOrigin: "50% 50%", duration: 0.4, ease: "power2.in", immediateRender: false }, c.point);
+      tl.fromTo("#endcard-dot-on", { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" },
+        { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.35, ease: "power3.out" }, c.point + 0.2);
+
+      // text_in：締めの一文
+      tl.fromTo("#endcard-block", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, c.text_in);
+
+      // fade：全体が 0.8 秒で黒へ
+      tl.fromTo("#endcard-all", { opacity: 1 }, { opacity: 0, duration: 0.8, ease: "power1.inOut", immediateRender: false }, c.fade);
+
+      window.__timelines["endcard"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

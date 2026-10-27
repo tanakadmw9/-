@@ -302,7 +302,7 @@
   "true_peak_dbtp_py": -9.43,
   "true_peak_dbtp_ffmpeg": -9.4,
   "limiter_max_gr_db": null,
-  "stems_sum_residual": 1.1102230246251565e-16,
+  "stems_sum_residual": 1.6653345369377348e-16,
   "vo_minus_bgm_per_line_db": {
    "N1": null,
    "N2": 19.9,

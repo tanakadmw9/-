@@ -245,13 +245,13 @@ l, r = soft_line(66, TAIL * 0.7, 0.05, 0.15); place(l, r, t_fin)
 
 # ---- 仕上げ ----------------------------------------------------------------------------
 x = np.stack([L, R], 1)
-# 声の帯域を少しだけ空ける：2.5kHz 中心に −4dB のゆるいピーキングEQ（RBJ biquad, Q=0.7）＋ 5kHz 低域通過
+# 声の帯域を少しだけ空ける：2.5kHz 中心に −4dB のゆるいピーキングEQ（RBJ biquad, Q=0.7）＋ 12kHz 低域通過
 def peaking(f0, gain_db, q):
     A = 10 ** (gain_db / 40); w = 2 * np.pi * f0 / SR; al = np.sin(w) / (2 * q)
     b = np.array([1 + al * A, -2 * np.cos(w), 1 - al * A]); a = np.array([1 + al / A, -2 * np.cos(w), 1 - al / A])
     return np.concatenate([b / a[0], a / a[0]])[None, :]
 x = sosfilt(peaking(2500, -4.0, 0.7), x, axis=0)
-x = sosfilt(butter(2, 5000, "lowpass", fs=SR, output="sos"), x, axis=0)
+x = sosfilt(butter(2, 12000, "lowpass", fs=SR, output="sos"), x, axis=0)   # シェイカー（6kHz〜）は通す
 # 終端：最後の主和音は自然減衰済み。残りを 40ms で 0 に
 f = int(0.04 * SR); x[-f:] *= np.linspace(1, 0, f)[:, None]
 x[:int(0.01 * SR)] *= np.linspace(0, 1, int(0.01 * SR))[:, None]

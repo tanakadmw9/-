@@ -1,0 +1,31 @@
+<html data-composition-variables='[{"id":"text","type":"string","label":"キーワード","default":"正確な位置"}]'>
+<body>
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #kw-plate {
+      position: absolute; left: var(--margin-left); bottom: var(--keyword-bottom);
+      background: var(--plate); border-radius: var(--plate-radius);
+      padding: var(--plate-pad-y) var(--plate-pad-x) var(--plate-pad-y) calc(var(--plate-pad-x) + var(--accent-bar));
+      opacity: 0;
+    }
+    #kw-plate::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--accent-bar);
+      background: var(--orange); border-radius: var(--plate-radius) 0 0 var(--plate-radius); }
+    #kw-text { font-family: var(--font-ja); font-weight: 700; font-size: var(--fs-keyword); color: var(--white);
+      line-height: var(--lh); font-feature-settings: "palt"; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="telop_keyword" data-width="1920" data-height="1080">
+    <div id="kw-plate"><div id="kw-text" data-var-text="text">正確な位置</div></div>
+  </div>
+  <script>
+    (function () {
+      const root = document.querySelector('[data-composition-id="telop_keyword"]');
+      const host = root.closest("[data-duration]");
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#kw-plate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0);
+      window.__timelines["telop_keyword"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

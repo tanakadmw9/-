@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="styles/fonts.css">
+<link rel="stylesheet" href="styles/tokens.css">
+<script src="assets/vendor/gsap.min.js"></script>
+<style> #root { background: #000; } </style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1920" data-height="1080" data-fps="30000/1001">
+  <video id="v1" class="clip" src="assets/video/S01.mp4" muted playsinline data-start="0" data-duration="3" data-media-start="0.3" data-track-index="0" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover;z-index:1"></video>
+  <div id="kw1" data-composition-id="telop_keyword" data-composition-src="compositions/telop_keyword.html" data-variable-values='{"text":"正確な位置"}' data-start="0.5" data-duration="2.5" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080" style="z-index:2"></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = gsap.timeline({ paused: true });
+</script>
+</body>
+</html>

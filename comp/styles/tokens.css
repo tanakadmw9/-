@@ -1,0 +1,39 @@
+/* docs/04 のデザイントークン。全パート共通。変更時は docs/decisions.md に理由を残す。 */
+:root {
+  /* 色（意味で使い分ける） */
+  --ink: #14202E;          /* テロップの板、図解の文字 */
+  --navy: #1F3A5F;         /* 既知・基準 */
+  --paper: #F4F1EA;        /* 図解の背景 */
+  --grid: #D9D3C4;         /* 方眼 */
+  --orange: #E8742A;       /* はかる・新しい（図形専用） */
+  --orange-dark: #B8541A;  /* 紙地の上のオレンジ系文字（大きい文字のみ） */
+  --white: #FFFFFF;
+  --sub: #C9D3DE;          /* 実写上の補足文字 */
+  --plate: rgba(20, 32, 46, 0.88);  /* 紺の板 88% */
+
+  /* 文字 */
+  --font-ja: "BIZ UDPGothic", sans-serif;
+  --font-num: "BIZ UDGothic", monospace;
+  --fs-title: 112px;
+  --fs-keyword: 68px;
+  --fs-label: 48px;
+  --fs-label-sub: 36px;
+  --lh: 1.35;
+
+  /* 配置（1920×1080） */
+  --safe-x: 96px;
+  --safe-y: 54px;
+  --margin-left: 132px;
+  --keyword-bottom: 110px;
+
+  /* 部品 */
+  --plate-radius: 6px;
+  --plate-pad-y: 18px;
+  --plate-pad-x: 28px;
+  --accent-bar: 6px;
+  --stroke: 5px;
+
+  /* 動き（GSAP 側で使う値の控え） */
+  --in-dur: 0.5s;   /* power3.out、持ち上がり 20px */
+  --out-dur: 0.3s;  /* power2.in */
+}

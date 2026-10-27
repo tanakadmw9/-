@@ -6,7 +6,9 @@
 
 出力（qc/<版>/）
   report.md               合否表（先頭）＋各項目の詳細
-  contact_0p5s_<k>of<n>.jpg  0.5秒おきのコンタクトシート（タイムコード焼き込み、8列×7行）
+  contact_0p5s_<k>of<n>.jpg  0.5秒おきのコンタクトシート（コマの下にタイムコード、8列×7行）
+  storyboard_compare.jpg  絵コンテ（plan/editing_storyboard.png）と書き出しの比較
+  hf_review/*.jpg         `npx hyperframes snapshot comp --review` のシート（場面の頭＋0.3秒と中間、カットの前後、スマホ幅）
   telop_<id>.jpg          テロップごとの「出た直後／中間／消える直前」3コマ
   text_strips_<k>of<n>.jpg  画面の文字（§6 の表の全件）ごとの「出た直後／中間／消える直前」3コマ。文字の位置にオレンジの枠
   caption_hits/*.jpg      焼き込みテロップ（青い光沢カプセル）検出の切り抜き（検出があれば）
@@ -377,15 +379,20 @@ def hf_check():
 
 
 # ---------------------------------------------------------------- sheets
+def with_tc(fr, label, h=22):
+    """コマの下に時刻の帯を足す（絵の上に重ねない：左下・左上の文字を隠さないため。独立レビュー v4.9）。"""
+    bar = np.zeros((h, fr.shape[1], 3), np.uint8)
+    cv2.putText(bar, label, (5, h - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+    return np.vstack([fr, bar])
+
+
 def contact_sheets(path, outdir, step=0.5, tw=320, th=180, cols=8, rows=7):
     dur = float(probe(path)["format"]["duration"])
     tiles = []
     for t, fr in frames(path, fps=1 / step, w=tw, h=th):
         if t > dur: break
-        fr = fr.copy()
-        cv2.rectangle(fr, (0, th - 24), (112, th), (0, 0, 0), -1)
-        cv2.putText(fr, tc(t), (5, th - 7), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1, cv2.LINE_AA)
-        tiles.append(fr)
+        tiles.append(with_tc(fr.copy(), tc(t)))
+    th = tiles[0].shape[0] if tiles else th
     per = cols * rows; n = (len(tiles) + per - 1) // per; paths = []
     for k in range(n):
         chunk = tiles[k * per:(k + 1) * per]
@@ -416,8 +423,9 @@ def telop_strips(path, outdir, tw=640, th=360):
     return out
 
 
-def text_strips(path, outdir, tel, per_page=10, tw=384, th=216, lw=360):
-    """§6 の表の全件（場面の中の文字を含む）の3コマ（docs/07 §2）。出・消は text_timing.json の「読める」区間（独立レビュー v4.8）。"""
+def text_strips(path, outdir, tel, per_page=8, tw=384, th=216, lw=360, cw=440):
+    """§6 の表の全件（場面の中の文字を含む）の3コマ（docs/07 §2）。出・消は text_timing.json の「読める」区間（独立レビュー v4.8）。
+    右端に、中間のコマの文字の所を等倍で切り出した小窓（36px の補足が実寸で読めるか見る。独立レビュー v4.9）。"""
     from PIL import Image, ImageDraw, ImageFont
     fp = next((f for f in ["/mnt/project-files/assets/fonts/BIZUDPGothic-Regular.ttf", "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"]
                if pathlib.Path(f).exists()), None)
@@ -430,16 +438,17 @@ def text_strips(path, outdir, tel, per_page=10, tw=384, th=216, lw=360):
     out, pages = [], (len(rows) + per_page - 1) // per_page
     for k in range(pages):
         chunk = rows[k * per_page:(k + 1) * per_page]
-        sheet = Image.new("RGB", (lw + 3 * (tw + 4) + 4, len(chunk) * (th + 4) + 4), (40, 40, 40))
+        rh = th + 22
+        sheet = Image.new("RGB", (lw + 3 * (tw + 4) + cw + 8, len(chunk) * (rh + 6) + 6), (40, 40, 40))
         dr = ImageDraw.Draw(sheet)
         for i, (cp, text, chars, dur, need, verdict, _why, a, b) in enumerate(chunk):
-            y0 = 4 + i * (th + 4)
+            y0 = 6 + i * (rh + 6)
             n = k * per_page + i + 1
             col = (120, 220, 120) if verdict == "OK" else ((240, 200, 90) if verdict == "例外" else (250, 110, 90))
             dr.text((10, y0 + 8), f"{n:02d}  {verdict}", font=font, fill=col)
             for j in range(0, len(text), 14): dr.text((10, y0 + 40 + j // 14 * 28), text[j:j + 14], font=font, fill=(255, 255, 255))
-            dr.text((10, y0 + th - 58), cp[:30], font=font, fill=(180, 180, 180))
-            dr.text((10, y0 + th - 30), f"{tc(a)}–{tc(b)}  {dur:.2f}/{need}s", font=font, fill=(180, 180, 180))
+            dr.text((10, y0 + rh - 58), cp[:30], font=font, fill=(180, 180, 180))
+            dr.text((10, y0 + rh - 30), f"{tc(a)}–{tc(b)}  {dur:.2f}/{need}s", font=font, fill=(180, 180, 180))
             d = b - a
             ts = [a + min(0.3, d * 0.15), a + d / 2, b - min(0.2, d * 0.1)]
             tr = sum((tracks.get((c_, text)) or [] for c_ in cp.split("→")), [])
@@ -448,13 +457,73 @@ def text_strips(path, outdir, tel, per_page=10, tw=384, th=216, lw=360):
                 box = min(tr, key=lambda e: abs(e[0] - t))[1] if tr else None
                 if box:
                     sx, sy = tw / 1920, th / 1080
-                    cv2.rectangle(fr, (int(box[0] * sx) - 3, int(box[1] * sy) - 3), (int(box[2] * sx) + 3, int(box[3] * sy) + 3), (40, 120, 240), 2)
-                cv2.rectangle(fr, (0, 0), (210, 24), (0, 0, 0), -1)
-                cv2.putText(fr, f"{tc(t)} {lab}", (5, 17), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+                    cv2.rectangle(fr, (int(box[0] * sx) - 6, int(box[1] * sy) - 6), (int(box[2] * sx) + 6, int(box[3] * sy) + 6), (40, 120, 240), 2)
+                fr = with_tc(fr, f"{tc(t)} {lab}")
                 sheet.paste(Image.fromarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB)), (lw + 4 + c * (tw + 4), y0))
+            # 等倍の小窓（中間のコマ、文字の外接矩形＋余白。入りきらない大きな文字だけ縮める）
+            box = min(tr, key=lambda e: abs(e[0] - ts[1]))[1] if tr else None
+            full = next(frames(path, at=[ts[1]]))[1]
+            if box and full is not None:
+                x0, y1 = max(0, box[0] - 24), max(0, box[1] - 24)
+                x1, y2 = min(1920, box[2] + 24), min(1080, box[3] + 24)
+                crop = Image.fromarray(cv2.cvtColor(full[y1:y2, x0:x1], cv2.COLOR_BGR2RGB))
+                k_ = min(1.0, cw / crop.width, rh / crop.height)
+                if k_ < 1: crop = crop.resize((int(crop.width * k_), int(crop.height * k_)), Image.LANCZOS)
+                cx = lw + 4 + 3 * (tw + 4)
+                sheet.paste(crop, (cx, y0))
+                dr.text((cx + 4, y0 + min(rh, crop.height) + 2 if crop.height + 26 < rh else y0 + rh - 22),
+                        "1:1" if k_ >= 1 else f"×{k_:.2f}", font=font, fill=(240, 160, 60))
         p = outdir / f"text_strips_{k + 1}of{pages}.jpg"
         sheet.save(p, quality=82); out.append(p.name)
     return out
+
+
+def hf_review(outdir):
+    """`npx hyperframes snapshot comp --review`（docs/07 §2：各場面の頭＋0.3秒と中間、カットの前後5コマ、スマホ幅）。
+    シート（jpg）だけを qc/<版>/hf_review/ に置く（1コマずつの PNG は dev/ に残す）。"""
+    tmp = ROOT / "dev/hf_review"
+    r = run(["npx", "--no-install", "hyperframes", "snapshot", "comp", "--review", "--json", "-o", str(tmp)], cwd=ROOT, timeout=900)
+    dst = outdir / "hf_review"; dst.mkdir(exist_ok=True)
+    for old in dst.glob("*.jpg"): old.unlink()
+    out = []
+    for f in sorted(tmp.rglob("*.jpg")):
+        (dst / f.name).write_bytes(f.read_bytes()); out.append(f"hf_review/{f.name}")
+    if r.returncode != 0 or not out: print("snapshot --review failed:", (r.stdout + r.stderr)[-800:])
+    return out
+
+
+def storyboard_compare(path, outdir, tw=384, th=216, lw=420):
+    """絵コンテ（編集計画のカット割り案 plan/editing_storyboard.png、scripts/43_edit_storyboard.py の SEG）と書き出しを並べる（docs/07 §2）。
+    行ごとに：計画の画｜書き出しの「頭＋0.3秒」｜「中間」。計画のシートが無ければ作らない。"""
+    import ast
+    from PIL import Image, ImageDraw, ImageFont
+    sb = pathlib.Path("/mnt/project-files/plan/editing_storyboard.png")
+    src = (ROOT / "scripts/43_edit_storyboard.py").read_text()
+    if not sb.exists() or "SEG = [" not in src: return []
+    seg = ast.literal_eval(src[src.index("SEG = [") + 6:src.index("\n]\n", src.index("SEG = [")) + 2])
+    board = Image.open(sb).convert("RGB")
+    fp = next((f for f in ["/mnt/project-files/assets/fonts/BIZUDPGothic-Regular.ttf", "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"]
+               if pathlib.Path(f).exists()), None)
+    font = ImageFont.truetype(fp, 20) if fp else ImageFont.load_default()
+    beat = T["grid"]["beat"]
+    rh = th + 22
+    sheet = Image.new("RGB", (lw + 3 * (tw + 4) + 4, 40 + len(seg) * (rh + 6)), (40, 40, 40))
+    dr = ImageDraw.Draw(sheet)
+    dr.text((10, 8), "絵コンテ（編集計画のカット割り案）｜書き出し：頭＋0.3秒｜中間", font=font, fill=(255, 255, 255))
+    for i, (bt, (bar, b), nb, kind, label, *_rest) in enumerate(seg):
+        y0 = 40 + i * (rh + 6)
+        t0 = (bar - 1) * 4 * beat + (b - 1) * beat
+        dr.text((10, y0 + 6), f"{bt}  {bar}小節{b}拍〜（{nb}拍）", font=font, fill=(240, 160, 60))
+        for j in range(0, len(label), 18): dr.text((10, y0 + 36 + j // 18 * 28), label[j:j + 18], font=font, fill=(255, 255, 255))
+        plan = board.crop((20, 90 + 240 * i + 8, 20 + 384, 90 + 240 * i + 8 + 216)).resize((tw, th))
+        sheet.paste(plan, (lw + 4, y0))
+        dr.text((lw + 8, y0 + th + 1), "計画", font=font, fill=(200, 200, 200))
+        for c, ((t, fr), lab) in enumerate(zip(frames(path, w=tw, h=th, at=[t0 + 0.3, t0 + nb * beat / 2]), ["start+0.3", "middle"])):
+            fr = np.zeros((th, tw, 3), np.uint8) if fr is None else fr.copy()
+            sheet.paste(Image.fromarray(cv2.cvtColor(with_tc(fr, f"{tc(t)} {lab}"), cv2.COLOR_BGR2RGB)), (lw + 4 + (c + 1) * (tw + 4), y0))
+    p = outdir / "storyboard_compare.jpg"
+    sheet.save(p, quality=82)
+    return [p.name]
 
 
 def levels_plot(outdir, W=1600, H=420):
@@ -499,6 +568,7 @@ def main():
     kan = count_kanshu(); cred = check_credits(); beats = check_beats()
     hf = (None, ["--no-hf で省略"], None) if a.no_hf else (print("hyperframes check…") or hf_check())
     print("sheets…"); sheets = contact_sheets(path, outdir); strips = telop_strips(path, outdir) + text_strips(path, outdir, tel); lv = levels_plot(outdir)
+    boards = storyboard_compare(path, outdir) + ([] if a.no_hf else hf_review(outdir))
 
     R = []  # (項目, 判定, 要約)
     R.append(("仕様（ffprobe）", all(r[3] for r in spec), "; ".join(f"{r[0]} {r[1]}" for r in spec if not r[3]) or "すべて一致"))
@@ -599,7 +669,9 @@ def main():
         rows = [l for l in kt.read_text(encoding="utf-8").splitlines() if l.startswith("| K") and "【要監修】" in l]
         L += ["", "監修の対象表（`docs/12_kanshu.md`）で未確認の項目："] + [f"- {r.split('|')[1].strip()} {r.split('|')[2].strip()}：{r.split('|')[3].strip()[:60]}" for r in rows]
     L += ["", "## 11. 素材台帳（docs/credits_and_licenses.md）", ""] + [f"- {n}: {'記載あり' if ok else '**未記載**'}（確認語: {', '.join(k)}）" for n, k, ok in cred]
-    L += ["", "## 12. 目視用シート", "", "- " + ", ".join(f"`{s}`" for s in sheets) + "（0.5秒おき、8列×7行、左下にタイムコード）",
+    L += ["", "## 12. 目視用シート", "", "- " + ", ".join(f"`{s}`" for s in sheets) + "（0.5秒おき、8列×7行、コマの下にタイムコード）",
+          "- 画面の文字の3コマ（§6）: " + (", ".join(f"`{s}`" for s in strips) or "なし"),
+          "- 絵コンテとの比較・`snapshot --review`（場面の頭＋0.3秒と中間、カットの前後5コマ、スマホ幅）: " + (", ".join(f"`{s}`" for s in boards) or "なし（--no-hf か、計画のシートが無い）"),
           "", "## 自動化していない項目（人間・目視）", "",
           "- 言葉と絵の同期（キーワード発話時刻 vs 図解の動き ±0.3s）：vo_timing.json と scenes.cues の比較は別途",
           "- 音の聞こえ方（BGMの選曲・間・SEの質感・環境音の自然さ）は試写で耳で判断"]

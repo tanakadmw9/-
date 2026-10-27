@@ -23,8 +23,8 @@
   AMB : 実写 約−20dB（校正値 −18.5：突風で上下するため実測の中央値が約−20になる値）、図解（id が d で始まる場面、2秒未満のすき間は結合）さらに −10dB、タイトル下 −6dB、
         エンドカードでは、紙に溶けるまで実写と同じ大きさ（S10 が見えている間は現場の音）、紙の上で AMB_PAPER 下げ、
         黒へのフェード（endcard の fade）と一緒に無音へ（最後まで「デジタルの無音」にしない：独立レビュー v4.7）。
-  BGM の最後：最後のナレの後は BGM_TAIL_RELEASE だけ戻す（区間の大きさで割り戻さない＝減衰中の余韻を持ち上げすぎない）。
-        黒へのフェードと一緒に 0 へ。
+  BGM の最後：最後のナレの後は BGM_TAIL_RELEASE だけ、BGM_TAIL_REL_LEN 秒かけて戻す（区間の大きさで割り戻さない＝減衰中の余韻を持ち上げすぎない）。
+        声の帯域のあけは戻さない（高い音だけが持ち上がるのを防ぐ）。黒へのフェードの BGM_END_LEAD 秒前から 0 へ。
   SE  : 種類ごとの目標（0.1秒窓ラウドネスの最大値で、ナレ VO_REF より lock −10 / join −12 / measure・click −16 dB）。
         短い音は 0.4 秒窓だと小さく測られ過大になりやすいので 0.1 秒窓で決める。ナレより大きくしない。
   切れ目：VO・BGM・AMB はすべての端に 10ms 以上のフェード。SE は合成時に 0 から立ち上がる（編集点ではない）＋末尾 10ms フェード。
@@ -59,6 +59,8 @@ DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, MERGE_GAP = 0.35, 0.05, 0.10, 0.35, 
 AMB_LIVE, AMB_DIAG, AMB_TITLE = -21.5, -10.0, -6.0      # AMB_DIAG / AMB_TITLE は AMB_LIVE からの追加分（VO をステレオで測るようにしたので −3）
 AMB_PAPER = -8.0             # エンドカードの紙の上（章扉の並び）での AMB_LIVE からの追加分
 BGM_TAIL_RELEASE = 6.0       # 最後のナレの後、ナレ下の位置から戻す量（dB）。v4.9：4→6（言い終わった後に曲が引き取る。独立レビュー v4.8）
+BGM_TAIL_REL_LEN = 1.0       # その戻しにかける時間（秒）。v4.10：0.35→1.0（減衰中の和音を急に持ち上げると「ふくらむ」：独立レビュー v4.9）
+BGM_END_LEAD = 0.45          # 曲の最後のフェードを、画の黒へのフェードより何秒早く始めるか（v4.10：0.45 秒のフェードは「切った」と聞こえるおそれ）
 SE_TARGET = {"lock": -10.0, "join": -12.0, "measure": -16.0, "click": -16.0, "glow": -14.0}   # 0.1秒窓ラウドネスの最大値、VO_REF 比
 TARGET_LUFS, TP_MAX = -24.0, -2.0
 
@@ -221,7 +223,8 @@ def main():
     for i, (s, e) in enumerate(duck_iv):
         if free_fader[i] is not None: base.append((s - DUCK_PRE, free_fader[i]))
         base += [(s - DUCK_PRE_END, duck_fader[i]), (e + REL_DELAY, duck_fader[i])]
-        if free_fader[i + 1] is not None: base.append((e + REL_DELAY + REL_LEN, free_fader[i + 1]))
+        rl = BGM_TAIL_REL_LEN if i == len(duck_iv) - 1 else REL_LEN
+        if free_fader[i + 1] is not None: base.append((e + REL_DELAY + rl, free_fader[i + 1]))
     if free_fader[0] is not None: base.insert(0, (0.0, free_fader[0]))
     if free_fader[-1] is not None: base.append((DUR, free_fader[-1]))
     else: base.append((DUR, duck_fader[-1]))
@@ -234,12 +237,13 @@ def main():
     gain = keyframes_to_gain(bgm_kf, N)
     gain[: int(round(B0 * SR))] = 0.0
     endc_ = [sc for sc in T["scenes"] if sc["id"] == "endcard"]
-    if endc_ and "fade" in endc_[0]["cues"]:                 # 黒へのフェード（映像）と同じ区間で、曲の残りの余韻を 0 へ（等パワーの下り）
-        f0 = int(round((endc_[0]["start"] + endc_[0]["cues"]["fade"]) * SR))
+    if endc_ and "fade" in endc_[0]["cues"]:                 # 黒へのフェード（映像）の少し前から、曲の残りの余韻を 0 へ（等パワーの下り）
+        f0 = int(round((endc_[0]["start"] + endc_[0]["cues"]["fade"] - BGM_END_LEAD) * SR))
         if f0 < N: gain[f0:] *= np.cos(np.linspace(0, 1, N - f0) * np.pi / 2)
     # ナレの区間だけ、声の帯域（1〜4kHz）を BGM_CARVE_DB あける（手書きの区間の包絡。サイドチェインではない）
     tt = np.arange(N) / SR
-    env = interval_env(duck_iv, DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, tt)
+    # 最後のナレの後は声の帯域をあけたままにする（あけを戻すと、減衰中の和音の高い音だけが持ち上がる：独立レビュー v4.9）
+    env = interval_env(duck_iv[:-1] + [(duck_iv[-1][0], DUR + 1.0)], DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, tt)
     mid = sosfiltfilt(butter(2, list(BGM_CARVE_BAND), "bandpass", fs=SR, output="sos"), bgm_raw, axis=0)
     bgm = (bgm_raw + mid * ((db(BGM_CARVE_DB) - 1) * env)[:, None]) * gain[:, None]
     report["bgm_source"] = str(bgm_src.relative_to(ROOT))

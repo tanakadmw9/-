@@ -16,3 +16,13 @@ comp/.hyperframes/
 comp/compositions/gen/
 comp/assets/fonts/*.woff2
 comp/assets/vendor/
+# チームB（大きな映像・音声・フォント原本・効果音ラボ由来の音は入れない）
+teamB/comp/assets/video/
+teamB/comp/assets/audio/
+teamB/comp/assets/vendor/
+teamB/comp/assets/fonts/*.ttf
+teamB/audio/
+teamB/renders/
+teamB/dev/
+teamB/intermediate/
+teamB/comp/.hyperframes/

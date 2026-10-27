@@ -1,0 +1,19 @@
+/* チームB デザイントークン（teamB/plan/editing.md §6・§7）。意味は「白＝もうわかっている／琥珀＝これから決まる」の2つだけ */
+@font-face { font-family: "UDP"; src: url("../assets/fonts/BIZUDPGothic-Bold.sub.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "UDP"; src: url("../assets/fonts/BIZUDPGothic-Regular.sub.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "MIN"; src: url("../assets/fonts/ShipporiMinchoB1-ExtraBold.sub.woff2") format("woff2"); font-weight: 800; }
+:root {
+  --bar: #000000;          /* シネスコの帯 */
+  --text: #F3F1EC;         /* 帯の文字（19:1） */
+  --mist: #A9B4C0;         /* 帯の補足 */
+  --credit: #8C97A3;       /* クレジット（帯の上 6.6:1） */
+  --white: #FFFFFF;        /* わかっている点、地図・道路の線 */
+  --amber: #FFB547;        /* はかる・新しい点・？（パネルの上 9:1） */
+  --panel: #13243A;        /* 観測パネル、帰り道の地面 */
+  --panel-line: #2E4A6B;   /* パネルの方眼 */
+  --sky-ink: #14202E;      /* 空の上の文字（約13:1） */
+  --edge: rgba(10,16,24,.55);  /* 明るい草の上で線を読ませる縁（影やグローの代わり） */
+  --chip: rgba(10,16,24,.78);  /* 実写の上のラベル板 */
+  --chip-solid: #0A1018;
+  --img-top: 138px; --img-h: 804px;
+}

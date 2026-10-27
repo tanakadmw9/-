@@ -1,0 +1,265 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- 生成ファイル（teamB/scripts/25_build_index.py）。元はひな形 comp/src/main.html。teamB/scripts/25_build_index.py が comp/timeline.json の値を差し込んで comp/index.html を作る。index.html は手で直さない。 -->
+<link rel="stylesheet" href="styles/tokens.css">
+<script src="assets/vendor/gsap.min.js"></script>
+<style>
+  body { margin: 0; }
+  #root { background: var(--bar); font-family: "UDP", sans-serif; overflow: hidden; }
+  .v { position: absolute; left: 0; top: var(--img-top); width: 1920px; height: var(--img-h); object-fit: cover; }
+  .v.win { width: 1056px; }
+  .layer { position: absolute; left: 0; top: var(--img-top); width: 1920px; height: var(--img-h); overflow: visible; pointer-events: none; }
+  .bar { position: absolute; left: 0; width: 1920px; height: var(--img-top); background: var(--bar); z-index: 30; }
+  .bar.top { top: 0; } .bar.bot { top: 942px; }
+  .bt { position: absolute; z-index: 31; opacity: 0; color: var(--text); white-space: nowrap; }
+  #hdr { left: 132px; top: 48px; font-size: 36px; font-weight: 400; color: var(--mist); letter-spacing: .04em; }
+  .bb { left: 0; width: 1920px; top: 975px; text-align: center; font-size: 50px; font-weight: 700; letter-spacing: .02em; }
+  .chip { position: absolute; background: var(--chip); color: #fff; font-weight: 700; font-size: 44px; padding: 8px 20px 10px; border-radius: 6px; opacity: 0; white-space: nowrap; }
+  #title { position: absolute; left: 1010px; top: 196px; z-index: 12; opacity: 0; color: var(--sky-ink); }
+  #title .t { font-family: "MIN", serif; font-weight: 800; font-size: 136px; letter-spacing: .08em; line-height: 1; }
+  #title .s { margin-top: 26px; font-size: 52px; font-weight: 700; letter-spacing: .04em; opacity: 0; }
+  #panel { position: absolute; left: 1064px; top: var(--img-top); width: 856px; height: var(--img-h); z-index: 14; transform: translateX(860px); }
+  #panel svg text { font-family: "UDP", sans-serif; }
+  #mark { position: absolute; left: 0; top: var(--img-top); width: 1920px; height: var(--img-h); z-index: 16; opacity: 0; background: var(--panel); overflow: hidden; }
+  #end { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 40; background: var(--bar); opacity: 0; text-align: center; color: var(--text); }
+  #end .t { position: absolute; left: 0; width: 1920px; top: 392px; font-family: "MIN", serif; font-weight: 800; font-size: 120px; letter-spacing: .1em; line-height: 1; opacity: 0; }
+  #end .s { position: absolute; left: 0; width: 1920px; top: 552px; font-size: 48px; font-weight: 700; color: var(--mist); letter-spacing: .04em; opacity: 0; }
+  #end .c { position: absolute; left: 132px; top: 990px; font-size: 34px; font-weight: 400; color: var(--credit); text-align: left; opacity: 0; }
+  #black { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: #000; z-index: 50; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="61.5" data-width="1920" data-height="1080" data-fps="30000/1001">
+  <video id="v_c01" class="clip v" src="assets/video/c01.mp4" muted playsinline data-start="0.7" data-duration="3.07" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c02" class="clip v" src="assets/video/c02.mp4" muted playsinline data-start="3.77" data-duration="1.47" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c03" class="clip v" src="assets/video/c03.mp4" muted playsinline data-start="5.24" data-duration="2.43" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c04" class="clip v" src="assets/video/c04.mp4" muted playsinline data-start="7.67" data-duration="3.13" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c05" class="clip v" src="assets/video/c05.mp4" muted playsinline data-start="10.8" data-duration="5.114" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c06" class="clip v" src="assets/video/c06.mp4" muted playsinline data-start="15.914" data-duration="5.113" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c07" class="clip v" src="assets/video/c07.mp4" muted playsinline data-start="21.027" data-duration="2.65" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c08" class="clip v" src="assets/video/c08.mp4" muted playsinline data-start="23.677" data-duration="5.016" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c09" class="clip v" src="assets/video/c09.mp4" muted playsinline data-start="28.693" data-duration="1.023" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c10" class="clip v win" src="assets/video/c10.mp4" muted playsinline data-start="29.716" data-duration="3.068" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c11" class="clip v win" src="assets/video/c11.mp4" muted playsinline data-start="32.784" data-duration="4.091" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c12" class="clip v" src="assets/video/c12.mp4" muted playsinline data-start="36.875" data-duration="4.091" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <video id="v_c13" class="clip v" src="assets/video/c13.mp4" muted playsinline data-start="40.966" data-duration="7.135" data-media-start="0" data-track-index="0" style="z-index:1"></video>
+  <!-- 実写の上に描く注記（AR）。座標は画（1920×804）の中 -->
+  <svg id="ar" class="layer" style="z-index:10" width="1920" height="804" viewBox="0 0 1920 804">
+    <defs>
+      <mask id="m_qline" maskUnits="userSpaceOnUse"><path id="mq" d="M1430 372 L1712 452" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round"/></mask>
+    </defs>
+    <!-- S02：指の先に「？」 -->
+    <g id="ar_q" opacity="0">
+      <path d="M1430 372 L1712 452" class="edge" stroke="var(--edge)" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="2 16" mask="url(#m_qline)"/>
+      <path d="M1430 372 L1712 452" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="2 16" mask="url(#m_qline)"/>
+      <g id="q_mark" transform="translate(1745 468)" opacity="0">
+        <ellipse rx="54" ry="15" cy="40" fill="none" stroke="var(--amber)" stroke-width="5" stroke-dasharray="10 10"/>
+        <circle r="32" fill="var(--chip-solid)" stroke="var(--amber)" stroke-width="5"/>
+        <text y="15" text-anchor="middle" font-size="42" font-weight="700" fill="var(--amber)" font-family="UDP">？</text>
+      </g>
+    </g>
+    <!-- S01：わかっている点（白）と、まだの点（琥珀の？） -->
+    <g id="ar_s01">
+      <g id="s01_known" opacity="0"><ellipse cx="768" cy="778" rx="96" ry="20" fill="none" stroke="var(--edge)" stroke-width="10"/><ellipse cx="768" cy="778" rx="96" ry="20" fill="none" stroke="#fff" stroke-width="5"/></g>
+      <g id="s01_new" opacity="0">
+        <ellipse cx="1306" cy="786" rx="70" ry="15" fill="none" stroke="var(--edge)" stroke-width="9"/>
+        <ellipse cx="1306" cy="786" rx="70" ry="15" fill="none" stroke="var(--amber)" stroke-width="5" stroke-dasharray="10 9"/>
+        <g transform="translate(1306 560)"><circle r="32" fill="var(--chip-solid)" stroke="var(--amber)" stroke-width="5"/><text y="15" text-anchor="middle" font-size="42" font-weight="700" fill="var(--amber)" font-family="UDP">？</text></g>
+      </g>
+      <path id="s01_lead" d="M664 744 L700 772" stroke="#fff" stroke-width="3" opacity="0"/>
+    </g>
+    <!-- S10：確かめるためにつなぐ点の輪 -->
+    <g id="ar_s10">
+      <path id="net_e" d="M1013 186 L700 334 L910 578 L1236 334 Z" fill="none" stroke="var(--edge)" stroke-width="10" stroke-linejoin="round"/>
+      <path id="net" d="M1013 186 L700 334 L910 578 L1236 334 Z" fill="none" stroke="var(--amber)" stroke-width="6" stroke-linejoin="round"/>
+      <g id="net_pts">
+        <g transform="translate(1013 186)"><ellipse rx="16" ry="5" fill="var(--amber)"/></g>
+        <g transform="translate(700 334)"><ellipse rx="22" ry="7" fill="var(--amber)"/></g>
+        <g transform="translate(910 578)"><ellipse rx="34" ry="10" fill="var(--amber)"/></g>
+        <g transform="translate(1236 334)"><ellipse rx="22" ry="7" fill="var(--amber)"/></g>
+      </g>
+      <ellipse id="net_ring" cx="1013" cy="186" rx="16" ry="5" fill="none" stroke="var(--amber)" stroke-width="4" opacity="0"/>
+    </g>
+    <!-- S06（2回目）：点から地図（等高線）と道路の線 -->
+    <g id="ar_s06">
+      <g id="s06_pts" opacity="0">
+        <path d="M430 566 L840 262 L1268 300 L1598 618" fill="none" stroke="var(--edge)" stroke-width="8" stroke-linejoin="round"/><path d="M430 566 L840 262 L1268 300 L1598 618" fill="none" stroke="var(--amber)" stroke-width="3.5" stroke-linejoin="round" stroke-dasharray="14 10"/>
+        <g transform="translate(430 566)"><ellipse rx="38" ry="12" fill="var(--edge)"/><ellipse rx="30" ry="9" fill="var(--amber)"/></g>
+        <g transform="translate(840 262)"><ellipse rx="24" ry="8" fill="var(--edge)"/><ellipse rx="18" ry="6" fill="var(--amber)"/></g>
+        <g transform="translate(1268 300)"><ellipse rx="26" ry="9" fill="var(--edge)"/><ellipse rx="20" ry="6.5" fill="var(--amber)"/></g>
+        <g transform="translate(1598 618)"><ellipse rx="44" ry="14" fill="var(--edge)"/><ellipse rx="36" ry="11" fill="var(--amber)"/></g>
+      </g>
+      <g id="contours" fill="none">
+        <!-- 右奥の斜面（人にかからない所）に、斜面に沿って上がる等高線 -->
+        <path class="draw" d="M1300 236 C 1450 214, 1640 200, 1920 196" stroke="var(--edge)" stroke-width="8"/><path class="draw" d="M1300 236 C 1450 214, 1640 200, 1920 196" stroke="#fff" stroke-width="3.5"/>
+        <path class="draw" d="M1380 178 C 1520 160, 1700 148, 1920 146" stroke="var(--edge)" stroke-width="7"/><path class="draw" d="M1380 178 C 1520 160, 1700 148, 1920 146" stroke="#fff" stroke-width="3"/>
+        <path class="draw" d="M1440 128 C 1580 114, 1740 104, 1920 102" stroke="var(--edge)" stroke-width="6"/><path class="draw" d="M1440 128 C 1580 114, 1740 104, 1920 102" stroke="#fff" stroke-width="2.5"/>
+      </g>
+      <defs><mask id="m_road" maskUnits="userSpaceOnUse"><path id="mroad" d="M260 804 C 700 700, 1180 640, 1598 618 S 1860 600, 1960 596" stroke="#fff" stroke-width="26" fill="none"/></mask></defs>
+      <g id="road" mask="url(#m_road)" fill="none">
+        <path d="M260 804 C 700 700, 1180 640, 1598 618 S 1860 600, 1960 596" stroke="var(--edge)" stroke-width="13"/>
+        <path d="M260 804 C 700 700, 1180 640, 1598 618 S 1860 600, 1960 596" stroke="#fff" stroke-width="6" stroke-dasharray="34 18"/>
+      </g>
+    </g>
+  </svg>
+  <div class="layer" style="z-index:11">
+    <div class="chip" id="c_kijun" style="left:470px;top:690px">基準点</div>
+    <div class="chip" id="c_map" style="left:1560px;top:230px">地図</div>
+    <div class="chip" id="c_road" style="left:640px;top:704px">道路</div>
+  </div>
+
+  <div id="title"><div class="t">基準点測量</div><div class="s">地面に“住所”をつける</div></div>
+
+  <!-- 分割画面の右：観測パネル（真上から見た図） -->
+  <div id="panel">
+    <svg width="856" height="804" viewBox="0 0 856 804">
+      <defs>
+        <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="var(--panel-line)" stroke-width="1.5"/></pattern>
+        <mask id="m_ab" maskUnits="userSpaceOnUse"><path id="mab" d="M250 590 L170 236" stroke="#fff" stroke-width="12" fill="none"/></mask>
+      </defs>
+      <rect width="856" height="804" fill="var(--panel)"/><rect width="856" height="804" fill="url(#grid)"/>
+      <rect x="0" y="0" width="6" height="804" fill="var(--bar)"/>
+      <text id="p_head" x="48" y="76" fill="var(--mist)" font-size="36" font-weight="400" opacity="0">真上から見ると</text>
+      <g id="p_B" opacity="0">
+        <path d="M250 590 L170 236" stroke="#fff" stroke-opacity=".6" stroke-width="4" stroke-dasharray="3 14" stroke-linecap="round" mask="url(#m_ab)"/>
+        <path d="M170 198 l26 44 h-52z" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="5" stroke-linejoin="round"/>
+        <text x="214" y="200" fill="var(--mist)" font-size="38" font-weight="700">向きの基準</text>
+      </g>
+      <g id="p_A" opacity="0">
+        <path d="M250 552 l30 52 h-60z" fill="#fff"/><circle cx="250" cy="588" r="5" fill="var(--panel)"/>
+        <text x="190" y="664" fill="#fff" font-size="44" font-weight="700">基準点</text>
+      </g>
+      <path id="p_arc" d="M228.3 492.4 A100 100 0 0 1 332.9 534" fill="none" stroke="var(--amber)" stroke-width="6" stroke-linecap="round"/>
+      <text id="p_arc_t" x="300" y="470" fill="var(--amber)" font-size="44" font-weight="700" opacity="0">向き</text>
+      <g id="p_Pq" opacity="0" transform="translate(620 340)"><circle r="30" fill="none" stroke="var(--amber)" stroke-width="5" stroke-dasharray="9 8"/><text y="15" text-anchor="middle" font-size="40" font-weight="700" fill="var(--amber)">？</text></g>
+      <path id="p_dist" d="M250 590 L620 340" fill="none" stroke="var(--amber)" stroke-width="6" stroke-linecap="round"/>
+      <circle id="p_light" cx="250" cy="590" r="11" fill="#FFE2A6" opacity="0"/>
+      <text id="p_dist_t" x="452" y="556" fill="var(--amber)" font-size="44" font-weight="700" opacity="0">距離</text>
+      <g id="p_P" opacity="0" transform="translate(620 340)"><circle r="30" fill="none" stroke="var(--amber)" stroke-width="6"/><circle r="10" fill="var(--amber)"/></g>
+      <text id="p_P_t" x="560" y="424" fill="#fff" font-size="40" font-weight="700" opacity="0">新しい点</text>
+      <g id="p_tag" opacity="0" transform="translate(500 196)"><rect width="304" height="74" rx="8" fill="var(--amber)"/><text x="152" y="51" text-anchor="middle" fill="var(--panel)" font-size="40" font-weight="700">住所が決まった</text></g>
+    </svg>
+  </div>
+
+  <!-- 帰り道：歩道の金属標（線画） -->
+  <div id="mark">
+    <svg id="mark_svg" width="1920" height="804" viewBox="0 0 1920 804">
+      <g id="walk" stroke="var(--panel-line)" stroke-width="3" fill="none" opacity="0">
+        <path d="M-400 804 L860 0 M160 804 L910 0 M720 804 L960 0 M1280 804 L1010 0 M1840 804 L1060 0 M2400 804 L1110 0"/>
+        <path d="M0 120 H1920 M0 300 H1920 M0 540 H1920"/>
+        <path d="M0 760 L1920 700" stroke="var(--mist)" stroke-opacity=".45" stroke-width="4"/>
+      </g>
+      <g id="mk_detail" transform="translate(960 400) scale(1 .62)" opacity="0">
+        <circle r="170" fill="var(--amber)" fill-opacity=".13"/>
+        <circle r="140" fill="none" stroke="var(--amber)" stroke-width="3" stroke-opacity=".6"/>
+        <g stroke="var(--amber)" stroke-width="8" stroke-linecap="round"><line x1="-40" x2="40"/><line y1="-40" y2="40"/></g>
+        <g fill="var(--amber)" fill-opacity=".55"><rect x="-70" y="-118" width="26" height="14" rx="3"/><rect x="-34" y="-124" width="26" height="14" rx="3"/><rect x="8" y="-124" width="26" height="14" rx="3"/><rect x="44" y="-118" width="26" height="14" rx="3"/><rect x="-56" y="96" width="112" height="14" rx="3"/></g>
+      </g>
+      <g id="shoes" fill="var(--panel)" stroke="#fff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+        <g transform="translate(870 760) rotate(-6)"><path d="M-62 120 L-64 20 C-64 -40 -40 -78 0 -80 C40 -78 64 -40 64 20 L62 120"/><path d="M-30 -10 h60 M-34 18 h68 M-36 46 h72" stroke-width="4"/><path d="M-46 -40 C-30 -58 30 -58 46 -40" stroke-width="3" stroke-opacity=".7"/></g>
+        <g transform="translate(1050 760) rotate(6)"><path d="M-62 120 L-64 20 C-64 -40 -40 -78 0 -80 C40 -78 64 -40 64 20 L62 120"/><path d="M-30 -10 h60 M-34 18 h68 M-36 46 h72" stroke-width="4"/><path d="M-46 -40 C-30 -58 30 -58 46 -40" stroke-width="3" stroke-opacity=".7"/></g>
+      </g>
+    </svg>
+  </div>
+  <!-- 点が金属標の外形に変わる輪（S06 の手前の点 → 金属標）。画の座標 -->
+  <svg class="layer" style="z-index:17" width="1920" height="804" viewBox="0 0 1920 804">
+    <ellipse id="morph" cx="1598" cy="618" rx="32" ry="10" fill="none" stroke="var(--amber)" stroke-width="8" opacity="0"/>
+  </svg>
+
+  <div class="bar top"></div><div class="bar bot"></div>
+  <div class="bt" id="hdr">測量部門のしごと</div>
+  <div class="bt bb" id="t_def">“住所”＝ 正確な位置と高さ</div>
+  <div class="bt bb" id="t_q2">一度で、おしまい？</div>
+
+  <div id="end"><div class="t">基準点測量</div><div class="s">地面に“住所”をつける</div>
+    <div class="c">ナレーション（仮）VOICEVOX:冥鳴ひまり　　音楽「緑色の木漏れ日」ioni（OpenTracks）</div></div>
+  <div id="black"></div>
+  <audio id="mix" class="clip" src="assets/audio/mix.wav" data-start="0" data-duration="61.5" data-volume="1" data-track-index="5"></audio>
+</div>
+<script>
+  window.TL = {"title": "基準点測量（チームB）地面に“住所”をつける", "fps": "30000/1001", "duration": 61.5, "frame": {"bar": 138, "img_h": 804}, "look": {"base": "selectivecolor=greens='0 0.08 0 0':yellows='0 0.03 -0.04 0',eq=saturation=0.92,curves=all='0/0.035 0.25/0.24 0.75/0.76 1/0.955',colorbalance=rm=0.03:gm=0.0:bm=-0.03:rh=0.02:bh=-0.02", "name": "GB1 映画寄り・弱"}, "music": {"file": "/mnt/project-files/dova/03_komorebi.mp3", "beat": 1.0227, "bar1_film": 10.8, "song_bar1": 1.356, "segments": [[0.0, 17.72, 9.444, 0.02, 0.3], [17.69, 25.93, 28.663, 0.03, 0.06], [74.96, 102.48, 36.845, 0.06, 0.8]]}, "cues": {"split": 28.693, "split_arc": 30.739, "split_dist": 31.761, "split_p": 35.852, "s10": 36.875, "s10_net": 38.925, "s10_loop": 40.966, "s06_pts": 41.266, "contour": 44.85, "road": 45.3, "mark": 47.1014, "shoes": 53.25, "end": 57.329, "credit": 58.329, "silence": [27.16, 28.693], "pi": 27.7, "title": 11.823, "q": 8.0, "s01_known": 16.936, "s01_new": 17.959, "s01_label": 18.982}, "shots": [{"id": "c01", "shot": "S06", "start": 0.7, "dur": 3.07, "src_in": 20.38, "grade": "colorbalance=rm=-0.015:bm=0.015", "scale": 1.0, "left": 0, "top": 177}, {"id": "c02", "shot": "S03", "start": 3.77, "dur": 1.47, "src_in": 8.93, "grade": "", "scale": 1.0, "left": 0, "top": 177}, {"id": "c03", "shot": "S05", "start": 5.24, "dur": 2.43, "src_in": 17.9, "grade": "", "scale": 1.0, "left": 0, "top": 177}, {"id": "c04", "shot": "S02", "start": 7.67, "dur": 3.13, "src_in": 5.76, "grade": "eq=gamma=0.97,colorbalance=rh=0.02:bh=-0.02", "scale": 1.06, "left": 54, "top": 4}, {"id": "c05", "shot": "S04", "start": 10.8, "dur": 5.114, "src_in": 14.63, "grade": "eq=gamma=0.97,colorbalance=rh=0.02:bh=-0.02", "scale": 1.0, "left": 0, "top": 177, "freeze_tail": 1.914}, {"id": "c06", "shot": "S01", "start": 15.914, "dur": 5.113, "src_in": 0.62, "grade": "", "scale": 1.06, "left": 54, "top": 4}, {"id": "c07", "shot": "S03", "start": 21.027, "dur": 2.65, "src_in": 11.95, "grade": "", "scale": 1.0, "left": 0, "top": 177}, {"id": "c08", "shot": "S09", "start": 23.677, "dur": 5.016, "src_in": 30.66, "grade": "colorbalance=rm=0.015:bm=-0.015", "scale": 1.0, "left": 0, "top": 177}, {"id": "c09", "shot": "S09", "start": 28.693, "dur": 1.023, "src_in": 35.676, "grade": "colorbalance=rm=0.015:bm=-0.015", "scale": 1.0, "left": 0, "top": 177, "slide": -600, "freeze_tail": 0.05}, {"id": "c10", "shot": "S07", "start": 29.716, "dur": 3.068, "src_in": 23.46, "grade": "", "scale": 1.0, "left": 300, "top": 177, "win": true, "w": 1056}, {"id": "c11", "shot": "S08", "start": 32.784, "dur": 4.091, "src_in": 26.61, "grade": "colorbalance=rm=-0.015:bm=0.015", "scale": 1.0, "left": 560, "top": 177, "win": true, "freeze_tail": 0.07, "w": 1056}, {"id": "c12", "shot": "S10", "start": 36.875, "dur": 4.091, "src_in": 36.69, "grade": "eq=gamma=0.98,colorbalance=rm=0.01:bm=-0.01", "scale": 1.0, "left": 0, "top": 177, "freeze_tail": 1.091}, {"id": "c13", "shot": "S06", "start": 40.966, "dur": 7.135, "src_in": 20.38, "grade": "colorbalance=rm=-0.015:bm=0.015", "scale": 1.0, "left": 0, "top": 177, "freeze_tail": 4.065}], "narration": [{"id": "N1", "start": 3.6}, {"id": "N2", "start": 10.1}, {"id": "N3", "start": 16.2}, {"id": "N4", "start": 29.25}, {"id": "N5", "start": 33.6}, {"id": "N7", "start": 37.9}, {"id": "N8", "start": 43.35}, {"id": "N9", "start": 48.0}, {"id": "N10", "start": 53.75}], "texts": [{"id": "hdr", "text": "測量部門のしごと", "start": 10.8, "end": 15.914, "where": "bar_top"}, {"id": "title", "text": "基準点測量", "start": 11.823, "end": 15.613999999999999, "where": "sky"}, {"id": "sub", "text": "地面に“住所”をつける", "start": 12.223, "end": 15.613999999999999, "where": "sky"}, {"id": "def", "text": "“住所”＝ 正確な位置と高さ", "start": 21.027, "end": 25.118, "where": "bar_bottom"}, {"id": "q2", "text": "一度で、おしまい？", "start": 36.875, "end": 40.966, "where": "bar_bottom"}, {"id": "end_title", "text": "基準点測量", "start": 57.329, "end": 61.5, "where": "center"}], "intended_freezes": [[14.0, 15.914, "c05"], [29.666, 29.716, "c09"], [36.805, 36.875, "c11"], [39.875, 40.966, "c12"], [44.036, 48.101, "c13"]]};
+  (function () {
+    const C = TL.cues, S = {}; TL.shots.forEach(s => S[s.id] = s);
+    const tl = gsap.timeline({ paused: true });
+    const IN = { duration: 0.5, ease: "power3.out" }, OUT = { duration: 0.3, ease: "power2.in" };
+    const show = (el, t, y = 16) => tl.fromTo(el, { opacity: 0, y }, { opacity: 1, y: 0, ...IN, immediateRender: false }, t);
+    const hide = (el, t) => tl.to(el, { opacity: 0, ...OUT }, t);
+    const len = id => document.getElementById(id).getTotalLength();
+    // 線を描き進める（実線は dashoffset、破線はマスクの実線を描き進める）
+    const draw = (sel, t, d = 0.5) => document.querySelectorAll(sel).forEach(p => {
+      const L = p.getTotalLength(); gsap.set(p, { strokeDasharray: L, strokeDashoffset: L });
+      tl.to(p, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
+    });
+    // ---- コールドオープン：S02 の指の先に「？」 ----
+    draw("#mq", C.q, 0.6); tl.set("#ar_q", { opacity: 1 }, C.q);
+    tl.fromTo("#q_mark", { opacity: 0, scale: 0.6, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out", immediateRender: false }, C.q + 0.6);
+    hide("#ar_q", S.c04.start + S.c04.dur - 0.35);
+    // ---- タイトル（答え） ----
+    show("#hdr", TL.texts.find(t => t.id === "hdr").start, 0); hide("#hdr", TL.texts.find(t => t.id === "hdr").end - 0.3);
+    tl.fromTo("#title", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, C.title);
+    show("#title .s", C.title + 0.4); hide("#title", S.c06.start - 0.35);
+    // S04 の止め：毎秒 1% の寄り（止めたことを感じさせない）
+    const f5 = S.c05.start + S.c05.dur - S.c05.freeze_tail;
+    tl.fromTo("#v_c05", { scale: 1 }, { scale: 1 + 0.01 * S.c05.freeze_tail, transformOrigin: "62% 40%", duration: S.c05.freeze_tail, ease: "none", immediateRender: false }, f5);
+    // ---- S01：わかっている点／まだの点 ----
+    show("#s01_known", C.s01_known, 0); show("#s01_new", C.s01_new, 0);
+    show("#c_kijun", C.s01_label, 0); show("#s01_lead", C.s01_label, 0);
+    ["#s01_known", "#s01_new", "#c_kijun", "#s01_lead"].forEach(e => hide(e, S.c07.start - 0.3));
+    show("#t_def", TL.texts.find(t => t.id === "def").start, 0); hide("#t_def", TL.texts.find(t => t.id === "def").end - 0.3);
+    // ---- 分割画面：左の画が寄り、右に観測パネル ----
+    tl.to("#v_c09", { x: S.c09.slide, duration: 0.6, ease: "power2.inOut" }, C.split);
+    tl.to("#panel", { x: 0, duration: 0.6, ease: "power2.inOut" }, C.split);
+    show("#p_head", C.split + 0.5, 0); show("#p_A", C.split + 0.55, 0);
+    draw("#mab", C.split + 0.8, 0.6); tl.to("#p_B", { opacity: 1, duration: 0.4 }, C.split + 0.8);
+    gsap.set("#p_arc", { opacity: 0 }); tl.set("#p_arc", { opacity: 1 }, C.split_arc); draw("#p_arc", C.split_arc, 0.6); show("#p_arc_t", C.split_arc + 0.3, 0);
+    show("#p_Pq", C.split_dist - 0.4, 0);
+    gsap.set("#p_dist", { opacity: 0 }); tl.set("#p_dist", { opacity: 1 }, C.split_dist); draw("#p_dist", C.split_dist, 0.5); show("#p_dist_t", C.split_dist + 0.3, 0);
+    // 光の往復（はかる）：1往復 1.0秒 ×2（点滅にならない速さ）
+    tl.set("#p_light", { opacity: 1, attr: { cx: 250, cy: 590 } }, C.split_dist + 0.5);
+    for (let i = 0; i < 2; i++) {
+      tl.to("#p_light", { attr: { cx: 620, cy: 340 }, duration: 0.5, ease: "sine.inOut" }, C.split_dist + 0.5 + i);
+      tl.to("#p_light", { attr: { cx: 250, cy: 590 }, duration: 0.5, ease: "sine.inOut" }, C.split_dist + 1.0 + i);
+    }
+    tl.to("#p_light", { opacity: 0, duration: 0.2 }, C.split_dist + 2.5);
+    tl.to("#p_Pq", { opacity: 0, duration: 0.2 }, C.split_p - 0.1);
+    tl.fromTo("#p_P", { opacity: 0, scale: 1.8, transformOrigin: "center" }, { opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", immediateRender: false }, C.split_p);
+    show("#p_tag", C.split_p + 0.15); show("#p_P_t", C.split_p + 0.3, 0);
+    tl.set("#panel", { opacity: 0 }, C.s10);   // 分割画面は閉じずに直に切る（editing.md §5）
+    // ---- S10：点をつないで輪を閉じる（確かめる） ----
+    show("#t_q2", C.s10 + 0.1, 0); hide("#t_q2", C.s10_loop - 0.3);
+    gsap.set("#net_pts > g", { opacity: 0 });
+    document.querySelectorAll("#net_pts > g").forEach((g, i) => tl.to(g, { opacity: 1, duration: 0.3 }, C.s10_net + 0.25 * i));
+    gsap.set(["#net", "#net_e"], { opacity: 0 }); tl.set(["#net", "#net_e"], { opacity: 1 }, C.s10_net + 0.9);
+    draw("#net, #net_e", C.s10_net + 0.9, 1.0);
+    tl.fromTo("#net_ring", { opacity: 0.9, attr: { rx: 16, ry: 5 } }, { opacity: 0, attr: { rx: 70, ry: 22 }, duration: 0.7, ease: "power2.out", immediateRender: false }, C.s10_net + 1.9);
+    hide("#ar_s10", C.s10_loop - 0.3);
+    // S10 の止め
+    const f12 = S.c12.start + S.c12.dur - S.c12.freeze_tail;
+    // ---- S06（2回目）：点から地図と道路 ----
+    const live13 = S.c13.dur - S.c13.freeze_tail, f13 = S.c13.start + live13;
+    gsap.set("#ar_s06", { x: 34 }); tl.to("#ar_s06", { x: 0, duration: live13, ease: "none" }, S.c13.start);  // 元のパン（約 −11px/秒）に合わせて動かす
+    show("#s06_pts", C.s06_pts, 0);
+    gsap.set("#contours .draw", { opacity: 1 }); draw("#contours .draw", C.contour, 0.8); show("#c_map", C.contour + 0.3, 0);
+    draw("#mroad", C.road, 0.9); show("#c_road", C.road + 0.4, 0);
+    tl.fromTo(["#v_c13", "#ar_s06"], { scale: 1 }, { scale: 1 + 0.01 * S.c13.freeze_tail, transformOrigin: "60% 60%", duration: S.c13.freeze_tail, ease: "none", immediateRender: false }, f13);
+    // ---- 帰り道：手前の点が金属標になる ----
+    ["#s06_pts", "#contours", "#road", "#c_map", "#c_road"].forEach(e => tl.to(e, { opacity: 0, duration: 0.4 }, C.mark));
+    tl.set("#morph", { opacity: 1 }, C.mark);
+    tl.to("#mark", { opacity: 1, duration: 0.8, ease: "power2.inOut" }, C.mark + 0.1);
+    tl.to("#morph", { attr: { cx: 960, cy: 400, rx: 170, ry: 105 }, duration: 1.0, ease: "power2.inOut" }, C.mark + 0.1);
+    tl.to("#walk", { opacity: 1, duration: 0.8 }, C.mark + 0.7);
+    tl.to("#mk_detail", { opacity: 1, duration: 0.6 }, C.mark + 1.2);
+    gsap.set("#shoes", { y: 300 }); tl.to("#shoes", { y: 0, duration: 0.9, ease: "power2.out" }, C.shoes);
+    tl.fromTo(["#mark_svg", "#morph"], { scale: 1 }, { scale: 1.08, transformOrigin: "50% 50%", duration: C.end - C.mark, ease: "none", immediateRender: false }, C.mark);
+    // ---- エンドカード ----
+    tl.to("#end", { opacity: 1, duration: 0.4, ease: "power2.inOut" }, C.end - 0.1);
+    show("#end .t", C.end + 0.2); show("#end .s", C.end + 0.6); tl.to("#end .c", { opacity: 1, duration: 0.5 }, C.credit);
+    tl.to("#black", { opacity: 1, duration: 0.6, ease: "power2.in" }, TL.duration - 0.7);
+    window.__timelines = window.__timelines || {};
+    window.__timelines["main"] = tl;
+  })();
+</script>
+</body>
+</html>

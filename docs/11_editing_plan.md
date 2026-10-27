@@ -230,6 +230,7 @@ docs/04 の書体・色・大きさを継続（BIZ UDPゴシック、紺の板�
 4. 色補正をカットごとにそろえる（§9）→ 比較シートで確認。
 5. ナレ v3（content.md）を冥鳴ひまり F版の調整で作り直し、拍に収まるか確認。
 6. 書き出しのたびに docs/07 の自動チェック、目視シート、独立レビュー。
+7. 素材は /mnt/project-files/assets/ を使う（README.md・LICENSES.md）：章扉のアイコン（icons/custom/ の kijunten_ts・suijun・chikei・rosen・youchi）、図解の記号（△・◎・照準）、点つなぎの地図（map/tentsunagi_base.svg、層ごとに描き込みアニメーションできる）、フォントの完全版。効果音①〜④は外部素材を待たず、FFmpeg で合成する（docs/05 §6、権利の心配がない）。
 
 ## 14. 決めてほしいこと
 

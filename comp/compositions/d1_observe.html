@@ -6,7 +6,7 @@
     #d1-photo, #d1-desat { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; }
     #d1-paper { position: absolute; inset: 0; background: var(--paper); }
     #d1-tilt { position: absolute; inset: 0; }
-    #d1-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #d1-svg, #d1-lead-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
     .d1-plate { position: absolute; background: var(--plate); border-radius: var(--plate-radius);
       padding: 16px 28px 18px; font-feature-settings: "palt"; white-space: nowrap; }
     .d1-main { font-family: var(--font-ja); font-weight: 700; font-size: 48px; line-height: 1.3; color: var(--white); }
@@ -19,6 +19,27 @@
     <div id="d1-tilt">
       <img id="d1-photo" src="assets/video/S09_freeze.png" alt="">
       <img id="d1-desat" src="assets/video/S09_freeze_desat.png" alt="">
+      <!-- 対象ラベルは写真に貼りつける（写真が倒れはじめても、ラベルが写真の上の物から離れない：v4.9） -->
+      <svg id="d1-lead-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+        <!-- 対象ラベルの点と引き出し線 -->
+        <g id="d1-ts-lead">
+          <line id="d1-ts-line" x1="613" y1="572" x2="1012" y2="640" stroke="var(--white)" stroke-width="2"
+                pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+          <circle id="d1-ts-dot" cx="613" cy="572" r="5" fill="var(--white)" opacity="0"/>
+        </g>
+        <g id="d1-pr-lead">
+          <line id="d1-pr-line" x1="1446" y1="137" x2="1446" y2="404" stroke="var(--white)" stroke-width="2"
+                pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+          <circle id="d1-pr-dot" cx="1446" cy="137" r="5" fill="var(--white)" opacity="0"/>
+        </g>
+      </svg>
+      <div id="d1-ts-plate" class="d1-plate">
+        <div class="d1-main">はかる機械</div>
+        <div class="d1-sub">トータルステーション</div>
+      </div>
+      <div id="d1-pr-plate" class="d1-plate">
+        <div class="d1-main">プリズム</div>
+      </div>
     </div>
     <svg id="d1-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
       <!-- 光の線（角度＝向き）：ごく弱い発光＋本線 -->
@@ -32,17 +53,6 @@
         <circle r="9" fill="var(--orange)"/>
       </g>
       <circle id="d1-bounce" cx="1446" cy="137" r="14" fill="none" stroke="var(--orange)" stroke-width="4" opacity="0"/>
-      <!-- 対象ラベルの点と引き出し線 -->
-      <g id="d1-ts-lead">
-        <line id="d1-ts-line" x1="613" y1="572" x2="1012" y2="640" stroke="var(--white)" stroke-width="2"
-              pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
-        <circle id="d1-ts-dot" cx="613" cy="572" r="5" fill="var(--white)" opacity="0"/>
-      </g>
-      <g id="d1-pr-lead">
-        <line id="d1-pr-line" x1="1446" y1="137" x2="1446" y2="404" stroke="var(--white)" stroke-width="2"
-              pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
-        <circle id="d1-pr-dot" cx="1446" cy="137" r="5" fill="var(--white)" opacity="0"/>
-      </g>
       <!-- 紙に溶けたあとの記号：TS＝紺の△、プリズム＝オレンジの◎ -->
       <g id="d1-known">
         <g id="d1-known-in" opacity="0">
@@ -57,13 +67,6 @@
         </g>
       </g>
     </svg>
-    <div id="d1-ts-plate" class="d1-plate">
-      <div class="d1-main">はかる機械</div>
-      <div class="d1-sub">トータルステーション</div>
-    </div>
-    <div id="d1-pr-plate" class="d1-plate">
-      <div class="d1-main">プリズム</div>
-    </div>
   </div>
   <script>
     (function () {
@@ -89,10 +92,10 @@
       // desat：色の写真 → 落ち着いた写真（画像のクロスフェード）
       tl.fromTo("#d1-desat", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.inOut" }, c.desat);
 
-      // ts_label：点 → 引き出し線 → 板（板は早めに：補足「トータルステーション」の読む時間を少しでも長く。独立レビュー v4.7）
+      // ts_label：点 → 引き出し線 → 板。静止の頭で、ほぼ同時に（0.04 秒ずつずらす）出す：補足「トータルステーション」（10字）に 3.5 秒（独立レビュー v4.8）
       tl.fromTo("#d1-ts-dot", { opacity: 0, attr: { r: 2 } }, { opacity: 1, attr: { r: 5 }, duration: 0.25, ease: "power3.out" }, c.ts_label);
-      draw("#d1-ts-line", c.ts_label + 0.06, 0.3, "power2.out");
-      tl.fromTo("#d1-ts-plate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.ts_label + 0.18);
+      draw("#d1-ts-line", c.ts_label + 0.04, 0.3, "power2.out");
+      tl.fromTo("#d1-ts-plate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.ts_label + 0.06);
 
       // prism_label：点 → 下へ引き出し線（2人の間）→ 板
       tl.fromTo("#d1-pr-dot", { opacity: 0, attr: { r: 2 } }, { opacity: 1, attr: { r: 5 }, duration: 0.25, ease: "power3.out" }, c.prism_label);
@@ -116,7 +119,8 @@
       const A = [560, 760], P = [1380, 520];   // d2_topview の A・P と同じ
       const p0 = c.to_paper;
       const W = Math.max(0.5, dur - p0 - 0.05);
-      tl.fromTo(["#d1-ts-plate", "#d1-pr-plate", "#d1-ts-lead", "#d1-pr-lead"], { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, p0);
+      // ラベルは写真と一緒に倒れはじめ（約10度まで）、そこで消える（読む時間を取りつつ、真上の図には持ち込まない）
+      tl.fromTo(["#d1-ts-plate", "#d1-pr-plate", "#d1-ts-lead", "#d1-pr-lead"], { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, p0 + 0.22);
       // 写真が奥へ倒れて（下の辺を軸に約55度）紙の上に寝る＝「同じ場所を真上から見る」へ。倒れながら薄れて紙になる
       tl.fromTo("#d1-tilt", { rotationX: 0, transformPerspective: 1500, transformOrigin: "50% 100%" },
         { rotationX: 55, transformPerspective: 1500, transformOrigin: "50% 100%", duration: Math.min(1.0, W), ease: "power2.inOut" }, p0);

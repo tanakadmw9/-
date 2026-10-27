@@ -58,7 +58,7 @@ BGM_MAX_BOOST = 8.0          # 曲の静かな所（入り）を持ち上げる�
 DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, MERGE_GAP = 0.35, 0.05, 0.10, 0.35, 1.2
 AMB_LIVE, AMB_DIAG, AMB_TITLE = -21.5, -10.0, -6.0      # AMB_DIAG / AMB_TITLE は AMB_LIVE からの追加分（VO をステレオで測るようにしたので −3）
 AMB_PAPER = -8.0             # エンドカードの紙の上（章扉の並び）での AMB_LIVE からの追加分
-BGM_TAIL_RELEASE = 4.0       # 最後のナレの後、ナレ下の位置から戻す量（dB）
+BGM_TAIL_RELEASE = 6.0       # 最後のナレの後、ナレ下の位置から戻す量（dB）。v4.9：4→6（言い終わった後に曲が引き取る。独立レビュー v4.8）
 SE_TARGET = {"lock": -10.0, "join": -12.0, "measure": -16.0, "click": -16.0, "glow": -14.0}   # 0.1秒窓ラウドネスの最大値、VO_REF 比
 TARGET_LUFS, TP_MAX = -24.0, -2.0
 
@@ -179,10 +179,15 @@ def main():
     b = b[:nb]
     b = fade_edges(b, 0.010, 0.050)
     if human.exists():
-        tail = 20 * np.log10(np.sqrt((b[-int(0.5 * SR):] ** 2).mean()) + 1e-12) - integrated(b)
-        if tail > -25:
+        rms_db = lambda seg: 20 * np.log10(np.sqrt((seg ** 2).mean()) + 1e-12)
+        tail = rms_db(b[-int(0.5 * SR):]) - integrated(b)
+        # 最後の 0.5 秒が、その 2 秒前より 10dB 以上小さい＝最後の和音が減衰している所（フレーズの途中ではない）。画の溶けと一緒に閉じてよい（v4.9）
+        decay = rms_db(b[-int(0.5 * SR):]) - rms_db(b[-int(2.5 * SR):-int(2.0 * SR)])
+        if tail > -25 and decay > -10:
             print(f"WARNING: bgm.wav is still loud at bgm.end ({tail:.1f} dB re its own loudness) — "
                   "edit the track by bars so it ends there (docs/05 §2: no fade-out mid-phrase).")
+        elif tail > -25:
+            print(f"bgm end: in the final chord's release ({tail:.1f} dB re its own loudness, {decay:.1f} dB vs 2 s before) — closes with the picture fade")
     bgm_raw = np.zeros((N, 2)); put(bgm_raw, b, B0)
     t_st, st = short_term(bgm_raw)
 

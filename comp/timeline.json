@@ -243,14 +243,14 @@
    "comp": "compositions/d1_observe.html",
    "template": null,
    "start": 23.9906,
-   "dur": 3.7705,
+   "dur": 4.4044,
    "cues": {
     "desat": 0.0,
     "ts_label": 0.0,
     "prism_label": 0.25,
     "angle": 1.0,
     "distance": 1.55,
-    "to_paper": 2.792
+    "to_paper": 3.374
    },
    "overlay": false,
    "diagram": true,
@@ -266,15 +266,15 @@
    "id": "d2_topview",
    "comp": "compositions/d2_topview.html",
    "template": null,
-   "start": 27.7611,
-   "dur": 7.6076,
+   "start": 28.395,
+   "dur": 6.9737,
    "cues": {
     "setup": 0.0,
     "known": 0.0,
-    "angle": 1.991,
-    "distance": 2.561,
-    "new_point": 3.521,
-    "fix": 5.641
+    "angle": 1.359,
+    "distance": 1.929,
+    "new_point": 2.889,
+    "fix": 5.009
    },
    "overlay": false,
    "diagram": true,
@@ -481,10 +481,10 @@
   "bars": "1-12,25-36",
   "hold": {
    "at": 55.0,
-   "len": 2.0,
+   "len": 3.0,
    "xfade": 0.4
   },
-  "note": "曲の小節1の頭＝映像の0秒。1〜12＋25〜36小節（つなぎ目は 13 小節頭）。最後の和音を 2 秒のばす"
+  "note": "曲の小節1の頭＝映像の0秒。1〜12＋25〜36小節（つなぎ目は 13 小節頭）。最後の和音を 3 秒のばす"
  },
  "amb": [
   {
@@ -526,7 +526,7 @@
   17.017,
   20.1868,
   23.9906,
-  27.7611,
+  28.395,
   35.3687,
   37.2706,
   39.7731,
@@ -542,7 +542,7 @@
   ],
   [
    23.9906,
-   27.7611,
+   28.395,
    "S09_freeze（D1の背景）"
   ],
   [
@@ -581,11 +581,6 @@
    "comp": "chapter_door",
    "text": "用地測量",
    "reason": "章扉の作業名は「5つのうち1つが灯る」形を見せる1回目。名前は点つなぎの帯と締めの章扉で読める長さで2回出す"
-  },
-  {
-   "comp": "d1_observe",
-   "text": "トータルステーション",
-   "reason": "主ラベル「はかる機械」の下の補足（小さい灰色）。読めなくても意味は主ラベルとナレ「この機械で」で通る"
   },
   {
    "comp": "endcard",

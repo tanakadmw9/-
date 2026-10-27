@@ -8,6 +8,7 @@
   report.md               合否表（先頭）＋各項目の詳細
   contact_0p5s_<k>of<n>.jpg  0.5秒おきのコンタクトシート（タイムコード焼き込み、8列×7行）
   telop_<id>.jpg          テロップごとの「出た直後／中間／消える直前」3コマ
+  text_strips_<k>of<n>.jpg  画面の文字（§6 の表の全件）ごとの「出た直後／中間／消える直前」3コマ。文字の位置にオレンジの枠
   caption_hits/*.jpg      焼き込みテロップ（青い光沢カプセル）検出の切り抜き（検出があれば）
   levels.png              ステムの短時間ラウドネスの推移（audio/mix/ がある場合）
 
@@ -415,6 +416,47 @@ def telop_strips(path, outdir, tw=640, th=360):
     return out
 
 
+def text_strips(path, outdir, tel, per_page=10, tw=384, th=216, lw=360):
+    """§6 の表の全件（場面の中の文字を含む）の3コマ（docs/07 §2）。出・消は text_timing.json の「読める」区間（独立レビュー v4.8）。"""
+    from PIL import Image, ImageDraw, ImageFont
+    fp = next((f for f in ["/mnt/project-files/assets/fonts/BIZUDPGothic-Regular.ttf", "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"]
+               if pathlib.Path(f).exists()), None)
+    font = ImageFont.truetype(fp, 20) if fp else ImageFont.load_default()
+    js = outdir / "text_timing.json"
+    tracks = {(it["comp"], it["text"]): it.get("track") or ([[0, it["box"]]] if it.get("box") else [])
+              for it in json.loads(js.read_text())["items"]} if js.exists() else {}
+    rows = [r for r in tel if r[7] is not None and r[8] is not None]
+    for old in outdir.glob("text_strips_*.jpg"): old.unlink()
+    out, pages = [], (len(rows) + per_page - 1) // per_page
+    for k in range(pages):
+        chunk = rows[k * per_page:(k + 1) * per_page]
+        sheet = Image.new("RGB", (lw + 3 * (tw + 4) + 4, len(chunk) * (th + 4) + 4), (40, 40, 40))
+        dr = ImageDraw.Draw(sheet)
+        for i, (cp, text, chars, dur, need, verdict, _why, a, b) in enumerate(chunk):
+            y0 = 4 + i * (th + 4)
+            n = k * per_page + i + 1
+            col = (120, 220, 120) if verdict == "OK" else ((240, 200, 90) if verdict == "例外" else (250, 110, 90))
+            dr.text((10, y0 + 8), f"{n:02d}  {verdict}", font=font, fill=col)
+            for j in range(0, len(text), 14): dr.text((10, y0 + 40 + j // 14 * 28), text[j:j + 14], font=font, fill=(255, 255, 255))
+            dr.text((10, y0 + th - 58), cp[:30], font=font, fill=(180, 180, 180))
+            dr.text((10, y0 + th - 30), f"{tc(a)}–{tc(b)}  {dur:.2f}/{need}s", font=font, fill=(180, 180, 180))
+            d = b - a
+            ts = [a + min(0.3, d * 0.15), a + d / 2, b - min(0.2, d * 0.1)]
+            tr = sum((tracks.get((c_, text)) or [] for c_ in cp.split("→")), [])
+            for c, ((t, fr), lab) in enumerate(zip(frames(path, w=tw, h=th, at=ts), ["just in", "middle", "before out"])):
+                fr = np.zeros((th, tw, 3), np.uint8) if fr is None else fr.copy()
+                box = min(tr, key=lambda e: abs(e[0] - t))[1] if tr else None
+                if box:
+                    sx, sy = tw / 1920, th / 1080
+                    cv2.rectangle(fr, (int(box[0] * sx) - 3, int(box[1] * sy) - 3), (int(box[2] * sx) + 3, int(box[3] * sy) + 3), (40, 120, 240), 2)
+                cv2.rectangle(fr, (0, 0), (210, 24), (0, 0, 0), -1)
+                cv2.putText(fr, f"{tc(t)} {lab}", (5, 17), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+                sheet.paste(Image.fromarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB)), (lw + 4 + c * (tw + 4), y0))
+        p = outdir / f"text_strips_{k + 1}of{pages}.jpg"
+        sheet.save(p, quality=82); out.append(p.name)
+    return out
+
+
 def levels_plot(outdir, W=1600, H=420):
     import soundfile as sf
     cols = {"vo": (60, 60, 230), "bgm": (200, 120, 30), "amb": (60, 170, 60), "se": (0, 160, 230)}
@@ -456,7 +498,7 @@ def main():
     vb = check_vo_bgm(); clicks = check_clicks()
     kan = count_kanshu(); cred = check_credits(); beats = check_beats()
     hf = (None, ["--no-hf で省略"], None) if a.no_hf else (print("hyperframes check…") or hf_check())
-    print("sheets…"); sheets = contact_sheets(path, outdir); strips = telop_strips(path, outdir); lv = levels_plot(outdir)
+    print("sheets…"); sheets = contact_sheets(path, outdir); strips = telop_strips(path, outdir) + text_strips(path, outdir, tel); lv = levels_plot(outdir)
 
     R = []  # (項目, 判定, 要約)
     R.append(("仕様（ffprobe）", all(r[3] for r in spec), "; ".join(f"{r[0]} {r[1]}" for r in spec if not r[3]) or "すべて一致"))
@@ -531,7 +573,7 @@ def main():
           "| 出 | 消 | 場面 | 文 | 文字数 | 表示 | 必要 | 判定 |", "|---|---|---|---|---|---|---|---|"]
     L += [f"| {tc(a) if a is not None else '—'} | {tc(b) if b is not None else '—'} | {cp} | {t} | {c} | {d:.2f}s | {n}s | {v}{('：' + why) if why else ''} |"
           for cp, t, c, d, n, v, why, a, b in tel] or ["| — | — | — | 対象 0 件 | | | | NG |"]
-    L += ["", "3コマ（出た直後／中間／消える直前）: " + (", ".join(f"`{s}`" for s in strips) or "timeline.telops なし（場面の中の文字は上の表）"),
+    L += ["", "3コマ（出た直後／中間／消える直前、上の表の順に番号。オレンジの枠＝測った文字の位置）: " + (", ".join(f"`{s}`" for s in strips) or "なし"),
           "", "`npx hyperframes check comp --json` の要約：", "", "```", *hf[1], "```"]
     L += ["", "## 7. ラウドネス（ffmpeg ebur128=peak=true）", ""]
     L += [f"- 統合 {loud['I']} LUFS（基準 −24±1）、True Peak {loud['TP']} dBTP（基準 ≤−2）、LRA {loud['LRA']} LU"] if loud else ["- 測定不可"]

@@ -70,10 +70,11 @@ function probe() {
     const text = el.textContent.replace(/\s+/g, "");
     const key = comp + "|" + text;
     const prev = items.get(key);
-    if (!prev) items.set(key, [comp, text, o, Math.round(parseFloat(getComputedStyle(el).fontSize))]);
+    const box = [r.left, r.top, r.right, r.bottom].map(Math.round);
+    if (!prev) items.set(key, [comp, text, o, Math.round(parseFloat(getComputedStyle(el).fontSize)), box]);
     else prev[2] = 1 - (1 - prev[2]) * (1 - o);
   }
-  return Array.from(items.values()).map((r) => [r[0], r[1], Math.round(r[2] * 1000) / 1000, r[3]]);
+  return Array.from(items.values()).map((r) => [r[0], r[1], Math.round(r[2] * 1000) / 1000, r[3], r[4]]);
 }
 
 const samples = [];
@@ -91,12 +92,13 @@ await server.close?.();
 // 文字ごとに、読める状態が続いた区間をまとめる
 const byKey = new Map();
 for (const [t, list] of samples) {
-  for (const [comp, text, v, fs_] of list) {
+  for (const [comp, text, v, fs_, box] of list) {
     const k = comp + "|" + text;
-    if (!byKey.has(k)) byKey.set(k, { comp, text, font_px: fs_, max_vis: 0, on: [] });
+    if (!byKey.has(k)) byKey.set(k, { comp, text, font_px: fs_, max_vis: 0, box, on: [], track: [] });
     const it = byKey.get(k);
+    if (v > it.max_vis) it.box = box;   // 文字の位置（いちばん濃く見えた最初の標本の外接矩形）
     it.max_vis = Math.max(it.max_vis, v);
-    if (v >= READABLE) it.on.push(t);
+    if (v >= READABLE) { it.on.push(t); it.track.push([t, box]); }   // 読める間の位置（文字が動く場面もあるので、QC の3コマシートは時刻ごとの枠を使う）
   }
 }
 const items = [];
@@ -108,7 +110,7 @@ for (const it of byKey.values()) {
   }
   const rr = runs.map(([a, b]) => [a, Math.round((b + STEP) * 1000) / 1000]);   // 最後の標本から次の標本までは出ていたとみなす
   const best = rr.reduce((m, r) => (r[1] - r[0] > (m ? m[1] - m[0] : -1) ? r : m), null);
-  items.push({ comp: it.comp, text: it.text, font_px: it.font_px, max_vis: it.max_vis, runs: rr,
+  items.push({ comp: it.comp, text: it.text, font_px: it.font_px, max_vis: it.max_vis, box: it.box, track: it.track, runs: rr,
                start: best ? best[0] : null, end: best ? best[1] : null, dur: best ? Math.round((best[1] - best[0]) * 1000) / 1000 : 0 });
 }
 items.sort((a, b) => (a.start ?? 1e9) - (b.start ?? 1e9));

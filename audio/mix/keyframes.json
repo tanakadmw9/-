@@ -119,19 +119,19 @@
   ],
   [
    51.4014,
-   -18.16
+   -18.38
   ],
   [
    58.8689,
-   -18.16
+   -18.38
   ],
   [
    59.2189,
-   -14.16
+   -12.38
   ],
   [
    60.6606,
-   -14.16
+   -12.38
   ]
  ],
  "amb_keyframes": [
@@ -339,7 +339,7 @@
     "type": "under_vo",
     "start": 51.451,
     "end": 58.769,
-    "fader_db": -18.16
+    "fader_db": -18.38
    },
    {
     "type": "free",
@@ -393,12 +393,12 @@
     "type": "free",
     "start": 59.219,
     "end": 60.661,
-    "fader_db": -14.16
+    "fader_db": -12.38
    }
   ],
   "integrated_lufs_py": -24.0,
   "integrated_lufs_ffmpeg": -24.0,
-  "true_peak_dbtp_py": -10.12,
+  "true_peak_dbtp_py": -10.11,
   "true_peak_dbtp_ffmpeg": -10.1,
   "limiter_max_gr_db": null,
   "stems_sum_residual": 1.1102230246251565e-16,
@@ -413,12 +413,12 @@
    "N6": 17.1,
    "N7a": 17.4,
    "N7b": 17.1,
-   "N8": 18.2
+   "N8": 18.1
   },
   "vo_minus_bgm_short_term_inside_lines": {
    "median": 16.3,
    "p5": 15.2,
-   "min": 14.3,
+   "min": 14.6,
    "n_windows": 139
   },
   "vo_median_short_term_lufs": -24.2,

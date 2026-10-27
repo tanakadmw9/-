@@ -96,8 +96,8 @@ h4 {{ margin:0 0 4px; font-size:.85rem; color:var(--navy); border-bottom:1px sol
 .cols p {{ margin:0 0 6px; font-size:.95rem; }} .t {{ color:var(--muted); font-size:.8rem; }} .muted {{ color:var(--muted); }}
 details {{ margin-top:8px; font-size:.9rem; }} summary {{ cursor:pointer; color:var(--muted); }}
 </style></head><body><main>
-<h1>基準点測量 絵コンテ（構成 A'・v4.1）</h1>
-<p class="lead">全{T['duration']:.1f}秒・{len(T['beats'])}拍。画はアニマティック v4.1 の書き出しから。ナレは仮（合成音声）。正本は comp/timeline.json。</p>
+<h1>基準点測量 絵コンテ（構成 A'・v4.2）</h1>
+<p class="lead">全{T['duration']:.1f}秒・{len(T['beats'])}拍。画はアニマティック v4.2 の書き出しから。ナレは仮（合成音声）。正本は comp/timeline.json。</p>
 {''.join(rows)}
 </main></body></html>"""
 (OUT / "index.html").write_text(page)

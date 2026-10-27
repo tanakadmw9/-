@@ -105,6 +105,10 @@
 
       // ---- setup：d1 の終わり（A に △、P に ◎、A→P の光の線）から。方眼、B、A→B の点線を足す
       const s = c.setup;
+      // D1 から持ち込んだ線と P は、いったん薄い影にする（答えを先に見せず、角度→距離→新しい点の順で現す）
+      tl.fromTo("#d2-ap", { opacity: 1 }, { opacity: 0.15, duration: 0.4, ease: "power2.inOut" }, s + 0.1);
+      tl.fromTo("#d2-ap-glow", { opacity: 0.18 }, { opacity: 0.03, duration: 0.4, ease: "power2.inOut" }, s + 0.1);
+      tl.fromTo("#d2-P-in", { opacity: 1 }, { opacity: 0.15, duration: 0.4, ease: "power2.inOut" }, s + 0.1);
       tl.fromTo("#d2-grid", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power1.inOut" }, s + 0.05);
       pop("#d2-B-in", s + 0.4, 0.4);
       show("#d2-ab", s + 0.52);
@@ -127,6 +131,9 @@
       draw("#d2-arc", a + 0.08, 0.8, "power2.inOut");
       rise("#d2-lbl-angle", a + 0.6);
 
+      // ---- distance：線が影から実線に戻る
+      tl.fromTo("#d2-ap", { opacity: 0.15 }, { opacity: 1, duration: 0.4, ease: "power2.out", immediateRender: false }, c.distance);
+      tl.fromTo("#d2-ap-glow", { opacity: 0.03 }, { opacity: 0.18, duration: 0.4, ease: "power2.out", immediateRender: false }, c.distance);
       // ---- distance：A→P の線の上を光の粒が往復（0.4秒ずつ＝0.8秒）
       const d = c.distance;
       tl.fromTo("#d2-photon", { opacity: 0, x: A[0], y: A[1] }, { opacity: 1, duration: 0.06, ease: "none" }, d);
@@ -138,6 +145,7 @@
 
       // ---- new_point：線の先の◎を1回だけ強調。「新しい点」
       const n = c.new_point;
+      tl.fromTo("#d2-P-in", { opacity: 0.15 }, { opacity: 1, duration: 0.25, ease: "power2.out", immediateRender: false }, n);
       tl.fromTo("#d2-P-in", { scale: 1, svgOrigin: "0 0" }, { scale: 1.2, svgOrigin: "0 0", duration: 0.25, ease: "power2.out" }, n);
       tl.fromTo("#d2-P-in", { scale: 1.2, svgOrigin: "0 0" }, { scale: 1, svgOrigin: "0 0", duration: 0.5, ease: "power2.inOut", immediateRender: false }, n + 0.25);
       rise("#d2-lbl-new", n + 0.15);

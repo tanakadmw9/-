@@ -161,7 +161,7 @@ shot("S10", s10s, s10e, 36.70, "現場を見渡す背中＝誇りと余韻")
 push0, push_rate = 1.0, 0.015
 push1 = push0 + push_rate * (s10e - s10s)
 move("v_S10", s10s, s10e, push0, push1, "50% 40%", "見渡す先へ気持ちを運ぶ（毎秒1.5%）")
-s, n8e = vo("N8", at(21) + 0.4)
+s, n8e = vo("N8", at(21) + 0.9)   # 「はじまりの点」を締めの文字が出る瞬間に合わせる（独立レビュー v4.5）
 end = DUR
 scene("endcard", s10s, end, {"text_in": s10s + 0.15, "bg_in": s10e, "reticle": at(23, 3), "door": at(23, 3) + 1.45,
                              "fade": end - 0.5},

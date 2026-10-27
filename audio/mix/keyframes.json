@@ -83,22 +83,38 @@
   ],
   [
    42.2458,
-   -16.98
+   -17.08
   ],
   [
    42.8599,
-   -16.98
+   -17.08
   ],
   [
    43.2599,
-   -21.98
+   -22.13
   ],
   [
-   58.5399,
-   -21.98
+   49.8096,
+   -22.13
   ],
   [
-   59.1399,
+   50.4096,
+   -14.06
+  ],
+  [
+   51.0014,
+   -14.06
+  ],
+  [
+   51.4014,
+   -19.06
+  ],
+  [
+   59.0404,
+   -19.06
+  ],
+  [
+   59.6404,
    8.0
   ],
   [
@@ -281,8 +297,14 @@
    {
     "type": "under_vo",
     "start": 43.31,
-    "end": 58.44,
-    "fader_db": -21.98
+    "end": 49.71,
+    "fader_db": -22.13
+   },
+   {
+    "type": "under_vo",
+    "start": 51.451,
+    "end": 58.94,
+    "fader_db": -19.06
    },
    {
     "type": "free",
@@ -318,19 +340,25 @@
     "type": "free",
     "start": 42.246,
     "end": 42.86,
-    "fader_db": -16.98
+    "fader_db": -17.08
    },
    {
     "type": "free",
-    "start": 59.14,
+    "start": 50.41,
+    "end": 51.001,
+    "fader_db": -14.06
+   },
+   {
+    "type": "free",
+    "start": 59.64,
     "end": 60.661,
     "fader_db": 8.0
    }
   ],
   "integrated_lufs_py": -24.0,
   "integrated_lufs_ffmpeg": -24.0,
-  "true_peak_dbtp_py": -10.81,
-  "true_peak_dbtp_ffmpeg": -10.8,
+  "true_peak_dbtp_py": -10.74,
+  "true_peak_dbtp_ffmpeg": -10.7,
   "limiter_max_gr_db": null,
   "stems_sum_residual": 1.1102230246251565e-16,
   "vo_minus_bgm_per_line_db": {
@@ -341,12 +369,12 @@
    "N5a": 19.2,
    "N5b": 19.5,
    "N6": 19.1,
-   "N7a": 19.4,
-   "N7b": 19.2,
-   "N8": 24.3
+   "N7a": 19.5,
+   "N7b": 19.3,
+   "N8": 22.3
   },
   "vo_minus_bgm_short_term_inside_lines": {
-   "median": 18.9,
+   "median": 18.8,
    "p5": 17.0,
    "min": 16.7,
    "n_windows": 155

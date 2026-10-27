@@ -7,7 +7,7 @@
     #d0-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
     #d0-svg .d0-navy { stroke: var(--navy); fill: none; stroke-linecap: round; stroke-linejoin: round; }
     #d0-svg .d0-fillp { fill: var(--paper); }
-    #d0-card { position: absolute; left: 1040px; top: 452px; width: 760px; padding: 4px 0 8px 40px; }
+    #d0-card { position: absolute; left: 1040px; top: 600px; width: 760px; padding: 4px 0 8px 40px; }
     #d0-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--orange); border-radius: 3px; transform-origin: 50% 0%; }
     #d0-term { font-family: var(--font-ja); font-weight: 700; font-size: 72px; line-height: 1.3; color: var(--ink);
       font-feature-settings: "palt"; white-space: nowrap; letter-spacing: 0.04em; }
@@ -34,6 +34,9 @@
         <line class="d0-navy" stroke-width="3" x1="620" y1="687" x2="620" y2="709"/>
         <circle id="d0-dot" cx="620" cy="698" r="7" fill="#1F3A5F" style="fill: var(--navy)"/>
       </g>
+      <!-- 引き出し線：しるし → 用語 -->
+      <line id="d0-lead" x1="700" y1="700" x2="1024" y2="660" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100"/>
+      <circle id="d0-lead-dot" cx="700" cy="700" r="6" fill="var(--ink)" opacity="0"/>
       <!-- 三脚＋機械（紺の線画） -->
       <g id="d0-tripod" opacity="0">
         <line class="d0-navy" stroke-width="5" x1="592" y1="404" x2="462" y2="700"/>
@@ -77,6 +80,8 @@
       tl.fromTo("#d0-plumb", { attr: { y2: 410 } }, { attr: { y2: 690 }, duration: 0.4, ease: "power2.inOut" }, t + 0.5);
 
       // term_in：用語カード（縦線 → 用語 → 説明）
+      tl.fromTo("#d0-lead-dot", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.3);
+      tl.fromTo("#d0-lead", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, k - 0.25);
       tl.fromTo("#d0-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: "power3.out" }, k);
       tl.fromTo("#d0-term", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.1);
       tl.fromTo("#d0-desc", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.28);

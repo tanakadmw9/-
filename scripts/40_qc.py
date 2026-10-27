@@ -286,7 +286,7 @@ def check_credits():
     need("フォント BIZ UDPゴシック／UDゴシック", any((ROOT / "comp/assets/fonts").glob("biz-ud*")), ["BIZ UDPゴシック", "BIZ UDゴシック"])
     need("GSAP", (ROOT / "comp/assets/vendor/gsap.min.js").exists(), ["GSAP"])
     need("HyperFrames", (ROOT / "node_modules/hyperframes").exists(), ["HyperFrames"])
-    need("仮ナレ（音声合成）", any((ROOT / "audio/vo_temp").glob("*.wav")), ["pyopenjtalk", "Mei"])
+    need("仮ナレ（音声合成）", any((ROOT / "audio/vo_temp").glob("*.wav")), ["VOICEVOX", "冥鳴ひまり"])
     need("本ナレ（社員の声）", any((ROOT / "audio/vo_final").glob("*.wav")), ["本ナレ"])
     need("効果音", any((ROOT / "audio/se").glob("*.wav")), ["効果音"])
     need("環境音", (ROOT / "audio/amb/amb.wav").exists(), ["環境音"])

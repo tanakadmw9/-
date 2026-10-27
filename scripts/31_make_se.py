@@ -1,5 +1,5 @@
 """効果音（SE）を numpy で合成する（素材のダウンロードなし・権利の心配なし）。
-audio/se/{lock,measure,click,join}.wav（48kHz mono, 24bit）。
+audio/se/{lock,measure,click,join,glow}.wav（48kHz mono, 24bit）。
 方針（docs/05 §6）：控えめ・漫画的にしない。すべて短いフェード付き、ピークは −6 dBFS に正規化
 （実際の音量は scripts/30_mix.py がナレ基準で決める）。乱数は固定シードで再現可能。
 
@@ -86,9 +86,17 @@ def join():
     return fade(x, 0.0008, 0.030)
 
 
+def glow():
+    """章扉でアイコンが灯るやわらかい音：高めの2音の和音（5度）、やわらかい立ち上がり、約0.5秒で消える。"""
+    d = 0.55; t = t_axis(d)
+    x = sum(a * np.sin(2 * np.pi * f * t) for a, f in [(1.0, 1318.5), (0.55, 1975.5), (0.12, 2637.0)])
+    env = np.minimum(1, t / 0.025) ** 2 * np.exp(-t / 0.16)
+    return fade(lp(x * env, 5000), 0.002, 0.040)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, fn in [("lock", lock), ("measure", measure), ("click", click), ("join", join)]:
+    for name, fn in [("lock", lock), ("measure", measure), ("click", click), ("join", join), ("glow", glow)]:
         x = norm(fn())
         sf.write(OUT / f"{name}.wav", x.astype(np.float32), SR, subtype="PCM_24")
         print(f"{name:8s} {len(x)/SR*1000:6.1f} ms  -> {OUT/name}.wav")

@@ -1,4 +1,4 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"setup\":0.0,\"known\":1.2,\"angle\":2.82,\"distance\":4.24,\"new_point\":5.15,\"fix\":6.76}"},{"id":"dur","type":"number","label":"dur","default":9.009},{"id":"coord_x","type":"string","label":"X（例）","default":"1234.567"},{"id":"coord_y","type":"string","label":"Y（例）","default":"2345.678"}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"setup\":0.0,\"known\":1.2,\"angle\":2.82,\"distance\":4.24,\"new_point\":5.15,\"fix\":6.76}"},{"id":"dur","type":"number","label":"dur","default":9.009}]'>
 <body>
 <template>
   <style>
@@ -14,14 +14,6 @@
     #d2-lbl-angle { left: 580px; top: 560px; width: 160px; text-align: center; font-size: 52px; }
     #d2-lbl-dist { left: 870px; top: 534px; width: 160px; text-align: center; font-size: 52px; }
     #d2-lbl-new { left: 1200px; top: 414px; width: 360px; text-align: center; font-size: 48px; }
-    #d2-coords { position: absolute; left: 1250px; top: 580px; width: 260px; }
-    .d2-row { height: 54px; display: flex; align-items: flex-start; font-family: var(--font-num); font-size: 40px; line-height: 54px; color: var(--ink); white-space: nowrap; }
-    .d2-row .d2-ax { width: 44px; font-weight: 700; }
-    .d2-row .d2-unit { margin-left: 12px; }
-    .d2-odo { display: inline-block; height: 54px; overflow: hidden; vertical-align: top; }
-    .d2-strip { display: block; }
-    .d2-strip span { display: block; height: 54px; line-height: 54px; }
-    #d2-note { position: absolute; left: 1180px; top: 696px; width: 400px; text-align: center; font-family: var(--font-ja); font-size: 36px; line-height: 1.35; color: var(--ink); font-feature-settings: "palt"; }
   </style>
   <div id="root" data-composition-id="d2_topview" data-width="1920" data-height="1080">
     <div id="d2-bg"></div>
@@ -62,7 +54,9 @@
         <g id="d2-P-in">
           <circle r="28" fill="var(--paper)" stroke="var(--orange)" stroke-width="5"/>
           <circle r="12" fill="none" stroke="var(--orange)" stroke-width="5"/>
+          <circle id="d2-P-dot" r="11" fill="var(--orange)" opacity="0"/>
         </g>
+        <circle id="d2-P-pulse" r="28" fill="none" stroke="var(--orange)" stroke-width="4" opacity="0"/>
       </g>
       <!-- A：わかっている点（d1 の TS 位置から移ってくる）＋真上から見た TS -->
       <g id="d2-A" transform="translate(560 760)">
@@ -82,11 +76,6 @@
     <div id="d2-lbl-angle" class="d2-lbl d2-od d2-b">角度</div>
     <div id="d2-lbl-dist" class="d2-lbl d2-od d2-b">距離</div>
     <div id="d2-lbl-new" class="d2-lbl d2-od d2-b">新しい点</div>
-    <div id="d2-coords" data-layout-allow-overflow>
-      <div class="d2-row" id="d2-row-x"><span class="d2-ax">X</span><span class="d2-num" id="d2-num-x"></span><span class="d2-unit">m</span></div>
-      <div class="d2-row" id="d2-row-y"><span class="d2-ax">Y</span><span class="d2-num" id="d2-num-y"></span><span class="d2-unit">m</span></div>
-    </div>
-    <div id="d2-note">（数値は例）</div>
   </div>
   <script>
     (function () {
@@ -104,27 +93,6 @@
       document.querySelector("#d2-arc").setAttribute("d",
         "M" + s0[0].toFixed(1) + " " + s0[1].toFixed(1) + " A" + R + " " + R + " 0 0 1 " + s1[0].toFixed(1) + " " + s1[1].toFixed(1));
 
-      // 座標の数字：桁ごとの回転ドラム（カウントして止まる）
-      const ROW = 54;
-      const odo = [];
-      function buildNumber(host, text) {
-        let di = 0;
-        const digits = text.replace(/[^0-9]/g, "").length;
-        for (const ch of text) {
-          if (!/[0-9]/.test(ch)) { const s = document.createElement("span"); s.textContent = ch; host.appendChild(s); continue; }
-          const target = Number(ch);
-          const travel = 2 + Math.round(26 * Math.pow(di / Math.max(1, digits - 1), 1.3)); // 上の桁ほど少なく、下の桁ほど多く回る
-          const start = ((target - travel) % 10 + 10) % 10;
-          const col = document.createElement("span"); col.className = "d2-odo"; col.setAttribute("data-layout-ignore", "");
-          const strip = document.createElement("span"); strip.className = "d2-strip";
-          for (let j = 0; j <= travel; j++) { const d = document.createElement("span"); d.textContent = String((start + j) % 10); strip.appendChild(d); }
-          col.appendChild(strip); host.appendChild(col);
-          odo.push({ strip, travel });
-          di++;
-        }
-      }
-      buildNumber(document.querySelector("#d2-num-x"), String(v.coord_x || "1234.567"));
-      buildNumber(document.querySelector("#d2-num-y"), String(v.coord_y || "2345.678"));
 
       const tl = gsap.timeline({ paused: true });
       const IN = { duration: 0.5, ease: "power3.out" };
@@ -172,11 +140,10 @@
       tl.fromTo("#d2-P-in", { scale: 1.2, svgOrigin: "0 0" }, { scale: 1, svgOrigin: "0 0", duration: 0.5, ease: "power2.inOut", immediateRender: false }, n + 0.25);
       rise("#d2-lbl-new", n + 0.15);
 
-      // ---- fix：座標がカウントして止まる（止まる瞬間＝fix）。「（数値は例）」
-      const f = c.fix, roll = 0.7;
-      tl.fromTo("#d2-coords", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "power1.out" }, f - roll - 0.05);
-      odo.forEach((o) => tl.fromTo(o.strip, { y: 0 }, { y: -o.travel * ROW, duration: roll, ease: "power2.out" }, f - roll));
-      tl.fromTo("#d2-note", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, f + 0.15);
+      // ---- fix：「決まります」。P の中心が塗られて位置が確定する（効果音③クリック）。座標の数字は出さない（内容プラン）
+      const f = c.fix;
+      tl.fromTo("#d2-P-dot", { opacity: 0, attr: { r: 4 } }, { opacity: 1, attr: { r: 11 }, duration: 0.18, ease: "power3.out" }, f);
+      tl.fromTo("#d2-P-pulse", { opacity: 0.9, attr: { r: 28 } }, { opacity: 0, attr: { r: 70 }, duration: 0.55, ease: "power2.out" }, f);
 
       // 以降は止まって待つ
       tl.set({}, {}, dur);

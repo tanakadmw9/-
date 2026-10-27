@@ -24,13 +24,21 @@ HEAD = """<!doctype html>
 </head>
 <body>
 """
-TAIL = """<script>
-  window.__timelines = window.__timelines || {};
-  window.__timelines["main"] = gsap.timeline({ paused: true });
-</script>
-</body>
-</html>
-"""
+def tail(moves=(), offset=0.0):
+    """main のタイムライン。timeline.json の moves（実写・静止画のゆっくりした寄り）だけをここで動かす。"""
+    lines = []
+    for m in moves:
+        lines.append(f'  tl.fromTo("#{m["el"]}", {{ scale: {m["scale"][0]}, transformOrigin: "{m["origin"]}" }},'
+                     f' {{ scale: {round(m["scale"][1], 4)}, transformOrigin: "{m["origin"]}", duration: {m["dur"]}, ease: "none",'
+                     f' immediateRender: false }}, {round(m["start"] - offset, 4)});')
+    return ("<script>\n  window.__timelines = window.__timelines || {};\n  const tl = gsap.timeline({ paused: true });\n"
+            + "\n".join(lines) + ("\n" if lines else "") + '  window.__timelines["main"] = tl;\n</script>\n</body>\n</html>\n')
+
+def move_targets():
+    """move の target 名（v_<shot> / still_<id>）を index.html の要素 id に直す。"""
+    ids = {f"v_{s['shot']}": f"v{i:02d}_{s['shot']}" for i, s in enumerate(T["shots"])}
+    ids.update({f"still_{s['id']}": f"still_{s['id']}" for s in T["stills"]})
+    return [dict(m, el=ids[m["target"]]) for m in T.get("moves", [])]
 
 def attr(v):
     return html.escape(v, quote=True)
@@ -49,7 +57,7 @@ def telop_files():
     """キーワードテロップは部品テンプレートから id ごとにファイルを作る（host id と composition id を一致させるため）。"""
     tpl = (COMP / "compositions/telop_keyword.html").read_text()
     gen = COMP / "compositions/gen"; gen.mkdir(exist_ok=True)
-    for t in T["telops"]:
+    for t in T.get("telops", []):
         s = tpl.replace("telop_keyword", t["id"]).replace("kw-", f"{t['id']}-")
         (gen / f"{t['id']}.html").write_text(s)
 
@@ -67,7 +75,7 @@ def build_main():
                    f' data-start="{s["start"]}" data-duration="{s["dur"]}" data-track-index="0" style="z-index:{z}">\n')
     for sc in T["scenes"]:
         out.append(scene_host(sc, z=6 if sc.get("overlay") else 4))
-    for t in T["telops"]:
+    for t in T.get("telops", []):
         vals = {"text": t["text"]}
         out.append(f'  <div id="{t["id"]}" data-composition-id="{t["id"]}" data-composition-src="compositions/gen/{t["id"]}.html"'
                    f" data-variable-values='{attr(json.dumps(vals, ensure_ascii=False))}'"
@@ -77,7 +85,7 @@ def build_main():
         out.append(f'  <audio id="mix" class="clip" src="assets/audio/mix.wav" data-start="0" data-duration="{T["duration"]}"'
                    f' data-volume="1" data-track-index="5"></audio>\n')
     out.append("</div>\n")
-    out.append(TAIL)
+    out.append(tail(move_targets()))
     (COMP / "index.html").write_text("".join(out))
     print("wrote comp/index.html", T["duration"], "s")
 
@@ -103,7 +111,7 @@ def build_scene(sid):
                 bg += (f'  <img id="bgs_{s["id"]}" class="clip full" src="{s["src"]}" alt=""'
                        f' data-start="{max(0, rel):.4f}" data-duration="{s["dur"]:.4f}" data-track-index="0" style="z-index:1">\n')
     out = [HEAD, f'<div id="root" data-composition-id="main" data-start="0" data-duration="{sc["dur"]}"'
-                 f' data-width="1920" data-height="1080" data-fps="30000/1001">\n', bg, scene_host(sc, start=0), "</div>\n", TAIL]
+                 f' data-width="1920" data-height="1080" data-fps="30000/1001">\n', bg, scene_host(sc, start=0), "</div>\n", tail()]
     (d / "index.html").write_text("".join(out))
     print(f"wrote dev/{sid}/index.html ({sc['dur']}s)")
 

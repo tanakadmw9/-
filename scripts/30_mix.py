@@ -50,7 +50,7 @@ SHORT_GAP, SHORT_GAP_RISE = 3.0, 5.0
 BGM_MAX_BOOST = 8.0          # 曲の静かな所（入り）を持ち上げる上限。曲のダイナミクスをつぶし切らない
 DUCK_PRE, DUCK_PRE_END, REL_DELAY, REL_LEN, MERGE_GAP = 0.45, 0.05, 0.10, 0.60, 1.5
 AMB_LIVE, AMB_DIAG, AMB_TITLE = -18.5, -10.0, -6.0      # AMB_DIAG / AMB_TITLE は AMB_LIVE からの追加分
-SE_TARGET = {"lock": -10.0, "join": -12.0, "measure": -16.0, "click": -16.0}   # 0.1秒窓ラウドネスの最大値、VO_REF 比
+SE_TARGET = {"lock": -10.0, "join": -12.0, "measure": -16.0, "click": -16.0, "glow": -14.0}   # 0.1秒窓ラウドネスの最大値、VO_REF 比
 TARGET_LUFS, TP_MAX = -24.0, -2.0
 
 
@@ -140,7 +140,8 @@ def main():
     bgm_src = human if human.exists() else ROOT / "audio/bgm/temp_bgm.wav"
     b = load(bgm_src)
     B0, BEND = T["bgm"]["start"], T["bgm"]["end"] or DUR
-    PS, PE = T["bgm"]["pause"]["start"], T["bgm"]["pause"]["end"]
+    pause = T["bgm"].get("pause")                        # 曲を止める間（無いときは映像の外に置いて無効にする）
+    PS, PE = (pause["start"], pause["end"]) if pause else (DUR + 10.0, DUR + 11.0)
     nb = min(len(b), int(round((BEND - B0) * SR)))
     b = b[:nb]
     b = fade_edges(b, 0.010, 0.050)
@@ -208,7 +209,7 @@ def main():
         n = min(len(a), int(round((e0 - s0) * SR)))
         put(amb, fade_edges(a[:n], 0.5, 0.010), s0)
     amb *= db(VO_REF - amb_ref)
-    diag = merged([(s["start"], s["start"] + s["dur"]) for s in T["scenes"] if s["id"].startswith("d")], 2.0)
+    diag = merged([(s["start"], s["start"] + s["dur"]) for s in T["scenes"] if s.get("diagram", s["id"].startswith("d"))], 2.0)
     title = [(s["start"], s["start"] + s["dur"]) for s in T["scenes"] if s["id"] == "title"]
     endc = [s for s in T["scenes"] if s["id"] == "endcard"]
     kt = {0.0, DUR}
@@ -232,7 +233,7 @@ def main():
         x = load(ROOT / f"audio/se/{e['kind']}.wav", want_stereo=False)[:, 0]
         pad = np.concatenate([np.zeros(int(0.2 * SR)), x, np.zeros(int(0.4 * SR))])
         mmax = sliding_loudness(pad, 0.1, 0.01)[1].max()   # 短い音は 0.1 秒窓で（耳の積分時間に近い）
-        g = VO_REF + SE_TARGET.get(e["kind"], -12.0) - mmax
+        g = VO_REF + SE_TARGET.get(e["kind"], -12.0) - mmax + e.get("gain_db", 0.0)   # gain_db：その回だけ小さく
         x = fade_edges(x * db(g), 0.0, 0.010)
         put(se, np.repeat(x[:, None], 2, 1), e["start"])
         se_gain.append({"kind": e["kind"], "t": e["start"], "gain_db": round(g, 2),
@@ -287,7 +288,8 @@ def main():
         "se_max_100ms_re_vo_integrated": round(float(sliding_loudness(stems["se"], 0.1, 0.01)[1].max()
                                                      - integrated(stems["vo"])), 1),
         "se_peak_re_vo_peak_db": round(float(20 * np.log10(np.abs(stems["se"]).max() / np.abs(stems["vo"]).max())), 1),
-        "bgm_in_pause_short_term_lufs": round(float(momentary(stems["bgm"])[1][(tm > PS + 0.25) & (tm < PE - 0.25)].max()), 1),
+        "bgm_in_pause_short_term_lufs": (round(float(momentary(stems["bgm"])[1][(tm > PS + 0.25) & (tm < PE - 0.25)].max()), 1)
+                                         if pause else None),
     }
     report.update(rep)
     (MIX / "keyframes.json").write_text(json.dumps(

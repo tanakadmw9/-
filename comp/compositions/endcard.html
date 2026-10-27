@@ -1,112 +1,164 @@
-<html data-composition-variables='[{"id": "cues", "type": "string", "label": "cues", "default": "{\"reticle\":0.0,\"point\":0.6,\"text_in\":2.04,\"fade\":5.24}"}, {"id": "dur", "type": "number", "label": "dur", "default": 6.0393}, {"id": "point_x", "type": "number", "label": "最初の一点 x（奥の三脚の下）", "default": 1034}, {"id": "point_y", "type": "number", "label": "最初の一点 y（奥の三脚の下）", "default": 212}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"text_in\":0.15,\"bg_in\":3.0,\"reticle\":3.4,\"door\":4.85,\"fade\":6.5}"},{"id":"dur","type":"number","label":"dur","default":7.0},{"id":"push_from","type":"number","label":"S10 の寄りの終わりの倍率","default":1.045},{"id":"push_rate","type":"number","label":"寄りの速さ（毎秒）","default":0.015},{"id":"icon_x","type":"number","label":"章扉の基準点アイコン x","default":340},{"id":"icon_y","type":"number","label":"章扉の基準点アイコン y","default":470},{"id":"point_x","type":"number","label":"照準が現れる位置 x（奥の三脚）","default":1037},{"id":"point_y","type":"number","label":"照準が現れる位置 y","default":202},{"id":"active","type":"number","label":"灯るアイコン","default":0}]'>
 <body>
 <template>
   <style>
-    /* fade の行き先は黒（仕様 §4 endcard「全体が 0.8秒で黒へ」） */
-    #root { position: absolute; inset: 0; background: #000; overflow: hidden; }
-    #endcard-all { position: absolute; inset: 0; }
-    #endcard-bg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; }
-
-    /* 下からの紺のグラデーション（文字を守る） */
-    #endcard-grad { position: absolute; left: 0; right: 0; bottom: 0; height: 600px; opacity: 0;
+    /* 締め：S10 の上に締めの一文 → 最後のコマで照準が縮み、章扉の基準点アイコンに戻る → 章扉の並びで閉じる → 黒へ */
+    #root { position: absolute; inset: 0; background: transparent; overflow: hidden; }
+    #ec-all { position: absolute; inset: 0; }
+    #ec-bg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; opacity: 0; }
+    #ec-paper { position: absolute; inset: 0; background: var(--paper); opacity: 0; }
+    #ec-grid { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+    #ec-grad { position: absolute; left: 0; right: 0; bottom: 0; height: 560px; opacity: 0;
       background: linear-gradient(to top,
-        color-mix(in srgb, var(--ink) 84%, transparent) 0%,
-        color-mix(in srgb, var(--ink) 60%, transparent) 40%,
+        color-mix(in srgb, var(--ink) 70%, transparent) 0%,
+        color-mix(in srgb, var(--ink) 42%, transparent) 45%,
         color-mix(in srgb, var(--ink) 0%, transparent) 100%); }
 
-    /* 照準（title と同じ形） */
-    #endcard-ret { position: absolute; left: 720px; top: 400px; width: 480px; height: 480px; }
-    #endcard-ret-in { position: absolute; inset: 0; opacity: 0; }
-    #endcard-ret svg, #endcard-pt svg { position: absolute; inset: 0; width: 480px; height: 480px; overflow: visible; }
-    .endcard-ret-edge { stroke: var(--navy); stroke-width: 7; stroke-opacity: 0.85; fill: none; stroke-linecap: round; }
-    .endcard-ret-line { stroke: var(--white); stroke-width: 2.5; fill: none; stroke-linecap: round; }
-    #endcard-pt { position: absolute; inset: 0; }
-    #endcard-dot { fill: var(--white); stroke: var(--navy); stroke-width: 1.5; stroke-opacity: 0.8; }
-    #endcard-dot-on { fill: var(--orange); stroke: var(--white); stroke-width: 3; opacity: 0; }
+    .ec-item { position: absolute; top: 390px; width: 260px; margin-left: -130px; text-align: center; opacity: 0; }
+    .ec-icon { display: block; width: 160px; height: 160px; margin: 0 auto; color: var(--navy); overflow: visible; }
+    .ec-label { margin-top: 26px; font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.2;
+      color: color-mix(in srgb, var(--ink) 72%, var(--paper)); font-feature-settings: "palt"; white-space: nowrap; }
+    .ec-item.active .ec-icon { color: var(--orange); }
+    .ec-item.active .ec-label { font-weight: 700; color: var(--ink); }
 
-    /* 締めの一文：章タイトルと同じ配置ルール（右下・タイトルセーフ内） */
-    #endcard-block { position: absolute; right: 132px; top: 800px; opacity: 0; }
-    .endcard-field { font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.2; color: var(--sub);
-      font-feature-settings: "palt"; letter-spacing: 0.08em; white-space: nowrap; }
-    .endcard-main { font-family: var(--font-ja); font-weight: 700; font-size: 88px; line-height: 1.2; color: var(--white);
-      font-feature-settings: "palt"; white-space: nowrap; margin-top: 4px; }
+    /* 照準（title と同じ形。480px 角、円 r=118） */
+    #ec-ret { position: absolute; width: 480px; height: 480px; opacity: 0; }
+    #ec-ret svg { position: absolute; inset: 0; width: 480px; height: 480px; overflow: visible; }
+    /* 章扉の照準アイコンと同じ形・同じ大きさの小さい照準（オレンジ＋白の縁）。大きい照準とクロスフェードして形をつなぐ */
+    #ec-mini { position: absolute; width: 160px; height: 160px; opacity: 0; overflow: visible; }
+    #ec-mini .mini-edge { stroke: var(--white); stroke-width: 9; }
+    #ec-mini .mini-line { stroke: var(--orange); stroke-width: 4; }
+    #ec-ret-shape * { vector-effect: non-scaling-stroke; }
+    .ec-ret-edge { stroke: var(--navy); stroke-width: 5; stroke-opacity: 0.8; fill: none; stroke-linecap: round; }
+    .ec-ret-line { stroke: var(--white); stroke-width: 3; fill: none; stroke-linecap: round; }
+
+    /* 締めの一文：左下、2行、72px */
+    #ec-text { position: absolute; left: 132px; top: 790px; opacity: 0; }
+    .ec-line { font-family: var(--font-ja); font-weight: 700; font-size: 72px; line-height: 1.3; color: var(--white);
+      font-feature-settings: "palt"; white-space: nowrap; letter-spacing: 0.02em; }
+    #ec-text .ec-ink { position: absolute; left: 0; top: 0; opacity: 0; }
+    #ec-text .ec-ink .ec-line { color: var(--ink); }
     /* 仮ナレのクレジット（VOICEVOX の規約で表示が必要。本ナレに差し替えたら消す） */
-    #endcard-credit { position: absolute; left: 132px; bottom: 96px; opacity: 0; font-family: var(--font-ja); font-weight: 400;
-      font-size: 34px; line-height: 1.2; color: var(--sub); white-space: nowrap; }
+    #ec-credit { position: absolute; right: 132px; bottom: 72px; opacity: 0; font-family: var(--font-ja); font-weight: 400;
+      font-size: 34px; line-height: 1.2; white-space: nowrap; }
+    #ec-credit span { color: var(--sub); }
+    #ec-credit .ec-ink { position: absolute; right: 0; top: 0; opacity: 0; color: color-mix(in srgb, var(--ink) 80%, var(--paper)); }
+    #ec-black { position: absolute; inset: 0; background: #000; opacity: 0; }
   </style>
   <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
-    <div id="endcard-all">
-      <img id="endcard-bg" src="assets/video/S10_last.png" alt="">
-      <div id="endcard-grad"></div>
-
-      <div id="endcard-ret">
-        <div id="endcard-ret-in">
-          <svg viewBox="0 0 480 480" aria-hidden="true">
-            <defs>
-              <g id="endcard-ret-shape">
-                <circle cx="240" cy="240" r="118"/>
-                <path d="M40 240H204M276 240H440M240 40V204M240 276V440"/>
-                <path d="M88 232V248M142 234V246M338 234V246M392 232V248M232 88H248M234 142H246M234 338H246M232 392H248"/>
-                <path d="M226 186H254M226 294H254M186 226V254M294 226V254"/>
-              </g>
-            </defs>
-            <use href="#endcard-ret-shape" class="endcard-ret-edge"/>
-            <use href="#endcard-ret-shape" class="endcard-ret-line"/>
-          </svg>
-        </div>
-        <div id="endcard-pt">
-          <svg viewBox="0 0 480 480" aria-hidden="true">
-            <circle id="endcard-dot" cx="240" cy="240" r="7.5"/>
-            <circle id="endcard-dot-on" cx="240" cy="240" r="12"/>
-          </svg>
-        </div>
+    <div id="ec-all">
+      <img id="ec-bg" src="assets/video/S10_last.png" alt="">
+      <div id="ec-grad"></div>
+      <div id="ec-paper">
+        <svg id="ec-grid" viewBox="0 0 1920 1080" aria-hidden="true"><g id="ec-grid-lines" stroke="var(--grid)" stroke-width="1.5"></g></svg>
       </div>
-
-      <div id="endcard-block">
-        <div class="endcard-field">基準点測量</div>
-        <div class="endcard-main">まちづくりの“最初の一点”</div>
+      <div id="ec-items"></div>
+      <div id="ec-ret">
+        <svg viewBox="0 0 480 480" aria-hidden="true">
+          <defs>
+            <g id="ec-ret-shape">
+              <circle cx="240" cy="240" r="118"/>
+              <path d="M40 240H204M276 240H440M240 40V204M240 276V440"/>
+              <path d="M88 232V248M142 234V246M338 234V246M392 232V248M232 88H248M234 142H246M234 338H246M232 392H248"/>
+              <path d="M226 186H254M226 294H254M186 226V254M294 226V254"/>
+            </g>
+          </defs>
+          <use href="#ec-ret-shape" class="ec-ret-edge" id="ec-ret-edge" vector-effect="non-scaling-stroke"/>
+          <use href="#ec-ret-shape" class="ec-ret-line" id="ec-ret-line" vector-effect="non-scaling-stroke"/>
+        </svg>
       </div>
-      <div id="endcard-credit">ナレーション（仮）　VOICEVOX:冥鳴ひまり</div>
+<svg id="ec-mini" viewBox="0 0 96 96" fill="none" stroke-linecap="round" aria-hidden="true">
+      <g class="mini-edge"><circle cx="48" cy="48" r="28"/><path d="M48 8v20M48 68v20M8 48h20M68 48h20"/></g>
+      <g class="mini-line"><circle cx="48" cy="48" r="28"/><path d="M48 8v20M48 68v20M8 48h20M68 48h20"/><path d="M48 20v4M48 72v4M20 48h4M72 48h4" stroke-width="2"/></g>
+    </svg>
+      <div id="ec-text">
+        <div class="ec-line">ほかの測量が使う</div>
+        <div class="ec-line">“はじまりの点”</div>
+        <div class="ec-ink"><div class="ec-line">ほかの測量が使う</div><div class="ec-line">“はじまりの点”</div></div>
+      </div>
+      <div id="ec-credit"><span>ナレーション（仮）　VOICEVOX:冥鳴ひまり</span><span class="ec-ink">ナレーション（仮）　VOICEVOX:冥鳴ひまり</span></div>
     </div>
+    <div id="ec-black"></div>
   </div>
   <script>
     (function () {
       const v = window.__hyperframes.getVariables();
       const c = JSON.parse(v.cues);
-      const ret = document.getElementById("endcard-ret");
-      ret.style.left = (Number(v.point_x) - 240) + "px";
-      ret.style.top = (Number(v.point_y) - 240) + "px";
+      const dur = Number(v.dur);
+      const active = Number(v.active || 0);
+      const cs = getComputedStyle(document.documentElement);
+      const tok = (n, fb) => (cs.getPropertyValue(n) || "").trim() || fb;
+
+      // 章扉と同じ方眼・同じアイコンの並び（chapter_door.html と同じ座標）
+      const g = document.getElementById("ec-grid-lines");
+      let d = "";
+      for (let x = 0; x <= 1920; x += 60) d += `M${x} 0V1080`;
+      for (let y = 0; y <= 1080; y += 60) d += `M0 ${y}H1920`;
+      g.innerHTML = `<path d="${d}"/>`;
+      const JOBS = [
+        ["基準点測量", '<rect x="35" y="22" width="26" height="28" rx="4"/><circle cx="48" cy="33" r="6"/><path d="M41 44h14"/><path d="M33 54h30"/><path d="M39 56 24 88M57 56l15 32M48 56v32"/>'],
+        ["水準測量", '<rect x="16" y="42" width="34" height="12" rx="3"/><path d="M33 54v4M22 60h22M28 62l-8 26M38 62l8 26M33 62v26"/><path d="M54 48h12" stroke-dasharray="3 6"/><rect x="70" y="12" width="14" height="76" rx="2"/><path d="M70 24h7M70 36h7M70 48h7M70 60h7M70 72h7"/>'],
+        ["地形測量", '<path d="M14 60C14 34 40 18 58 22 78 26 86 44 80 62 74 80 48 84 32 80 20 77 14 70 14 60Z"/><path d="M28 58C28 42 44 32 56 35 68 38 72 50 68 60 64 70 48 72 38 70 31 68 28 64 28 58Z"/><path d="M43 55C43 48 50 45 55 47 60 49 60 56 56 59 52 62 43 61 43 55Z"/>'],
+        ["路線測量", '<path d="M16 88 40 10M80 88 56 10"/><path d="M48 84v-12M48 60v-10M48 40v-8M48 22v-6"/>'],
+        ["用地測量", '<path d="M18 30 58 16 82 46 62 82 22 72Z"/><rect x="13" y="25" width="10" height="10" rx="1" fill="currentColor"/><rect x="53" y="11" width="10" height="10" rx="1" fill="currentColor"/><rect x="77" y="41" width="10" height="10" rx="1" fill="currentColor"/><rect x="57" y="77" width="10" height="10" rx="1" fill="currentColor"/><rect x="17" y="67" width="10" height="10" rx="1" fill="currentColor"/>'],
+      ];
+      const XS = [340, 650, 960, 1270, 1580];
+      const host = document.getElementById("ec-items");
+      JOBS.forEach(([name, paths], i) => {
+        const el = document.createElement("div");
+        el.className = "ec-item" + (i === active ? " active" : "");
+        el.id = "ec-item-" + i;
+        el.style.left = XS[i] + "px";
+        el.innerHTML = `<svg class="ec-icon" viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">${paths}</svg><div class="ec-label">${name}</div>`;
+        host.appendChild(el);
+      });
+
+      const px = Number(v.point_x), py = Number(v.point_y), ix = Number(v.icon_x), iy = Number(v.icon_y);
+      const ret = document.getElementById("ec-ret");
+      ret.style.left = (px - 240) + "px"; ret.style.top = (py - 240) + "px";
+      const S_ICON = 0.396;   // 章扉の照準アイコン（160px、円 r=46.7）と同じ大きさ
 
       const tl = gsap.timeline({ paused: true });
 
-      // 背景は最後のコマの静止画。止まって見えないよう、場面全体でごく遅く寄る（3%）
-      tl.fromTo("#endcard-bg", { scale: 1.0, transformOrigin: "54% 20%" },
-        { scale: 1.03, transformOrigin: "54% 20%", duration: Number(v.dur), ease: "none" }, 0);
+      // text_in：S10 の上に締めの一文（左下）。下からの紺のグラデーションで守る
+      tl.fromTo("#ec-grad", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, c.text_in - 0.1);
+      tl.fromTo("#ec-text", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, c.text_in);
+      tl.fromTo("#ec-credit", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.out" }, c.text_in + 0.4);
 
-      // 動画の最後のコマから入るので、グラデーションはゆっくり敷く（カットで跳ねない）
-      tl.fromTo("#endcard-grad", { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "power1.inOut" }, c.reticle + 0.1);
+      // bg_in：S10 の最後のコマ。S10 と同じ中心・同じ速さで寄り続ける（止まって見えないように）
+      const bgDur = Math.max(0.1, dur - c.bg_in);
+      tl.set("#ec-bg", { opacity: 1 }, c.bg_in);
+      tl.fromTo("#ec-bg", { scale: Number(v.push_from), transformOrigin: "50% 40%" },
+        { scale: Number(v.push_from) + Number(v.push_rate) * bgDur, transformOrigin: "50% 40%", duration: bgDur, ease: "none", immediateRender: false }, c.bg_in);
 
-      // reticle：照準が現れる
-      tl.fromTo("#endcard-ret-in", { opacity: 0, scale: 1.12, transformOrigin: "50% 50%" },
-        { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.5, ease: "power3.out" }, c.reticle);
-      tl.fromTo("#endcard-dot", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.reticle + 0.1);
+      // reticle：見渡す先（奥の三脚）に照準が現れ、縮みながら章扉の基準点アイコンの位置・大きさへ戻る
+      tl.fromTo(ret, { opacity: 0, scale: 1.1 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, c.reticle);
+      const mv = Math.max(0.6, c.door - c.reticle - 0.45);
+      const mini = document.getElementById("ec-mini");
+      mini.style.left = (px - 80) + "px"; mini.style.top = (py - 80) + "px";
+      const m0 = c.reticle + 0.45;
+      tl.fromTo(ret, { x: 0, y: 0, scale: 1 }, { x: ix - px, y: iy - py, scale: S_ICON, duration: mv, ease: "power2.inOut", immediateRender: false }, m0);
+      tl.fromTo(mini, { x: 0, y: 0, scale: 1 / S_ICON }, { x: ix - px, y: iy - py, scale: 1, duration: mv, ease: "power2.inOut" }, m0);
+      tl.fromTo(mini, { opacity: 0 }, { opacity: 1, duration: mv * 0.4, ease: "power1.inOut" }, m0 + mv * 0.2);
+      tl.to(ret, { opacity: 0, duration: mv * 0.4, ease: "power1.inOut" }, m0 + mv * 0.2);
 
-      tl.fromTo("#endcard-credit", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.out" }, c.text_in);
+      // door：紙と方眼が戻り、章扉の並びがそろう。照準は灯ったアイコンに変わる（効果音「ピッ」小さめ）
+      tl.fromTo("#ec-paper", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
+      tl.fromTo("#ec-grad", { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power1.in", immediateRender: false }, c.door - 0.2);
+      tl.fromTo("#ec-text .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
+      tl.fromTo("#ec-credit .ec-ink", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
+      tl.to(["#ec-text > .ec-line", "#ec-credit > span:first-child"], { opacity: 0, duration: 0.5, ease: "power2.inOut" }, c.door - 0.2);
+      tl.to(mini, { opacity: 0, duration: 0.25, ease: "power2.in" }, c.door);
+      tl.fromTo("#ec-item-" + active, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" }, c.door);
+      JOBS.forEach((_, i) => {
+        if (i !== active) tl.fromTo("#ec-item-" + i, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+          c.door + 0.15 + Math.abs(i - active) * 0.08);
+      });
 
-      // point：照準が縮んで消え、オレンジの点が一つ残る（＝最初の一点に戻る）
-      tl.fromTo("#endcard-ret-in", { scale: 1, opacity: 1 },
-        { scale: 0.06, opacity: 0, transformOrigin: "50% 50%", duration: 0.4, ease: "power2.in", immediateRender: false }, c.point);
-      tl.fromTo("#endcard-dot-on", { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" },
-        { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.35, ease: "power3.out" }, c.point + 0.2);
-
-      // text_in：締めの一文
-      tl.fromTo("#endcard-block", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, c.text_in);
-
-      // fade：画・文字・点の全体が黒へ。場面の終わりの少し前（2コマ）で完全に黒
-      const dur = Number(v.dur);
-      const fd = Math.max(0.3, Math.min(0.8, dur - 0.07 - c.fade));
-      tl.fromTo("#endcard-all", { opacity: 1 }, { opacity: 0, duration: fd, ease: "power1.inOut", immediateRender: false }, c.fade);
-
+      // fade：最後の 0.5 秒で黒へ（場面の終わりの 2 コマ前に完全な黒）
+      const fd = Math.max(0.3, Math.min(0.5, dur - 0.07 - c.fade));
+      tl.fromTo("#ec-black", { opacity: 0 }, { opacity: 1, duration: fd, ease: "power1.inOut" }, c.fade);
+      tl.set({}, {}, dur);
       window.__timelines["endcard"] = tl;
     })();
   </script>

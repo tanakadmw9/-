@@ -1,7 +1,8 @@
-"""尺とタイミングの正本 comp/timeline.json を作る。
+"""尺とタイミングの正本 comp/timeline.json を作る（構成A「はじまりの点」、編集プラン docs/11 §3）。
+小節の格子で作る：曲（New Departure、94.9 BPM）の小節を時間のものさしにし、場面の変わり目は小節の頭、
+場面の中のカットは拍の頭に置く（どちらも 1 コマ前＝目が先に変化を感じる分）。尺は 24 小節で固定。
+ナレは格子の上に置く（ナレの長さから尺を決めない）。本ナレに差し替えたら、置き場所を拍単位で直す。
 入力：audio/vo_temp/vo_timing.json（本ナレ差し替え後は audio/vo_final/vo_timing.json を優先）
-ナレの長さが変わっても、このスクリプトを再実行すれば全体（カット・図解のきっかけ・テロップ・効果音）が追従する。
-図解に渡すきっかけ（cues）は「その場面の頭からの秒」。
 使い方：python3 scripts/20_plan_timeline.py
 """
 import json, pathlib
@@ -12,6 +13,12 @@ vo_final = ROOT / "audio/vo_final/vo_timing.json"
 VO_PATH = vo_final if vo_final.exists() else ROOT / "audio/vo_temp/vo_timing.json"
 VO = json.loads(VO_PATH.read_text())["lines"]
 VO_DIR = "assets/audio/vo"  # comp/ からの相対
+META = json.loads((ROOT / "intermediate/B/meta.json").read_text())  # 各カットの中間素材の頭＝元動画の何秒か
+
+BEAT = 0.63199            # 拍（秒）。曲の拍検出を直線で近似（analysis/plan/bgm_01_new_departure.md）
+BAR = 4 * BEAT
+BARS = 24
+DUR = BARS * BAR
 
 def f(t):  # フレームに丸める
     return round(round(t * FPS) / FPS, 4)
@@ -19,9 +26,17 @@ def f(t):  # フレームに丸める
 def span(start, dur):  # 終わりもフレームに丸めてから長さを出す（隣の要素との1コマのすき間を防ぐ）
     return round(f(start + dur) - f(start), 4)
 
+def at(bar, beat=1):      # 小節・拍 → 秒（小節・拍は 1 始まり）
+    return (bar - 1) * BAR + (beat - 1) * BEAT
+
+def cut(bar, beat=1):     # 映像の切り替えは拍の 1 コマ前
+    t = at(bar, beat)
+    return 0.0 if t == 0 else t - 1 / FPS
+
 T = {"fps": "30000/1001", "width": 1920, "height": 1080, "vo_source": str(VO_PATH.relative_to(ROOT)),
+     "grid": {"beat": BEAT, "bar": BAR, "bars": BARS, "cut_offset_frames": 1},
      "beats": [], "shots": [], "stills": [], "scenes": [], "telops": [], "vo": [], "se": [], "bgm": {}, "amb": [],
-     "intended_freezes": []}
+     "moves": [], "cuts": [], "intended_freezes": []}
 
 def vo(id_, start):
     d = VO[id_]["dur"]
@@ -31,161 +46,148 @@ def vo(id_, start):
 def kw(id_, start, word):
     return start + VO[id_]["keywords"][word]
 
-def shot(id_, start, dur, media_start=0.0, purpose=""):
+def shot(id_, start, end, src_time, purpose=""):
+    """src_time：このカットの頭に来る元動画の時刻（編集プラン §3 の「元の範囲」）。"""
+    ms = max(0.0, src_time - META[id_]["src_in"])
+    room = META[id_]["dur"] - ms
+    assert end - start <= room + 0.02, f"{id_}: {end - start:.2f}s > {room:.2f}s available"
     T["shots"].append({"id": f"{id_}@{f(start)}", "shot": id_, "src": f"assets/video/{id_}.mp4", "start": f(start),
-                       "dur": span(start, dur), "media_start": round(media_start, 4), "purpose": purpose})
+                       "dur": span(start, end - start), "media_start": round(ms, 4), "purpose": purpose})
+    T["cuts"].append(f(start))
 
-def still(name, start, dur, purpose=""):
-    T["stills"].append({"id": name, "src": f"assets/video/{name}.png", "start": f(start), "dur": span(start, dur), "purpose": purpose})
-    T["intended_freezes"].append([f(start), f(start + dur), name])
+def still(name, start, end, purpose=""):
+    T["stills"].append({"id": name, "src": f"assets/video/{name}.png", "start": f(start), "dur": span(start, end - start), "purpose": purpose})
+    T["intended_freezes"].append([f(start), f(end), name])
 
-def scene(id_, start, dur, cues, purpose="", overlay=False, variables=None):
-    T["scenes"].append({"id": id_, "comp": f"compositions/{id_}.html", "start": f(start), "dur": span(start, dur),
-                        "cues": {k: round(v, 3) for k, v in cues.items()}, "overlay": overlay,
+def scene(id_, start, end, cues, purpose="", overlay=False, variables=None, template=None, diagram=True, cut_point=True):
+    T["scenes"].append({"id": id_, "comp": f"compositions/{'gen/' if template else ''}{id_}.html", "template": template,
+                        "start": f(start), "dur": span(start, end - start),
+                        "cues": {k: round(v - start, 3) for k, v in cues.items()}, "overlay": overlay, "diagram": diagram,
                         "variables": variables or {}, "purpose": purpose})
+    if cut_point: T["cuts"].append(f(start))
 
-def telop(id_, text, start, dur, purpose=""):
-    n = len(text.replace("\n", ""))
-    need = max(1.5, n / 4 + 1.0)
-    T["telops"].append({"id": id_, "kind": "keyword", "text": text, "start": f(start), "dur": span(start, dur),
-                        "min_dur": round(need, 2), "ok": dur >= need, "purpose": purpose})
+def move(target, start, end, scale0, scale1, origin, purpose):
+    T["moves"].append({"target": target, "start": f(start), "dur": round(end - start, 4), "scale": [scale0, scale1],
+                       "origin": origin, "purpose": purpose})
 
-def se(kind, t, note=""):
-    T["se"].append({"kind": kind, "start": f(t), "note": note})
+def se(kind, t, note="", gain_db=0.0):
+    T["se"].append({"kind": kind, "start": f(t), "note": note, "gain_db": gain_db})
 
 def beat(id_, start, end, purpose):
     T["beats"].append({"id": id_, "start": f(start), "end": f(end), "dur": round(end - start, 3), "purpose": purpose})
 
-# ---------------- B1 現場へ（BGMなし・環境音だけ） ----------------
-b = 0.0
-_, n1e = vo("N1", b + 0.6)
-shot("S06", b, 3.0, 0.05, "大引き。測量の一行が現場にやってくる")
-b1e = max(b + 6.0, n1e + 0.6)
-shot("S08", b + 3.0, b1e - (b + 3.0), 0.0, "まだ何もない場所を見渡す2人＝ここから始まる")
-beat("B1", b, b1e, "音楽なしで静かに始め、観客を現場に連れていく")
-T["amb"].append({"start": 0.0, "end": None, "note": "風・草の環境音。図解区間は下げる（ミックスで指定）"})
+DOOR_ICON = (340, 470)          # 章扉の基準点アイコンの中心（chapter_door.html と同じ）
+PRISM = (820, 268)              # S04 のプリズム（タイトルの照準の行き先）
 
-# ---------------- B2 タイトル（照準が合う → ピッ → BGM） ----------------
-b = b1e
-s04_dur = 3.2
-shot("S04", b, s04_dur, 0.0, "ローアングルのプリズム。照準モチーフの導入")
-b2e = b + 6.8  # 副題（13字）を 4.25秒読ませる
-still("S04_last", b + s04_dur, b2e - (b + s04_dur), "タイトル表示のための意図的な静止（固定カメラ）")
-lock = b + 1.6
-scene("title", b, b2e - b, {"reticle_in": 0.3, "lock": lock - b, "title_in": 1.8, "sub_in": 1.8, "out": (b2e - b) - 0.35},
-      "章の提示。照準がプリズムに合い『最初の一点』のモチーフを示す", overlay=True,
-      variables={"target_x": 820, "target_y": 268})
-se("lock", lock, "照準が合う電子音")
-T["bgm"] = {"start": f(lock), "note": "照準が合う拍からBGM開始"}
-beat("B2", b, b2e, "章の提示とモチーフの導入")
+# ---------------- B1 章扉 → タイトル（1〜3小節） ----------------
+scene("chapter_door", 0, cut(2), {"icons_in": at(1, 2), "lit": at(1, 3), "morph": at(1, 4)},
+      "部門の中の1作業だと、言葉でなく形で示す（全パート共通）", variables={"active": 0})
+se("glow", at(1, 3), "章扉で基準点のアイコンが灯る")
+s04_live = META["S04"]["dur"] - 0.05
+shot("S04", cut(2), cut(2) + s04_live, 14.65, "ローアングルのプリズム。照準モチーフ")
+still("S04_last", cut(2) + s04_live, cut(4), "タイトルのための静止（固定カメラ）。ゆっくり寄る")
+move("still_S04_last", cut(2) + s04_live, cut(4), 1.0, 1.0 + 0.02 * (cut(4) - cut(2) - s04_live),
+     f"{PRISM[0] / 19.2:.2f}% {PRISM[1] / 10.8:.2f}%", "静止を感じさせず、照準へ視線を集める（毎秒2%）")
+lock = at(2, 3)
+s, _ = vo("N1", lock - VO["N1"]["keywords"]["基準点測量"])
+scene("title", cut(2), cut(4), {"reticle_in": cut(2) + 0.05, "lock": lock, "title_in": lock + 0.2, "out": cut(4) - 0.3},
+      "章の提示。照準がプリズムに合う", overlay=True, diagram=False, cut_point=False,
+      variables={"target_x": PRISM[0], "target_y": PRISM[1], "from_x": DOOR_ICON[0], "from_y": DOOR_ICON[1]})
+se("lock", lock, "照準が合う電子音（シリーズ共通の合図）")
+beat("B1", 0, at(4), "章扉→タイトル")
 
-# ---------------- B3 正確な位置 ----------------
-b = b2e
-s, n2e = vo("N2", b + 0.4)
-k = kw("N2", s, "正確な位置")
-b3e = max(n2e + 0.6, k + 2.6)
-shot("S01", b, b3e - b, 0.3, "TSとプリズムの関係が1画面で見える唯一のカット")
-telop("kw_ichi", "正確な位置", k, b3e - 0.3 - k, "キーワードを耳と目で同時に")
-beat("B3", b, b3e, "『位置』がすべての出発点だと示す")
+# ---------------- B2 現場へ（4〜6小節） ----------------
+shot("S06", cut(4), cut(5), 20.45, "農道を歩く一行。人と現場の空気")
+shot("S01", cut(5), cut(7), 0.30, "TSを据える2人。道具と仕事の全体像")
+vo("N2", at(4) + 0.4)
+beat("B2", at(4), at(7), "人と現場。目印が要る理由")
 
-# ---------------- B4 基準点＝目印（用語の事前学習） ----------------
-b = b3e
-s, n3e = vo("N3", b + 0.3)
-k_mark = kw("N3", s, "目印")
-shot("S03", b, k_mark - b, 3.0, "プリズムを据える手元＝目印の上に機械を立てる")
-d0s = k_mark
-d0e = max(n3e + 1.0, d0s + 5.6, kw("N3", s, "基準点測量") + 0.3 + 4.25 + 0.3)  # 説明（13字）を 4.25秒
-scene("d0_marker", d0s, d0e - d0s, {"marker_in": 0.0, "tripod_in": 0.9, "term_in": kw("N3", s, "基準点測量") - d0s,
-                                    "out": (d0e - d0s) - 0.3},
-      "物語の主役『基準点の標識』を一度見せ、用語を仕組みの前に紹介する")
-beat("B4", b, d0e, "用語『基準点』を、実物の形と一緒に覚えてもらう")
+# ---------------- B3 基準点とは（7〜8小節） ----------------
+shot("S03", cut(7), cut(7, 4), 12.00, "プリズムを据える＝目印の上に立てる")
+s, _ = vo("N3", at(8) + 0.3 - VO["N3"]["keywords"]["基準点"])   # 「基準点」を 8 小節（曲の息つぎ）に
+scene("d0_marker", cut(7, 4), cut(9), {"marker_in": cut(7, 4), "tripod_in": cut(7, 4) + 0.35, "term_in": kw("N3", s, "基準点"),
+                                       "out": cut(9) - 0.05}, "用語「基準点」を、地面のしるしの形と一緒に")
+beat("B3", at(7), at(9), "基準点とは")
 
-# ---------------- B5 実写→図解 D1（何をはかるか） ----------------
-b = d0e
-s09_live = 1.2
-freeze_media = 3.7  # S09 のこの時刻のフレームで静止（02_intermediates.py の S09_freeze と一致）
-shot("S09", b, s09_live, freeze_media - s09_live, "肩越しのTSと奥のプリズム。はかる瞬間")
-d1s = b + s09_live
-s, n4e = vo("N4", d1s + 0.2)
-d1e = max(n4e + 1.0, kw("N4", s, "プリズム") + 0.32 + 3.0 + 0.7)  # 「光をはね返す鏡」を 3.0秒（to_paper まで）
-scene("d1_observe", d1s, d1e - d1s, {
-    "desat": 0.0, "ts_label": kw("N4", s, "トータルステーション") - d1s, "prism_label": kw("N4", s, "プリズム") - d1s,
-    "angle": kw("N4", s, "角度") - d1s, "distance": kw("N4", s, "距離") - d1s, "to_paper": (d1e - d1s) - 0.7},
-    "実写から図解へ橋渡し。何をはかるかを対象のそばで見せる",
-    variables={"ts_x": 613, "ts_y": 572, "prism_x": 1446, "prism_y": 137})
+# ---------------- B4 はかる（9〜11小節） ----------------
+shot("S09", cut(9), cut(10, 3), 30.70, "肩越しのTS。パンとピント送りで機械の視点に入る")
+d1s, d1e = cut(10, 3), cut(12)
+# 9 小節頭の強い一打の後を開け、「角度」が D1 のラベルの後（D1 の頭 +1.0 秒）に来るように置く
+s, n4e = vo("N4", max(at(9) + 0.55, d1s + 1.0 - VO["N4"]["keywords"]["角度"]))
+scene("d1_observe", d1s, d1e, {"desat": d1s, "ts_label": d1s + 0.1, "prism_label": d1s + 0.5,
+                                "angle": kw("N4", s, "角度"), "distance": kw("N4", s, "距離"), "to_paper": d1e - 1.0},
+      "何をどの道具ではかるか（ラベルと光の線）。最後に写真が倒れて真上の図へ",
+      variables={"ts_x": 613, "ts_y": 572, "prism_x": 1446, "prism_y": 137})
 T["intended_freezes"].append([f(d1s), f(d1e), "S09_freeze（D1の背景）"])
 se("measure", kw("N4", s, "距離"), "測距の短い電子音")
-beat("B5", b, d1e, "実写の観測から図解への橋渡し")
+beat("B4", at(9), at(12), "はかる")
 
-# ---------------- B6 D2 真上から（しくみの核心） ----------------
-b = d1e
-s, e = vo("N5a", b + 1.2)
-s2, n5e = vo("N5b", e + 0.5)
-d2e = n5e + 0.9  # 座標は読ませない（例であることだけ伝わればよい）。延ばすと尺が 2 秒増えるため見送り（decisions.md）
-scene("d2_topview", b, d2e - b, {
-    "setup": 0.0, "known": kw("N5a", s, "わかっている点") - b, "angle": kw("N5a", s, "角度") - b,
-    "distance": kw("N5a", s, "距離") - b, "new_point": kw("N5b", s2, "新しい点") - b,
-    "fix": kw("N5b", s2, "決まります") - b}, "観測から位置が決まる因果を『動き』で理解させる")
-se("click", kw("N5b", s2, "決まります"), "新しい点が決まる小さなクリック")
-beat("B6", b, d2e, "角度→距離→位置が決まる、の3拍")
+# ---------------- B5 しくみ（12〜14小節） ----------------
+s, e = vo("N5a", at(13) - VO["N5a"]["keywords"]["距離"])   # 「距離」を 13 小節頭（曲のつなぎ目）に
+s2, _ = vo("N5b", e + 0.26)
+d2s, d2e = cut(12), cut(15)
+scene("d2_topview", d2s, d2e, {"setup": d2s, "known": max(d2s + 0.3, kw("N5a", s, "わかっている点")), "angle": kw("N5a", s, "角度"),
+                               "distance": kw("N5a", s, "距離"), "new_point": kw("N5b", s2, "新しい点"),
+                               "fix": kw("N5b", s2, "決まります")}, "しくみの核心。角度→距離→新しい点の3段")
+se("click", kw("N5b", s2, "決まります"), "新しい点が決まる")
+beat("B5", at(12), at(15), "しくみ")
 
-# ---------------- B7 D3 はかりつなぐ・確かめる → S07 ----------------
-b = d2e
-s, n6e = vo("N6", b + 0.4)
-k_check = kw("N6", s, "確かめます")
-d3e = max(n6e + 0.6, k_check + 0.3 + 2.8)  # 「新しい基準点」（6字）を 2.5秒＋出だしの動き
-scene("d3_traverse", b, d3e - b, {
-    "chain": kw("N6", s, "はかりつなぎ") - b, "last": kw("N6", s, "最後に") - b,
-    "check": kw("N6", s, "確かめます") - b}, "正確さに責任を持つ仕事だと伝える")
-se("click", kw("N6", s, "確かめます"), "確認の✓")
-shot("S07", d3e, 2.2, 0.0, "記録する2人＝人が責任を持って確かめている")
-b7e = d3e + 2.2
-beat("B7", b, b7e, "はかりつなぎと確認。最後は人の顔に戻す")
+# ---------------- B6 確かめる人（15〜17小節） ----------------
+shot("S05", cut(15), cut(15, 4), 18.00, "TSをのぞく人。図解から人に戻る")
+shot("S07", cut(15, 4), cut(16, 4), 23.80, "記録する2人の表情")
+map_s = at(18) - 1.3
+shot("S08", cut(16, 4), cut(18), 26.90, "土地を見渡す背中。草原が地図に変わるつなぎの起点")
+vo("N6", at(15) + 0.45)
+beat("B6", at(15), at(18), "確かめる人")
 
-# ---------------- B8 D4 基準点から道路と橋へ（観客の発見） ----------------
-b = b7e
-s, n7ae = vo("N7a", b + 1.9)
-gap = 1.0
-s2, n7be = vo("N7b", n7ae + gap)
-join = s2 + 1.0
-d4e = n7be + 0.7
-scene("d4_bridge", b, d4e - b, {
-    "network": 0.0, "road": 0.9, "banks": kw("N7a", s, "両岸") - b, "middle": kw("N7a", s, "真ん中") - b,
-    "pause": n7ae - b, "same_point": kw("N7b", s2, "同じ基準点") - b, "join": join - b},
-    "答えを先に言わず、観客自身に生活とのつながりを気づかせる")
-se("join", join, "橋がつながる低めのカチッ")
-T["bgm"]["pause"] = {"start": f(n7ae - 0.1), "end": f(s2), "note": "答えの前の『間』。BGMを抜く"}
-beat("B8", b, d4e, "観客自身の発見（同じ基準点だから、つながる）")
+# ---------------- B7 ほかの測量へ（18〜20小節） ----------------
+s, _ = vo("N7a", at(18) + 0.35)
+s2, _ = vo("N7b", at(19) + 0.1)
+scene("map_link", map_s, cut(21), {"dissolve": map_s, "points": at(18) - 0.1, "contours": kw("N7b", s2, "地図"),
+                                    "road": kw("N7b", s2, "道路の図面"), "icons": at(20), "links": at(20) + 0.8,
+                                    "out": cut(21) - 0.05},
+      "部門の中での役割＝ほかの測量の土台（点をたよりに地図と道路の図面ができる）", overlay=True, cut_point=False,
+      variables={"active": 0})
+T["cuts"].append(f(cut(18)))
+se("click", at(20) + 0.8 + 0.35, "アイコンが灯る（小さめ）", gain_db=-6.0)
+beat("B7", at(18), at(21), "ほかの測量へ")
 
-# ---------------- B9 D5 図から日常へ ----------------
-b = d4e
-s, n8e = vo("N8", b + 0.5)
-d5e = n8e + 0.7
-scene("d5_everyday", b, d5e - b, {"life_in": 0.0, "road_glow": kw("N8", s, "毎日通る道") - b},
-      "日常の風景に着地する")
-beat("B9", b, d5e, "毎日の道につながる")
+# ---------------- B8 締め（21〜24小節） ----------------
+# S02 は元の長さが 5 拍に 2 コマ足りない。曲の最後の一打（21 小節頭）は動かさず、S10 を 2 コマ早く入れる
+s02_room = META["S02"]["dur"] - 0.005
+shot("S02", cut(21), min(cut(22, 2), cut(21) + s02_room), 5.70, "前を指差す2人＝次へ向かう人。曲の最後の一打で切り替え")
+s10s = min(cut(22, 2), cut(21) + s02_room); s10e = s10s + META["S10"]["dur"] - 0.05
+shot("S10", s10s, s10e, 36.70, "現場を見渡す背中＝誇りと余韻")
+push0, push_rate = 1.0, 0.015
+push1 = push0 + push_rate * (s10e - s10s)
+move("v_S10", s10s, s10e, push0, push1, "50% 40%", "見渡す先へ気持ちを運ぶ（毎秒1.5%）")
+s, n8e = vo("N8", at(21) + 0.4)
+end = DUR
+scene("endcard", s10s, end, {"text_in": s10s + 0.15, "bg_in": s10e, "reticle": at(23, 3), "door": at(23, 3) + 1.45,
+                             "fade": end - 0.5},
+      "締めの一文。照準が縮んで章扉の基準点アイコンに戻る（章扉と同じ形で閉じる）", overlay=True, diagram=False, cut_point=False,
+      variables={"push_from": round(push1, 4), "push_rate": push_rate, "icon_x": DOOR_ICON[0], "icon_y": DOOR_ICON[1],
+                 "active": 0})
+T["cuts"].append(f(s10e))
+T["intended_freezes"].append([f(s10e), f(end), "endcard（S10 最後のコマに寄り続ける）"])
+se("lock", at(23, 3) + 1.45, "照準が章扉のアイコンに戻る（小さめ）", gain_db=-6.0)
+beat("B8", at(21), end, "締め")
 
-# ---------------- B10 締め ----------------
-b = d5e
-s, n9ae = vo("N9a", b + 0.4)
-shot("S02", b, 3.1, 0.0, "指差して指示する2人＝チームで最初の一点をつくる")
-shot("S10", b + 3.1, 2.6, 0.0, "現場を見渡す背中＝誇りと余韻（冒頭と対）")
-s2, n9be = vo("N9b", max(n9ae + 0.6, b + 4.3))
-endc = b + 5.7
-text_in = n9be + 0.3          # 締めの一文は N9b を言い終えてから（耳と目の言葉をずらさない）
-fade = text_in + 4.6          # 13字 → 4.25秒読ませ、少し余韻を置いてから黒へ
-end = fade + 0.8
-scene("endcard", endc, end - endc, {"reticle": 0.0, "point": 0.6, "text_in": text_in - endc, "fade": fade - endc},
-      "締めの一文。照準が一点に戻り、冒頭と閉じる")
-T["intended_freezes"].append([f(endc), f(end), "endcard（S10 最後のコマにゆっくり寄る）"])
-T["bgm"]["end"] = f(end)
-beat("B10", b, end, "誇りと余韻")
-
+T["bgm"] = {"start": 0.0, "end": f(end), "pause": None, "bars": "1-12,25-36",
+            "note": "曲の小節1の頭＝映像の0秒。1〜12＋25〜36小節（つなぎ目は 13 小節頭）"}
+T["amb"].append({"start": 0.0, "end": None, "note": "風・草の環境音。図解区間は下げる（ミックスで指定）"})
 T["duration"] = f(end)
 T["speech_ratio"] = round(sum(v["dur"] for v in T["vo"]) / end, 3)
+
+# ナレどうしが重ならないこと
+vs = sorted(T["vo"], key=lambda v: v["start"])
+for a, b in zip(vs, vs[1:]):
+    assert a["start"] + a["dur"] <= b["start"] + 0.01, f"VO overlap {a['id']} / {b['id']}"
+assert vs[-1]["start"] + vs[-1]["dur"] <= end - 1.5, "N8 が終わりに近すぎる"
+
 (ROOT / "comp/timeline.json").write_text(json.dumps(T, ensure_ascii=False, indent=1))
 print(f"duration {T['duration']}s  speech ratio {T['speech_ratio']}")
 for bt in T["beats"]:
     print(f"  {bt['id']:4} {bt['start']:6.2f}–{bt['end']:6.2f} ({bt['dur']:.1f}s) {bt['purpose']}")
-for t in T["telops"]:
-    print("  telop", t["text"], t["dur"], "≥", t["min_dur"], "OK" if t["ok"] else "NG")
+for v in T["vo"]:
+    print(f"  {v['id']:4} {v['start']:6.2f}–{v['start'] + v['dur']:6.2f}")

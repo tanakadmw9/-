@@ -1,0 +1,102 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"icons_in\":0.632,\"lit\":1.264,\"morph\":1.896}"},{"id":"dur","type":"number","label":"dur","default":2.495},{"id":"active","type":"number","label":"灯るアイコン（0=基準点測量）","default":0}]'>
+<body>
+<template>
+  <style>
+    /* 章扉（全パート共通の型）：部門の作業が並び、このパートの作業だけが灯る。docs/04・plan/editing.md §8 */
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #cd-bg { position: absolute; inset: 0; background: var(--paper); }
+    #cd-grid { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+    #cd-head { position: absolute; left: 132px; top: 96px; font-family: var(--font-ja); font-weight: 700; font-size: 52px;
+      line-height: 1.2; color: var(--ink); font-feature-settings: "palt"; letter-spacing: 0.06em; white-space: nowrap;
+      transform-origin: 0% 0%; }
+    #cd-headbar { position: absolute; left: 132px; top: 166px; width: 64px; height: 6px; border-radius: 3px; background: var(--orange);
+      transform-origin: 0% 50%; }
+    .cd-item { position: absolute; top: 390px; width: 260px; margin-left: -130px; text-align: center; }
+    .cd-icon { display: block; width: 160px; height: 160px; margin: 0 auto; color: var(--navy); overflow: visible; }
+    .cd-label { margin-top: 26px; font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.2;
+      color: color-mix(in srgb, var(--ink) 72%, var(--paper)); font-feature-settings: "palt"; white-space: nowrap; }
+    .cd-item.active .cd-label { font-weight: 700; color: var(--ink); }
+    #cd-halo { position: absolute; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%;
+      background: color-mix(in srgb, var(--orange) 16%, transparent); opacity: 0; }
+    #cd-ret { position: absolute; width: 160px; height: 160px; margin: -80px 0 0 -80px; color: var(--orange); opacity: 0; overflow: visible; }
+  </style>
+  <div id="root" data-composition-id="chapter_door" data-width="1920" data-height="1080">
+    <div id="cd-bg"></div>
+    <svg id="cd-grid" viewBox="0 0 1920 1080" aria-hidden="true"><g id="cd-grid-lines" stroke="var(--grid)" stroke-width="1.5"></g></svg>
+    <div id="cd-head">測量部門のしごと</div>
+    <div id="cd-headbar"></div>
+    <div id="cd-halo"></div>
+    <div id="cd-items"></div>
+    <svg id="cd-ret" viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true">
+      <circle cx="48" cy="48" r="28"/>
+      <path d="M48 8v20M48 68v20M8 48h20M68 48h20"/>
+      <path d="M48 20v4M48 72v4M20 48h4M72 48h4" stroke-width="2"/>
+    </svg>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const active = Number(v.active || 0);
+      const cs = getComputedStyle(document.documentElement);
+      const tok = (n, fb) => (cs.getPropertyValue(n) || "").trim() || fb;
+      const NAVY = tok("--navy", "#1F3A5F"), ORANGE = tok("--orange", "#E8742A");
+
+      // 方眼（60px）
+      const g = document.getElementById("cd-grid-lines");
+      let d = "";
+      for (let x = 0; x <= 1920; x += 60) d += `M${x} 0V1080`;
+      for (let y = 0; y <= 1080; y += 60) d += `M0 ${y}H1920`;
+      g.innerHTML = `<path d="${d}"/>`;
+
+      // 部門の作業（アイコンは /mnt/project-files/assets/icons/custom の自作線画。【要確認】作業名と並びは部門の実際に合わせる）
+      const JOBS = [
+        ["基準点測量", '<rect x="35" y="22" width="26" height="28" rx="4"/><circle cx="48" cy="33" r="6"/><path d="M41 44h14"/><path d="M33 54h30"/><path d="M39 56 24 88M57 56l15 32M48 56v32"/>'],
+        ["水準測量", '<rect x="16" y="42" width="34" height="12" rx="3"/><path d="M33 54v4M22 60h22M28 62l-8 26M38 62l8 26M33 62v26"/><path d="M54 48h12" stroke-dasharray="3 6"/><rect x="70" y="12" width="14" height="76" rx="2"/><path d="M70 24h7M70 36h7M70 48h7M70 60h7M70 72h7"/>'],
+        ["地形測量", '<path d="M14 60C14 34 40 18 58 22 78 26 86 44 80 62 74 80 48 84 32 80 20 77 14 70 14 60Z"/><path d="M28 58C28 42 44 32 56 35 68 38 72 50 68 60 64 70 48 72 38 70 31 68 28 64 28 58Z"/><path d="M43 55C43 48 50 45 55 47 60 49 60 56 56 59 52 62 43 61 43 55Z"/>'],
+        ["路線測量", '<path d="M16 88 40 10M80 88 56 10"/><path d="M48 84v-12M48 60v-10M48 40v-8M48 22v-6"/>'],
+        ["用地測量", '<path d="M18 30 58 16 82 46 62 82 22 72Z"/><rect x="13" y="25" width="10" height="10" rx="1" fill="currentColor"/><rect x="53" y="11" width="10" height="10" rx="1" fill="currentColor"/><rect x="77" y="41" width="10" height="10" rx="1" fill="currentColor"/><rect x="57" y="77" width="10" height="10" rx="1" fill="currentColor"/><rect x="17" y="67" width="10" height="10" rx="1" fill="currentColor"/>'],
+      ];
+      const XS = [340, 650, 960, 1270, 1580], ICON_Y = 470;
+      const host = document.getElementById("cd-items");
+      JOBS.forEach(([name, paths], i) => {
+        const el = document.createElement("div");
+        el.className = "cd-item" + (i === active ? " active" : "");
+        el.id = "cd-item-" + i;
+        el.style.left = XS[i] + "px";
+        el.innerHTML = `<svg class="cd-icon" id="cd-icon-${i}" viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">${paths}</svg><div class="cd-label" id="cd-label-${i}">${name}</div>`;
+        host.appendChild(el);
+      });
+      for (const id of ["cd-halo", "cd-ret"]) {
+        const el = document.getElementById(id);
+        el.style.left = XS[active] + "px"; el.style.top = ICON_Y + "px";
+      }
+
+      const tl = gsap.timeline({ paused: true });
+      // 1拍目：見出し（紙と方眼は最初から）
+      tl.fromTo("#cd-head", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.1);
+      tl.fromTo("#cd-headbar", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.out" }, 0.25);
+      // 2拍目：作業のアイコンが左から 0.1 秒ずつ
+      JOBS.forEach((_, i) => {
+        tl.fromTo("#cd-item-" + i, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, c.icons_in + i * 0.1);
+      });
+      // 3拍目：このパートの作業だけが灯る（効果音④）
+      tl.fromTo("#cd-icon-" + active, { color: NAVY }, { color: ORANGE, duration: 0.25, ease: "power2.out" }, c.lit);
+      tl.fromTo("#cd-halo", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, c.lit);
+      // 4拍目：灯ったアイコンが照準に変わる。ほかは引く。見出しはタイトルの小見出しの大きさへ（そのまま残る）
+      JOBS.forEach((_, i) => {
+        if (i !== active) tl.to("#cd-item-" + i, { opacity: 0.25, duration: 0.3, ease: "power2.in" }, c.morph);
+      });
+      tl.to("#cd-label-" + active, { opacity: 0, duration: 0.25, ease: "power2.in" }, c.morph);
+      tl.to("#cd-icon-" + active, { opacity: 0, scale: 0.7, duration: 0.3, ease: "power2.in" }, c.morph);
+      tl.to("#cd-halo", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.morph);
+      tl.fromTo("#cd-ret", { opacity: 0, scale: 0.6, rotation: -45 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.5, ease: "power3.out" }, c.morph + 0.05);
+      tl.to("#cd-head", { scale: 44 / 52, duration: 0.5, ease: "power2.inOut" }, c.morph);
+      tl.to("#cd-headbar", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.morph);
+      tl.set({}, {}, Math.max(v.dur || 0, c.morph + 0.6));
+      window.__timelines["chapter_door"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

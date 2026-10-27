@@ -4,7 +4,8 @@
   <style>
     #root { position: absolute; inset: 0; }
     #d1-photo, #d1-desat { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; }
-    #d1-paper { position: absolute; inset: 0; background: var(--paper); opacity: 0; }
+    #d1-paper { position: absolute; inset: 0; background: var(--paper); }
+    #d1-tilt { position: absolute; inset: 0; }
     #d1-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
     .d1-plate { position: absolute; background: var(--plate); border-radius: var(--plate-radius);
       padding: 16px 28px 18px; font-feature-settings: "palt"; white-space: nowrap; }
@@ -14,9 +15,11 @@
     #d1-pr-plate { left: 1290px; top: 404px; width: 312px; text-align: center; padding-left: 0; padding-right: 0; }
   </style>
   <div id="root" data-composition-id="d1_observe" data-width="1920" data-height="1080">
-    <img id="d1-photo" src="assets/video/S09_freeze.png" alt="">
-    <img id="d1-desat" src="assets/video/S09_freeze_desat.png" alt="">
     <div id="d1-paper"></div>
+    <div id="d1-tilt">
+      <img id="d1-photo" src="assets/video/S09_freeze.png" alt="">
+      <img id="d1-desat" src="assets/video/S09_freeze_desat.png" alt="">
+    </div>
     <svg id="d1-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
       <!-- 光の線（角度＝向き）：ごく弱い発光＋本線 -->
       <line id="d1-beam-glow" x1="613" y1="572" x2="1446" y2="137" stroke="var(--orange)" stroke-width="16" stroke-linecap="round" opacity="0.18"
@@ -109,15 +112,16 @@
       tl.fromTo("#d1-photon", { x: px, y: py }, { x: tx, y: ty, duration: 0.5, ease: "power1.inOut", immediateRender: false }, d0 + 0.5);
       tl.fromTo("#d1-photon", { opacity: 1 }, { opacity: 0, duration: 0.15, ease: "power2.in", immediateRender: false }, d0 + 1.0);
 
-      // to_paper：ラベルが消え、写真が紙に溶ける。TS＝紺△、プリズム＝オレンジ◎、オレンジの線だけ残る
       // to_paper：ラベルが消え、写真が紙に溶ける。TS＝紺△、プリズム＝オレンジ◎ が現れ、
       // 光の線をのばしたまま d2 の A・P の位置へひと続きに移る（d1 の最後のコマ ＝ d2 の最初のコマ）
       const A = [560, 760], P = [1380, 520];   // d2_topview の A・P と同じ
       const p0 = c.to_paper;
       const W = Math.max(0.5, dur - p0 - 0.05);
       tl.fromTo(["#d1-ts-plate", "#d1-pr-plate", "#d1-ts-lead", "#d1-pr-lead"], { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, p0);
-      const pd = Math.max(0.35, Math.min(0.7, W * 0.6));
-      tl.fromTo("#d1-paper", { opacity: 0 }, { opacity: 1, duration: pd, ease: "power2.inOut" }, p0 + 0.05);
+      // 写真が奥へ倒れて（下の辺を軸に約55度）紙の上に寝る＝「同じ場所を真上から見る」へ。倒れながら薄れて紙になる
+      tl.fromTo("#d1-tilt", { rotationX: 0, transformPerspective: 1500, transformOrigin: "50% 100%" },
+        { rotationX: 55, transformPerspective: 1500, transformOrigin: "50% 100%", duration: Math.min(1.0, W), ease: "power2.inOut" }, p0);
+      tl.fromTo("#d1-tilt", { opacity: 1 }, { opacity: 0, duration: Math.max(0.35, Math.min(1.0, W) - 0.3), ease: "power2.in", immediateRender: false }, p0 + 0.3);
       tl.fromTo("#d1-known", { x: tx, y: ty }, { x: tx, y: ty, duration: 0.01 }, 0);
       tl.fromTo("#d1-new", { x: px, y: py }, { x: px, y: py, duration: 0.01 }, 0);
       tl.fromTo("#d1-known-in", { opacity: 0, scale: 0.6, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: 0.22, ease: "power3.out" }, p0 + 0.1);

@@ -1,4 +1,4 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"reticle_in\":0.3,\"lock\":1.6,\"title_in\":1.8,\"sub_in\":2.0,\"out\":6.05}"},{"id":"dur","type":"number","label":"dur","default":6.4064},{"id":"target_x","type":"number","label":"照準 x（プリズム中心）","default":820},{"id":"target_y","type":"number","label":"照準 y（プリズム中心）","default":268}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"reticle_in\":0.3,\"lock\":1.6,\"title_in\":1.8,\"sub_in\":2.0,\"out\":6.05}"},{"id":"dur","type":"number","label":"dur","default":6.4064},{"id":"target_x","type":"number","label":"照準 x（プリズム中心）","default":820},{"id":"target_y","type":"number","label":"照準 y（プリズム中心）","default":268},{"id":"from_x","type":"number","label":"照準の出発点 x（章扉のアイコン）","default":340},{"id":"from_y","type":"number","label":"照準の出発点 y","default":470}]'>
 <body>
 <template>
   <style>
@@ -7,6 +7,11 @@
     /* 照準：白2px＋外側の紺の縁取り（明るい曇り空でも見えるように） */
     #title-ret { position: absolute; left: 580px; top: 28px; width: 480px; height: 480px; opacity: 0; }
     #title-ret svg { position: absolute; inset: 0; width: 480px; height: 480px; overflow: visible; }
+    /* 章扉の照準アイコンと同じ形・同じ大きさの小さい照準（オレンジ＋白の縁）。大きい照準とクロスフェードして形をつなぐ */
+    #title-mini { position: absolute; width: 160px; height: 160px; opacity: 0; overflow: visible; }
+    #title-mini .mini-edge { stroke: var(--white); stroke-width: 9; }
+    #title-mini .mini-line { stroke: var(--orange); stroke-width: 4; }
+    #title-ret-shape * { vector-effect: non-scaling-stroke; }
     .title-ret-edge { stroke: var(--navy); stroke-width: 5; stroke-opacity: 0.8; fill: none; stroke-linecap: round; }
     .title-ret-line { stroke: var(--white); stroke-width: 2; fill: none; stroke-linecap: round; }
     #title-dot { fill: var(--white); stroke: var(--navy); stroke-width: 1.5; stroke-opacity: 0.8; }
@@ -19,13 +24,16 @@
         color-mix(in srgb, var(--ink) 38%, transparent) 45%,
         color-mix(in srgb, var(--ink) 0%, transparent) 100%); }
 
-    #title-block { position: absolute; left: 1128px; top: 742px; opacity: 0; }
-    #title-sub { position: absolute; left: 1128px; top: 920px; opacity: 0; }
-    .title-field { font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.2; color: var(--sub);
-      font-feature-settings: "palt"; letter-spacing: 0.08em; white-space: nowrap; }
+    /* 小見出し：章扉の見出しがそのまま残る（同じ位置。章扉の 52px→44px に縮んだ大きさ） */
+    #title-head { position: absolute; left: 104px; top: 82px; padding: 14px 28px 16px 28px; border-radius: var(--plate-radius);
+      background: var(--plate); }
+    #title-head div { font-family: var(--font-ja); font-weight: 700; font-size: 44px; line-height: 1.2; color: var(--white);
+      font-feature-settings: "palt"; letter-spacing: 0.06em; white-space: nowrap; }
+    #title-block { position: absolute; left: 132px; top: 760px; opacity: 0; }
+    #title-sub { position: absolute; left: 136px; top: 900px; opacity: 0; }
     .title-main { font-family: var(--font-ja); font-weight: 700; font-size: 112px; line-height: 1.12; color: var(--white);
       font-feature-settings: "palt"; letter-spacing: 0.04em; white-space: nowrap; margin-top: 2px; }
-    .title-subline { font-family: var(--font-ja); font-weight: 700; font-size: 52px; line-height: 1.2; color: var(--white);
+    .title-subline { font-family: var(--font-ja); font-weight: 700; font-size: 48px; line-height: 1.2; color: var(--white);
       font-feature-settings: "palt"; white-space: nowrap; }
   </style>
   <div id="root" data-composition-id="title" data-width="1920" data-height="1080">
@@ -44,37 +52,50 @@
             <path d="M226 186H254M226 294H254M186 226V254M294 226V254"/>
           </g>
         </defs>
-        <use href="#title-ret-shape" class="title-ret-edge"/>
-        <use href="#title-ret-shape" class="title-ret-line"/>
+        <use href="#title-ret-shape" class="title-ret-edge" vector-effect="non-scaling-stroke"/>
+        <use href="#title-ret-shape" class="title-ret-line" vector-effect="non-scaling-stroke"/>
         <circle id="title-dot" cx="240" cy="240" r="7.5"/>
         <circle id="title-dot-on" cx="240" cy="240" r="9"/>
       </svg>
     </div>
 
-    <div id="title-block">
-      <div class="title-field">測量</div>
-      <div class="title-main">基準点測量</div>
-    </div>
-    <div id="title-sub"><div class="title-subline">まちづくりの“最初の一点”</div></div>
+    <div id="title-head"><div>測量部門のしごと</div></div>
+    <svg id="title-mini" viewBox="0 0 96 96" fill="none" stroke-linecap="round" aria-hidden="true">
+      <g class="mini-edge"><circle cx="48" cy="48" r="28"/><path d="M48 8v20M48 68v20M8 48h20M68 48h20"/></g>
+      <g class="mini-line"><circle cx="48" cy="48" r="28"/><path d="M48 8v20M48 68v20M8 48h20M68 48h20"/><path d="M48 20v4M48 72v4M20 48h4M72 48h4" stroke-width="2"/></g>
+    </svg>
+    <div id="title-block"><div class="title-main">基準点測量</div></div>
+    <div id="title-sub"><div class="title-subline">位置の“目印”をつくる</div></div>
   </div>
   <script>
     (function () {
       const v = window.__hyperframes.getVariables();
       const c = JSON.parse(v.cues);
       const tx = Number(v.target_x), ty = Number(v.target_y);
+      const fx = Number(v.from_x), fy = Number(v.from_y);
+      const S0 = 0.396;   // 章扉の照準アイコン（160px、円 r=46.7）と同じ大きさになる倍率（この照準の円は r=118）
       const ret = document.getElementById("title-ret");
       ret.style.left = (tx - 240) + "px";
       ret.style.top = (ty - 240) + "px";
 
-      // S04 はカメラがわずかに流れる（実測：lock 時 プリズムは最終位置より +9,-10px）。
-      // lock 以降は照準をプリズムに貼り付けたまま、静止画（3.2s〜）の位置 = target に収める。
+      // S04 はカメラがわずかに流れる（実測：クリップ頭から 1.6 秒で プリズムは最終位置より +9,-10px）。
+      // lock 以降は照準をプリズムに貼り付けたまま、静止画（3.2s〜）の位置 = target に収める。表の時刻はクリップ頭から。
+      // lock が 1.6 秒より前のときは最初の値のまま（その間の流れは 1px 程度）。
       const drift = [[1.6, 9, -9.7], [2.0, 5.3, -9.3], [2.4, 4.6, -7.6], [2.8, 1.8, -5.4], [3.0, 0.8, -3.6], [3.2, 0, 0]];
 
       const tl = gsap.timeline({ paused: true });
 
-      // reticle_in：少しずれた位置から現れ、power2.inOut で寄る
-      tl.fromTo(ret, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power3.out" }, c.reticle_in);
-      tl.fromTo(ret, { x: 150, y: 96 }, { x: drift[0][1], y: drift[0][2], duration: c.lock - c.reticle_in, ease: "power2.inOut" }, c.reticle_in);
+      // reticle_in：章扉で灯ったアイコン（オレンジの小さい照準）が、プリズムへ寄りながら大きくなり、白い照準に替わる（形でつなぐ）
+      const mini = document.getElementById("title-mini");
+      mini.style.left = (tx - 80) + "px"; mini.style.top = (ty - 80) + "px";
+      const mv = c.lock - c.reticle_in;
+      tl.fromTo(mini, { opacity: 1 }, { opacity: 1, duration: 0.01 }, c.reticle_in - 0.02);
+      tl.fromTo(mini, { x: fx - tx, y: fy - ty, scale: 1 },
+        { x: drift[0][1], y: drift[0][2], scale: 1 / S0, duration: mv, ease: "power2.inOut", immediateRender: false }, c.reticle_in);
+      tl.fromTo(ret, { x: fx - tx, y: fy - ty, scale: S0 },
+        { x: drift[0][1], y: drift[0][2], scale: 1, duration: mv, ease: "power2.inOut" }, c.reticle_in);
+      tl.fromTo(ret, { opacity: 0 }, { opacity: 1, duration: mv * 0.4, ease: "power1.inOut" }, c.reticle_in + mv * 0.35);
+      tl.fromTo(mini, { opacity: 1 }, { opacity: 0, duration: mv * 0.4, ease: "power1.inOut", immediateRender: false }, c.reticle_in + mv * 0.35);
 
       // lock：中心の点がオレンジに点る（効果音「ピッ」）
       tl.fromTo("#title-dot-on", { opacity: 0, scale: 1.35, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.3, ease: "power3.out" }, c.lock);
@@ -92,10 +113,10 @@
       tl.fromTo("#title-block", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, c.title_in);
 
       // sub_in：サブタイトル
-      tl.fromTo("#title-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, c.sub_in);
+      tl.fromTo("#title-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, c.sub_in ?? c.title_in + 0.2);
 
       // out：照準と文字が 0.3 秒で消える
-      tl.fromTo(["#title-ret", "#title-block", "#title-sub", "#title-grad"], { opacity: 1 },
+      tl.fromTo(["#title-ret", "#title-head", "#title-block", "#title-sub", "#title-grad"], { opacity: 1 },
         { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, c.out);
 
       window.__timelines["title"] = tl;

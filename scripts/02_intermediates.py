@@ -36,6 +36,15 @@ GRADES = {
     "C": "huesaturation=saturation=-0.28:colors=g+y:strength=1,eq=saturation=0.85:contrast=1.08:brightness=-0.02,"
          "colorbalance=rm=0.01:bm=0.01,curves=all='0/0.03 0.25/0.22 0.75/0.78 1/0.92'",
 }
+# カットどうしの色合わせ（編集プラン §9：基準は S01・S07。強い補正はしない）。GRADES の後に足す
+SHOT_ADJ = {
+    "S02": "eq=brightness=-0.025:gamma=0.97,colorbalance=rm=0.02:bm=-0.02,curves=all='0/0 0.75/0.73 1/0.9'",  # 明るく冷たい・空が白い
+    "S04": "eq=brightness=-0.025:gamma=0.97,colorbalance=rm=0.02:bm=-0.02,curves=all='0/0 0.75/0.73 1/0.9'",
+    "S10": "eq=brightness=-0.02:gamma=0.98,colorbalance=rm=0.02:bm=-0.02,curves=all='0/0 0.75/0.73 1/0.9'",
+    "S06": "colorbalance=rm=-0.015:bm=0.015",                                                                  # 暖かすぎ
+    "S08": "colorbalance=rm=-0.015:bm=0.015",
+    "S09": "colorbalance=rm=0.02:bm=-0.02",                                                                    # 冷たい
+}
 POST = "deband=1thr=0.015:2thr=0.015:3thr=0.015:range=16:blur=1,noise=c0s=3:c0f=t+u"
 
 def run(cmd):
@@ -44,7 +53,8 @@ def run(cmd):
 meta = {}
 for i, (shot, (x, y, w, h)) in enumerate(CROPS.items()):
     a = CUTS[i] + 1 / FPS; b = CUTS[i + 1] - 1 / FPS
-    vf = f"crop={w}:{h}:{x}:{y},scale=1920:1080:flags=lanczos,{GRADES[GRADE]},{POST},format=yuv420p"
+    adj = ("," + SHOT_ADJ[shot]) if shot in SHOT_ADJ else ""
+    vf = f"crop={w}:{h}:{x}:{y},scale=1920:1080:flags=lanczos,{GRADES[GRADE]}{adj},{POST},format=yuv420p"
     out = OUT / f"{shot}.mp4"
     run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", f"{a:.4f}", "-to", f"{b:.4f}", "-i", str(SRC),
          "-an", "-vf", vf, "-r", "30000/1001", "-c:v", "libx264", "-preset", "slow", "-crf", "12", "-g", "15",

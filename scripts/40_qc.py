@@ -266,6 +266,20 @@ def check_clicks():
     return [(round(t, 3), any(-0.01 <= t - s <= 0.3 for s in se_t)) for t in ts]
 
 
+def check_beats():
+    """カットが拍の頭（の1コマ前）にあるか。grid が無い timeline では省略。ずれをコマ数で返す。"""
+    g = T.get("grid")
+    if not g: return None
+    fr = 1001 / 30000; off = g.get("cut_offset_frames", 1) * fr; bt = g["beat"]
+    rows = []
+    for c in T["cuts"]:
+        if c <= 0: continue
+        k = round((c + off) / bt)
+        d = (c + off - k * bt) / fr
+        rows.append((c, k // 4 + 1, k % 4 + 1, round(d, 2)))
+    return rows
+
+
 def count_kanshu():
     files = [ROOT / "comp/narration.json", ROOT / "docs/03_direction_draft.md", ROOT / "docs/08_build_spec.md"]
     files += sorted((ROOT / "comp/compositions").glob("*.html")) if (ROOT / "comp/compositions").exists() else []
@@ -381,7 +395,7 @@ def main():
     tel = check_telops()
     print("loudness…"); loud = check_loudness(path)
     vb = check_vo_bgm(); clicks = check_clicks()
-    kan = count_kanshu(); cred = check_credits()
+    kan = count_kanshu(); cred = check_credits(); beats = check_beats()
     hf = (None, ["--no-hf で省略"]) if a.no_hf else (print("hyperframes check…") or hf_check())
     print("sheets…"); sheets = contact_sheets(path, outdir); strips = telop_strips(path, outdir); lv = levels_plot(outdir)
 
@@ -412,6 +426,10 @@ def main():
     if clicks is not None:
         nonse = [c for c in clicks if not c[1]]
         R.append(("プチノイズ（mix.wav の不連続）", not nonse, f"SE以外の候補 {len(nonse)} 件（SE位置 {len(clicks) - len(nonse)} 件は除外）"))
+    if beats is not None:
+        off = [b for b in beats if abs(b[3]) > 1.5]
+        R.append(("カットと拍（格子）", "WARN" if off else True,
+                  f"{len(beats) - len(off)}/{len(beats)} が拍の1コマ前 ±1.5コマ以内" + (f"、外れ: " + ", ".join(f"{tc(b[0])}({b[3]:+}コマ)" for b in off) if off else "")))
     nk = sum(n for _, n in kan)
     R.append(("【要監修】", (nk == 0) if final else ("WARN" if nk else True), f"合計 {nk}（最終版でゼロ）"))
     miss = [c[0] for c in cred if not c[2]]
@@ -462,6 +480,9 @@ def main():
     L += ["", "## 9. プチノイズ候補（audio/mix/mix.wav）", ""]
     if clicks is None: L.append("mix.wav なし")
     else: L += [f"- {tc(t)} {'(SE の位置：意図した打音)' if se else '**要確認**'}" for t, se in clicks] or ["- なし"]
+    if beats is not None:
+        L += ["", "## 9b. カットと拍（timeline.grid）", "", "| カット | 小節・拍 | ずれ（コマ、拍の1コマ前＝0） |", "|---|---|---|"]
+        L += [f"| {tc(c)} | {b}小節{bb}拍 | {d:+} |" for c, b, bb, d in beats]
     L += ["", "## 10. 【要監修】の数", ""] + [f"- `{f}`: {n}" for f, n in kan]
     L += ["", "## 11. 素材台帳（docs/credits_and_licenses.md）", ""] + [f"- {n}: {'記載あり' if ok else '**未記載**'}（確認語: {', '.join(k)}）" for n, k, ok in cred]
     L += ["", "## 12. 目視用シート", "", "- " + ", ".join(f"`{s}`" for s in sheets) + "（0.5秒おき、8列×7行、左下にタイムコード）",

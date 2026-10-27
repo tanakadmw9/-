@@ -49,28 +49,28 @@
   {
    "id": "B7",
    "start": 42.7761,
-   "end": 52.9529,
-   "dur": 10.18,
+   "end": 53.5869,
+   "dur": 10.82,
    "purpose": "はかりつなぎと確認。最後は人の顔に戻す"
   },
   {
    "id": "B8",
-   "start": 52.9529,
-   "end": 65.2318,
+   "start": 53.5869,
+   "end": 65.8658,
    "dur": 12.29,
    "purpose": "観客自身の発見（同じ基準点だから、つながる）"
   },
   {
    "id": "B9",
-   "start": 65.2318,
-   "end": 70.4704,
+   "start": 65.8658,
+   "end": 71.1044,
    "dur": 5.22,
    "purpose": "毎日の道につながる"
   },
   {
    "id": "B10",
-   "start": 70.4704,
-   "end": 82.2155,
+   "start": 71.1044,
+   "end": 82.8494,
    "dur": 11.74,
    "purpose": "誇りと余韻"
   }
@@ -131,28 +131,28 @@
    "purpose": "肩越しのTSと奥のプリズム。はかる瞬間"
   },
   {
-   "id": "S07@49.9499",
+   "id": "S07@51.3847",
    "shot": "S07",
    "src": "assets/video/S07.mp4",
-   "start": 49.9499,
-   "dur": 3.003,
+   "start": 51.3847,
+   "dur": 2.2022,
    "media_start": 0.0,
    "purpose": "記録する2人＝人が責任を持って確かめている"
   },
   {
-   "id": "S02@70.4704",
+   "id": "S02@71.1044",
    "shot": "S02",
    "src": "assets/video/S02.mp4",
-   "start": 70.4704,
+   "start": 71.1044,
    "dur": 3.1031,
    "media_start": 0.0,
    "purpose": "指差して指示する2人＝チームで最初の一点をつくる"
   },
   {
-   "id": "S10@73.5735",
+   "id": "S10@74.2075",
    "shot": "S10",
    "src": "assets/video/S10.mp4",
-   "start": 73.5735,
+   "start": 74.2075,
    "dur": 2.6026,
    "media_start": 0.0,
    "purpose": "現場を見渡す背中＝誇りと余韻（冒頭と対）"
@@ -245,7 +245,7 @@
    "id": "d3_traverse",
    "comp": "compositions/d3_traverse.html",
    "start": 42.7761,
-   "dur": 7.1738,
+   "dur": 8.6086,
    "cues": {
     "chain": 1.58,
     "last": 2.52,
@@ -258,7 +258,7 @@
   {
    "id": "d4_bridge",
    "comp": "compositions/d4_bridge.html",
-   "start": 52.9529,
+   "start": 53.5869,
    "dur": 12.2789,
    "cues": {
     "network": 0.0,
@@ -276,7 +276,7 @@
   {
    "id": "d5_everyday",
    "comp": "compositions/d5_everyday.html",
-   "start": 65.2318,
+   "start": 65.8658,
    "dur": 5.2386,
    "cues": {
     "life_in": 0.0,
@@ -289,8 +289,8 @@
   {
    "id": "endcard",
    "comp": "compositions/endcard.html",
-   "start": 76.1761,
-   "dur": 6.0394,
+   "start": 76.8101,
+   "dur": 6.0393,
    "cues": {
     "reticle": 0.0,
     "point": 0.6,
@@ -367,35 +367,35 @@
   {
    "id": "N7a",
    "src": "assets/audio/vo/N7a.wav",
-   "start": 54.8548,
+   "start": 55.4888,
    "dur": 5.37,
    "text": "川の両岸からつくる橋が、真ん中でぴったりつながるのは、"
   },
   {
    "id": "N7b",
    "src": "assets/audio/vo/N7b.wav",
-   "start": 61.2278,
+   "start": 61.8618,
    "dur": 3.32,
    "text": "同じ基準点を、もとにしているから。"
   },
   {
    "id": "N8",
    "src": "assets/audio/vo/N8.wav",
-   "start": 65.7323,
+   "start": 66.3663,
    "dur": 4.02,
    "text": "毎日通る道も、ここから始まっています。"
   },
   {
    "id": "N9a",
    "src": "assets/audio/vo/N9a.wav",
-   "start": 70.8708,
+   "start": 71.5048,
    "dur": 3.49,
    "text": "まちづくりの、最初の一点をつくる。"
   },
   {
    "id": "N9b",
    "src": "assets/audio/vo/N9b.wav",
-   "start": 74.9415,
+   "start": 75.5755,
    "dur": 2.95,
    "text": "それが、私たちの仕事です。"
   }
@@ -423,7 +423,7 @@
   },
   {
    "kind": "join",
-   "start": 62.2288,
+   "start": 62.8628,
    "note": "橋がつながる低めのカチッ"
   }
  ],
@@ -431,11 +431,11 @@
   "start": 8.4084,
   "note": "照準が合う拍からBGM開始",
   "pause": {
-   "start": 60.1267,
-   "end": 61.2278,
+   "start": 60.7607,
+   "end": 61.8618,
    "note": "答えの前の『間』。BGMを抜く"
   },
-  "end": 82.2155
+  "end": 82.8494
  },
  "amb": [
   {
@@ -456,6 +456,6 @@
    "S09_freeze（D1の背景）"
   ]
  ],
- "duration": 82.2155,
- "speech_ratio": 0.637
+ "duration": 82.8494,
+ "speech_ratio": 0.633
 }

@@ -19,7 +19,10 @@
     #d3-o-coords .d3-row { height: 54px; display: flex; align-items: flex-start; }
     #d3-o-coords .d3-ax { width: 44px; font-weight: 700; }
     #d3-o-coords .d3-unit { margin-left: 12px; }
-    #d3-o-note { left: 1180px; top: 696px; width: 400px; text-align: center; font-size: 34px; color: var(--ink); }
+    #d3-o-note { left: 1180px; top: 696px; width: 400px; text-align: center; font-size: 36px; color: var(--ink); }
+    .d3-lbl2 { position: absolute; font-family: var(--font-ja); line-height: 1.35; color: var(--navy); font-feature-settings: "palt"; white-space: nowrap; }
+    #d3-lbl-c { left: 1464px; top: 334px; width: 320px; text-align: right; font-size: 40px; font-weight: 400; }
+    #d3-lbl-new { left: 940px; top: 336px; width: 340px; text-align: center; font-size: 48px; font-weight: 700; }
     #d3-lbl-check { position: absolute; left: 1110px; top: 767px; width: 300px; text-align: right; font-family: var(--font-ja); font-weight: 700;
       font-size: 48px; line-height: 1.35; color: var(--ink); font-feature-settings: "palt"; white-space: nowrap; }
   </style>
@@ -120,6 +123,8 @@
       <div id="d3-o-coords"><div class="d3-row"><span class="d3-ax">X</span><span>1234.567</span><span class="d3-unit">m</span></div><div class="d3-row"><span class="d3-ax">Y</span><span>2345.678</span><span class="d3-unit">m</span></div></div>
       <div id="d3-o-note" class="d3-lbl">（数値は例）</div>
     </div>
+    <div id="d3-lbl-c" class="d3-lbl2">わかっている点</div>
+    <div id="d3-lbl-new" class="d3-lbl2">新しい基準点</div>
     <div id="d3-lbl-check">ずれを確認</div>
   </div>
   <script>
@@ -155,6 +160,7 @@
       // ---- last：右端の既知点 C → 最後の点から線 → 計算した位置（オレンジの小点）→ 丸窓で比べる
       const la = c.last;
       pop("#d3-C-in", la, SYM, 0.4);
+      tl.fromTo("#d3-lbl-c", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, la + 0.15);
       draw("#d3-l4-glow", la + 0.15, 0.45, "power2.inOut", 0.18);
       draw("#d3-l4", la + 0.15, 0.45, "power2.inOut");
       tl.fromTo("#d3-calc", { opacity: 0, attr: { r: 2 } }, { opacity: 1, attr: { r: 6 }, duration: 0.25, ease: "power3.out" }, la + 0.58);
@@ -173,6 +179,7 @@
         const t = k + 0.3 + 0.08 * i;
         tl.fromTo(grp, { stroke: ORANGE }, { stroke: NAVY, duration: 0.4, ease: "power2.inOut" }, t);
       });
+      tl.fromTo("#d3-lbl-new", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.3);
       tl.fromTo(".d3-glow", { opacity: 0.18 }, { opacity: 0, duration: 0.4, ease: "power2.inOut", immediateRender: false }, k + 0.3);
 
       // 以降は止まって待つ

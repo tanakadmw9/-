@@ -177,6 +177,7 @@ fade = text_in + 4.6          # 13字 → 4.25秒読ませ、少し余韻を置�
 end = fade + 0.8
 scene("endcard", endc, end - endc, {"reticle": 0.0, "point": 0.6, "text_in": text_in - endc, "fade": fade - endc},
       "締めの一文。照準が一点に戻り、冒頭と閉じる")
+T["intended_freezes"].append([f(endc), f(end), "endcard（S10 最後のコマにゆっくり寄る）"])
 T["bgm"]["end"] = f(end)
 beat("B10", b, end, "誇りと余韻")
 

@@ -1,0 +1,146 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"k1\":0.6,\"k2\":2.2,\"k3\":3.6,\"k4\":5.4,\"base\":8.4,\"term\":10.7,\"out\":12.6}"},{"id":"dur","type":"number","label":"dur","default":13.0},{"id":"mode","type":"string","label":"menu（B2：一覧→基準点測量へ）／handoff（B8：基準点からほかの測量へ）","default":"menu"}]'>
+<body>
+<template>
+  <style>
+    /* 図解M「測量部門のしごと」。B2（menu）と B8（handoff）で同じ配置を使う（21_build_index.py が id を替えて2回置く） */
+    #root { position: absolute; inset: 0; }
+    #dm-bg { position: absolute; inset: 0; background: var(--paper); }
+    #dm-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    .dm-ico { fill: none; stroke: var(--navy); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    .dm-slot { position: absolute; width: 288px; text-align: center; font-feature-settings: "palt"; white-space: nowrap; }
+    .dm-fn { font-family: var(--font-ja); font-weight: 700; font-size: 48px; line-height: 1.35; color: var(--ink); }
+    .dm-name { font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.35; color: var(--navy); margin-top: 2px; }
+    #dm-head { position: absolute; left: 132px; top: 120px; font-family: var(--font-ja); font-weight: 700; font-size: 48px;
+      line-height: 1.35; color: var(--navy); font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="d_menu" data-width="1920" data-height="1080">
+    <div id="dm-bg"></div>
+    <svg id="dm-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="dm-gridpat" x="0" y="40" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0 H0 V80" fill="none" stroke="var(--grid)" stroke-width="1.5"/>
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="1920" height="1080" fill="url(#dm-gridpat)"/>
+
+      <!-- 基準点の網（handoff で現れる地面の層） -->
+      <g id="dm-net" opacity="0">
+        <path id="dm-net-line" d="M240 812 L384 790 L528 818 L672 792 L816 816 L960 800 L1104 818 L1248 790 L1392 814 L1536 792 L1680 810"
+              fill="none" stroke="var(--navy)" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+      </g>
+      <g id="dm-netpts"></g>
+      <!-- 網から上の作業へのびる線（はかる＝オレンジ） -->
+      <g id="dm-ups"></g>
+
+      <!-- 5つの作業のアイコン（中心 y=430） -->
+      <g transform="translate(384 430)"><g id="dm-i0" class="dm-ico">
+        <rect x="-16" y="-72" width="32" height="144" rx="3"/>
+        <path d="M-16 -44 H0 M-16 -16 H0 M-16 12 H0 M-16 40 H0" stroke-width="4"/>
+        <path d="M52 64 V-64 M38 -48 L52 -66 L66 -48 M38 48 L52 66 L66 48"/>
+      </g></g>
+      <g transform="translate(672 430)"><g id="dm-i1" class="dm-ico">
+        <path d="M-72 6 C-70 -44 -10 -62 34 -50 C78 -38 82 18 54 44 C24 72 -40 70 -62 48 C-72 38 -72 22 -72 6 Z"/>
+        <path d="M-42 6 C-40 -24 -4 -36 22 -28 C48 -20 50 12 32 28 C14 44 -24 42 -36 28 C-41 22 -42 14 -42 6 Z"/>
+        <path d="M-12 4 C-10 -8 6 -12 14 -8 C22 -2 18 10 8 14 C-2 16 -12 12 -12 4 Z"/>
+      </g></g>
+      <g transform="translate(960 430)"><g id="dm-i2">
+        <circle id="dm-ring" r="92" fill="none" stroke="var(--orange)" stroke-width="5" opacity="0"/>
+        <g id="dm-tri" class="dm-ico" transform="scale(1.7)">
+          <path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke-width="3.2"/>
+          <circle r="6" fill="var(--navy)" stroke="none"/>
+        </g>
+      </g></g>
+      <g transform="translate(1248 430)"><g id="dm-i3" class="dm-ico">
+        <path d="M-74 70 C-40 30 -30 -10 6 -34 C30 -50 50 -58 74 -64"/>
+        <path d="M-40 76 C-12 42 2 6 30 -12 C48 -24 60 -30 78 -34"/>
+        <path d="M-57 73 C-26 36 -14 -2 18 -23 C39 -37 55 -44 76 -49" stroke-width="3" stroke-dasharray="8 10"/>
+      </g></g>
+      <g transform="translate(1536 430)"><g id="dm-i4" class="dm-ico">
+        <path d="M-62 -38 L48 -62 L66 44 L-50 62 Z"/>
+        <circle cx="-62" cy="-38" r="8" fill="var(--paper)"/><circle cx="48" cy="-62" r="8" fill="var(--paper)"/>
+        <circle cx="66" cy="44" r="8" fill="var(--paper)"/><circle cx="-50" cy="62" r="8" fill="var(--paper)"/>
+      </g></g>
+    </svg>
+
+    <div id="dm-head">測量部門のしごと</div>
+    <div id="dm-s0" class="dm-slot" style="left:240px; top:540px"><div class="dm-fn">高さ</div><div class="dm-name">水準測量</div></div>
+    <div id="dm-s1" class="dm-slot" style="left:528px; top:540px"><div class="dm-fn">地図</div><div class="dm-name">地形測量</div></div>
+    <div id="dm-s2" class="dm-slot" style="left:816px; top:540px"><div class="dm-fn">位置の基準</div><div class="dm-name">基準点測量</div></div>
+    <div id="dm-s3" class="dm-slot" style="left:1104px; top:540px"><div class="dm-fn">道路</div><div class="dm-name">路線測量</div></div>
+    <div id="dm-s4" class="dm-slot" style="left:1392px; top:540px"><div class="dm-fn">土地の境目</div><div class="dm-name">用地測量</div></div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 13;
+      const mode = v.mode || "menu";
+      const NS = "http://www.w3.org/2000/svg";
+      const IN = { duration: 0.5, ease: "power3.out" };
+      const tl = gsap.timeline({ paused: true });
+      const others = ["#dm-i0", "#dm-i1", "#dm-i3", "#dm-i4"], otherSlots = ["#dm-s0", "#dm-s1", "#dm-s3", "#dm-s4"];
+      const XS = [384, 672, 1248, 1536];
+
+      if (mode === "menu") {
+        // 見出しと5つのアイコン（紺）が並ぶ。言葉はまだ出さない
+        tl.fromTo("#dm-head", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, 0.0);
+        ["#dm-i0", "#dm-i1", "#dm-i2", "#dm-i3", "#dm-i4"].forEach((s, i) =>
+          tl.fromTo(s, { opacity: 0, scale: 0.85, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: 0.4, ease: "power3.out" }, 0.1 + i * 0.08));
+        // k1〜k4：言葉に合わせて1つずつ、何をする作業かと作業名が出る
+        [["#dm-i0", "#dm-s0", c.k1], ["#dm-i1", "#dm-s1", c.k2], ["#dm-i3", "#dm-s3", c.k3], ["#dm-i4", "#dm-s4", c.k4]].forEach(([ico, slot, t]) => {
+          tl.to(ico, { scale: 1.12, svgOrigin: "0 0", duration: 0.18, ease: "power2.out" }, t);
+          tl.to(ico, { scale: 1, svgOrigin: "0 0", duration: 0.3, ease: "power2.inOut" }, t + 0.18);
+          tl.fromTo(slot, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, t);
+        });
+        // base：「位置の基準」で、ほかが薄くなり、中央の基準点が大きくなって輪が灯る
+        tl.to([...others, ...otherSlots], { opacity: 0.3, duration: 0.5, ease: "power2.inOut" }, c.base - 0.1);
+        tl.fromTo("#dm-i2", { scale: 1, svgOrigin: "0 0" }, { scale: 1.25, svgOrigin: "0 0", duration: 0.6, ease: "power3.out" }, c.base);
+        tl.fromTo("#dm-ring", { opacity: 0, scale: 0.7, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: 0.5, ease: "power3.out" }, c.base + 0.1);
+        tl.fromTo("#dm-s2", { opacity: 0, y: 44 }, { opacity: 1, y: 24, ...IN }, c.base + 0.1);
+        // term：「基準点測量」で作業名を強める
+        tl.to("#dm-s2 .dm-name", { color: "#14202E", fontWeight: 700, scale: 1.15, duration: 0.3, ease: "power2.out" }, c.term);
+        // out：基準点の記号に寄って、次の照準（タイトル）へ
+        tl.to("#root", { opacity: 0, duration: 0.3, ease: "power2.in" }, Math.min(c.out, dur - 0.32));
+      } else {
+        // handoff：一覧の終わりの状態から始まる（ほかは薄く、基準点が中央）
+        tl.set([...others, ...otherSlots], { opacity: 0.3 }, 0);
+        tl.set("#dm-head", { opacity: 1 }, 0);
+        tl.set("#dm-i2", { scale: 1.25, svgOrigin: "0 0" }, 0);
+        tl.set("#dm-ring", { opacity: 1 }, 0);
+        tl.set("#dm-s2", { opacity: 1, y: 24 }, 0);
+        // net：基準点が下へ降りて地面の網になる（＝ほかの測量の土台）
+        tl.to("#dm-ring", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.net);
+        tl.to("#dm-i2", { y: 370, scale: 0.6, svgOrigin: "0 0", duration: 0.8, ease: "power2.inOut" }, c.net);
+        tl.to("#dm-s2", { y: 344, duration: 0.8, ease: "power2.inOut" }, c.net);
+        const pts = [[240, 812], [384, 790], [528, 818], [672, 792], [816, 816], [1104, 818], [1248, 790], [1392, 814], [1536, 792], [1680, 810]];
+        const host = document.getElementById("dm-netpts");
+        pts.forEach(([x, y], i) => {
+          const g = document.createElementNS(NS, "g"); g.setAttribute("transform", `translate(${x} ${y})`);
+          g.innerHTML = '<g class="dm-np"><path d="M0 -38 L32.9 19 L-32.9 19 Z" fill="var(--paper)" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round" transform="scale(0.6)"/><circle r="3.6" fill="var(--navy)"/></g>';
+          host.appendChild(g);
+          const d = Math.abs(x - 960) / 720;  // 中央から外へ広がる
+          tl.fromTo(g.firstChild, { opacity: 0, scale: 0.5, svgOrigin: "0 0" }, { opacity: 1, scale: 1, svgOrigin: "0 0", duration: 0.3, ease: "power3.out" }, c.net + 0.6 + d * 0.6);
+        });
+        tl.fromTo("#dm-net", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.inOut" }, c.net + 0.7);
+        // others：網からほかの作業へ線がのび、1つずつ灯る（この点を使って始まる）
+        const ups = document.getElementById("dm-ups");
+        XS.forEach((x, i) => {
+          const y0 = [790, 792, 790, 792][i] - 30;
+          const ln = document.createElementNS(NS, "line");
+          ln.setAttribute("x1", x); ln.setAttribute("y1", y0); ln.setAttribute("x2", x); ln.setAttribute("y2", 692);
+          ln.setAttribute("stroke", "var(--orange)"); ln.setAttribute("stroke-width", "5"); ln.setAttribute("stroke-linecap", "round");
+          ln.setAttribute("pathLength", "100"); ln.setAttribute("stroke-dasharray", "100 120"); ln.setAttribute("stroke-dashoffset", "100");
+          ln.setAttribute("opacity", "0"); ups.appendChild(ln);
+          const t = c.others + i * 0.28;
+          tl.fromTo(ln, { opacity: 0 }, { opacity: 1, duration: 0.01, ease: "none" }, t);
+          tl.fromTo(ln, { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, t);
+          tl.to([others[i], otherSlots[i]], { opacity: 1, duration: 0.35, ease: "power2.out" }, t + 0.25);
+        });
+      }
+      window.__timelines = window.__timelines || {};
+      window.__timelines[document.querySelector("#root").dataset.compositionId] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

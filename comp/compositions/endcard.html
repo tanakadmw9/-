@@ -79,6 +79,10 @@
 
       const tl = gsap.timeline({ paused: true });
 
+      // 背景は最後のコマの静止画。止まって見えないよう、場面全体でごく遅く寄る（3%）
+      tl.fromTo("#endcard-bg", { scale: 1.0, transformOrigin: "54% 20%" },
+        { scale: 1.03, transformOrigin: "54% 20%", duration: Number(v.dur), ease: "none" }, 0);
+
       // 動画の最後のコマから入るので、グラデーションはゆっくり敷く（カットで跳ねない）
       tl.fromTo("#endcard-grad", { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "power1.inOut" }, c.reticle + 0.1);
 

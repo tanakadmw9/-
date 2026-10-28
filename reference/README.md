@@ -4,7 +4,7 @@
 |---|---|
 | `plans/content.md`・`plans/editing.md` | 承認された内容計画と編集計画（構成A「はじまりの点」、24小節） |
 | `plans/from_production.md` | 制作から計画担当への引き継ぎメモ（素材と制約） |
-| `plans/brushup/` | v4.6→v4.7 のチームレビュー：director_team/（共通ブリーフと5担当）、content・editing・accuracy・audio（担当4つ） |
+| `plans/brushup/` | v4.6→v4.7 のチームレビュー：**00_director.md（監督メモ：統合の判断、見送った案、依頼者に選んでもらうこと、v4.8〜v4.10 で直したこと）**、director_team/（共通ブリーフと5担当）、content・editing・accuracy・audio（担当4つ。聴き比べの音源は入っていない） |
 | `research/kijunten.md` | 事実確認のメモ（基準点・基準点測量・用語・参考） |
 | `teamB/` | 対抗案 B「地面に“住所”をつける」の指示・計画・原稿・QC |
 | `history/` | 最初のキットの README・CLAUDE.md・プロンプト、v1 の演出案、v4.2 のゲート資料、廃止した部品 |
@@ -21,6 +21,7 @@
 |---|---|
 | `/home/user/-/…`（制作時のリポジトリ） | この一式の根 |
 | `/mnt/project-files/plan/`（content.md・editing.md・brushup/） | `reference/plans/`（絵コンテ画像は media の `plan/`） |
+| `plan/brushup/00_director.md`、Claude Docs の「監督メモ」 | `reference/plans/brushup/00_director.md` |
 | `/mnt/project-files/research/` | `reference/research/` |
 | `/mnt/project-files/teamB/` | `reference/teamB/`（B案の映像は media の `reference/renders/`） |
 | `/mnt/project-files/renders/` | media の `reference/renders/`（v4.10 だけ） |

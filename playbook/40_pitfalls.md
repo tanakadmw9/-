@@ -54,5 +54,5 @@
 | 国土地理院のサイトに届かない（クラウド） | プロキシで遮断 | 事実確認は reference/research/kijunten.md。足りなければ人に調べてもらう |
 | Git のタグを push できない（クラウド） | セッションのプロキシがタグを拒否 | 版はコミットの題「v4.x：…」で探す。タグはローカルだけ |
 | 元映像が消えている | source/ は .gitignore。クラウドのコンテナは使い捨て | media の zip から戻す。共有フォルダに控えを置く |
-| 書き出しに約10分かかる | 全編を Chromium で描く | 1コマの確認は `npx hyperframes snapshot comp --at t1,t2 --no-end`（約1分）。1場面だけは `python3 scripts/21_build_index.py --scene d2_topview` |
+| 書き出しに時間がかかる（書き出し約5分、QC 込みで約14分、全部の作り直し約20分） | 全編を Chromium で描く | 1コマの確認は `npx hyperframes snapshot comp --at t1,t2 --no-end`（約15秒。PNG は comp/.hyperframes/artifacts/snapshots/ の一番新しいフォルダ）。1場面だけは `python3 scripts/21_build_index.py --scene d2_topview` |
 | HyperFrames が画面の文字を外部に送る機能 | `snapshot --describe`、`publish` 等はクラウドを使う | 使わない（AGENTS.md の禁止リスト） |

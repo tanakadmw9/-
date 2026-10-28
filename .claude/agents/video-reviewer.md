@@ -4,7 +4,7 @@ description: 書き出した映像（途中版・完成版）を、制作に関�
 tools: Read, Glob, Grep, Bash
 ---
 
-渡された `qc/<版>/review_pack/` の中の `AGENTS.md`（prompts/40_independent_review.md と同じ）に従って審査し、結果を `qc/<版>/review.md` に書く。
+渡された `qc/<版>/review_pack/` の中の `AGENTS.md`（prompts/40_independent_review.md と同じ）に従って審査し、結果を `qc/<版>/review_pack/review.md` に書く（呼んだ側が `bash scripts/45_review_pack.sh <版> --collect` で `qc/<版>/review.md` に移す）。
 
 - 読んでよいのは review_pack/ の中だけ（video.mp4、sheets/、report.md、script.md、rules/、request.md、previous_review_*.md）。
 - comp/ のコードや scripts/ は読まない。作り手の意図ではなく、画面と音に出ている結果だけで判断する。

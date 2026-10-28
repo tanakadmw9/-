@@ -11,7 +11,7 @@
 
 media の zip は、この一式と同じフォルダ（kijunten_kit/）に重ねて展開します。
 
-**入っていないもの**（規約で再配布が禁止されているため）：BGM「New Departure」（OpenTracks）と効果音4つ（効果音ラボ）。どちらも無料で、入手手順は `source/README.md` と `assets/README.md` にあります（5分ほど）。置かなくても代わりの音で動きます。
+**入っていないもの**（規約で再配布が禁止されているため）：BGM「New Departure」（OpenTracks）と効果音4つ（効果音ラボ）。どちらも無料で、入手手順は `source/README.md` と `assets/README.md` にあります（5分ほど）。置かなくても代わりの音（自作の仮BGM・合成の効果音）で最後まで動きますが、**自動QC の「ナレとBGMの差」が FAIL になります**（想定どおり。曲を置けば消えます。30_mix.py を直す必要はありません）。
 
 ## まず読むもの
 
@@ -23,10 +23,18 @@ media の zip は、この一式と同じフォルダ（kijunten_kit/）に重�
 
 ### 1. Codex CLI を自分の PC で使う（おすすめ）
 1. 2つの zip を同じ場所に展開する（`kijunten_kit/` ができる）。
-2. BGM と効果音を入手して置く（`source/README.md`、`assets/README.md`）。
-3. 端末で `cd kijunten_kit && bash scripts/00_setup.sh`（Node.js 22・Python 3・FFmpeg が要る。足りなければ表示される）。
-4. 仮ナレを作り直すなら VOICEVOX（アプリか Docker）を起動しておく。media の音声を使うなら不要。
-5. `kijunten_kit/` で Codex を起動し、`prompts/00_kickoff.md` の指示文 A（再現の確認）を貼る。以後は B（v4.10 の続き）か C（次のパート）。
+2. git の管理を始める（エージェントは変更を git で記録する）：
+   ```bash
+   cd kijunten_kit && git init && git add -A && git status --short | grep -E '\.(mp4|jpg|png|wav|mp3)$'   # 何も出なければよい
+   git commit -m "v4.10：引き継ぎ一式"
+   ```
+   `.gitignore` が元映像・シート画像・音声・BGM・効果音を外すので、コミットされるのは文書とコードだけです。
+3. BGM と効果音を入手して置く（`source/README.md`、`assets/README.md`。MD5 で正しいファイルか確かめられる）。
+4. `bash scripts/00_setup.sh`（Node.js 22・Python 3.10 以上・FFmpeg が要る。足りなければ表示される。Python の部品は `.venv/` に入る。Ubuntu では先に `sudo apt-get install -y python3-venv` が要ることがある）。最初は回線しだいで 5〜15分。
+5. 仮ナレを作り直すなら VOICEVOX（アプリか Docker）を起動しておく。media の音声を使うなら不要。
+6. `kijunten_kit/` で Codex を起動し、`prompts/00_kickoff.md` の指示文 A（再現の確認）を貼る。以後は B（v4.10 の続き）か C（次のパート）。
+
+時間の目安：全部の作り直し（`scripts/70_build_all.sh`）約20分（うち書き出し約5分、自動QC 約8分）、書き出しだけ（`scripts/60_render.sh`、QC 込み）約14分。
 
 ### 2. Codex クラウドで使う
 GitHub の非公開リポジトリにこの一式を入れ、環境のセットアップに `bash scripts/00_setup.sh` を設定します。社内映像や音をリポジトリに入れるかは会社の規程と各サイトの規約で判断してください（入れない場合、クラウドでは計画・原稿・図解のコード・検査の仕組みまで。音つきの書き出しは PC で）。詳しくは `playbook/50_environment.md` §4。
@@ -45,11 +53,18 @@ CLAUDE.md が AGENTS.md を読み込みます。使い方は Codex と同じで�
 - AI エージェント（Codex・Claude）は、読んだファイルやフレーム画像をそのサービスに送って処理します。社内映像を見せてよいかは、会社の AI 利用の規程で確認してください。
 - エージェントには、素材を外部のサービス（HyperFrames のクラウド機能、オンライン変換など）に送らないよう AGENTS.md で指示しています。
 - 効果音ラボと OpenTracks の音は、公開のリポジトリに入れないでください（再配布になる）。`.gitignore` で除外してあります。
+- 検査のシート画像（`qc/`・`analysis/` の jpg・png）、`storyboard/`、`plan/editing_storyboard.png`、書き出しの mp4 も**元映像から作ったもの＝社内映像の一部**です。これも `.gitignore` で除外してあります（クラウドのリポジトリに上げるかは会社の規程で）。
 - HyperFrames は 0.8.206 に固定しています。上げないでください（検査のスクリプトが動かなくなる）。
 
 ## 確かめたこと（2026-10-28）
 
-この一式（＋media の元映像、BGM、効果音）から `bash scripts/70_build_all.sh` で最初から作り直すと、**v4.10 と全1818コマが画素単位で一致し、音もビット単位で一致**しました。自動QC の結果も v4.10 と同じ（総合 PASS）です。BGM・効果音が無いときの代わりの動作（自作の仮BGM・合成音）も確かめています。
+この一式（＋media の元映像、BGM、効果音）から `bash scripts/70_build_all.sh` で最初から作り直し、v4.10 と比べました（作った機械と、別の機械の2か所。別の機械では「一式だけを渡された人」として README と指示文 A だけで進めた）。
+
+- **音**：どちらの機械でもビット単位で一致。
+- **映像**：同じ機械なら全1818コマが画素単位で一致。別の機械では D1→D2 の写真が倒れる区間（27.4〜35.4 秒）の239コマだけ、目では区別できない差（PSNR 46 dB 以上）が出た（Chromium の描画が機械で少し変わるため、と考えている）。
+- **自動QC**：総合 PASS、v4.10 と同じ結果（想定どおりの違いは prompts/00 の指示文 A）。
+- 比べるには `bash scripts/46_compare_ref.sh renders/draft/<版>.mp4 reference/renders/kijunten_v4.10.mp4`。**合格：音がビット一致、映像は全コマ PSNR 45 dB 以上、QC 総合 PASS。**
+- BGM・効果音が無いときの代わりの動作（自作の仮BGM・合成音）でも最後まで動く（QC は上のとおり FAIL が1つ出る）。
 
 ## フォルダの地図
 
@@ -58,12 +73,13 @@ kijunten_kit/
 ├─ AGENTS.md          エージェントへの指示（入口）
 ├─ CLAUDE.md          Claude Code 用（AGENTS.md を読む）
 ├─ README.md          この説明
-├─ playbook/          知見：00 要点／10 進め方／20 作り方の決まり／30 事例／40 落とし穴／50 環境／60 次のパート／70 この先
+├─ playbook/          知見：00 要点／10 進め方／15 チェックリスト／20 作り方の決まり／30 事例／40 落とし穴／50 環境／60 次のパート／70 この先
 ├─ prompts/           指示文：00 キックオフ／10 ゲート報告／20 担当レビュー／30 監督の統合／40 独立レビュー／50 対抗案
 ├─ templates/         ひな形：ブリーフ、ショットログ、内容計画、編集計画、絵コンテ、原稿、決定記録、台帳、監修表、アンケート
 ├─ docs/              設計書 01〜08・11・12、decisions.md（決定の記録）、credits_and_licenses.md（台帳）
-├─ scripts/           00 準備／01 解析／02 中間素材／11 仮ナレ／20 尺の計画／21 組み立て／30 ミックス／34 曲の編集／40 検査／45 レビュー用フォルダ／60 書き出し／70 全部つくり直す
+├─ scripts/           00 準備／01 解析／02 中間素材／11 仮ナレ／20 尺の計画／21 組み立て／30 ミックス／34 曲の編集／40 検査／45 レビュー用フォルダ／46 v4.10 との比較／60 書き出し／70 全部つくり直す／80 zip
 ├─ comp/              HyperFrames の部品（図解・文字）、原稿、timeline.json（生成）
+├─ qc/                各版の自動QC（report.md）と独立レビュー（review.md）。画像は media の zip
 ├─ source/ assets/    素材を置く場所（中身はリポジトリに入れない）
 ├─ tools/fonts/       検査のシート用の日本語フォント（OFL）
 └─ reference/         経緯：各版の QC とレビュー、計画書、チームレビュー、事実確認、B案

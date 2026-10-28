@@ -10,8 +10,17 @@
 AGENTS.md を読み、そこに書かれた順で docs/decisions.md と playbook/ を読んでください。
 次に、フェーズ0として環境を確かめます：bash scripts/00_doctor.sh を実行し、足りないものと、その代わりに何で動くかを短く報告してください。
 インストールなど私の操作が要るものは、手順を示して待ってください。
-そろったら bash scripts/70_build_all.sh v4.10r を実行し、qc/v4.10r/report.md の結果と、qc/v4.10/report.md との違いを報告してください。
-違いがあれば、原因の見当（素材の代わりを使った、など）も書いてください。作品の中身はまだ変えないでください。
+そろったら bash scripts/70_build_all.sh v4.10r を実行してください（約20分。時間制限で切られるなら nohup … > v4.10r.log 2>&1 & で走らせてログを見る）。
+次に bash scripts/46_compare_ref.sh renders/draft/v4.10r.mp4 で v4.10 の書き出しと比べ、
+qc/v4.10r/report.md の結果と qc/v4.10/report.md との違いと合わせて報告してください。
+合格は「音がビット一致、映像は全コマ PSNR 45 dB 以上、QC 総合 PASS」です。
+次の違いは想定どおりなので、原因を探さなくてよい：
+- 別の機械では、27.4〜35.4 秒（D1→D2 の写真が倒れる区間）の映像だけ、目に見えない差（PSNR 46 dB 以上）が出る
+- hyperframes check のコントラストの数が 5 と 6 の間で揺れる
+- 【要監修】の表に d3_traverse・d4_bridge・d5_everyday・d_menu の行がない（reference/history/obsolete/ に移した。合計は同じ 16）
+- 「音の素材」の行が増えている（v4.10 の後に足した検査）
+- BGM・効果音を置いていなければ、「ナレとBGMの差」が FAIL、「音の素材」が WARN になる
+それ以外の違いがあれば、原因の見当も書いてください。作品の中身はまだ変えないでください。
 ```
 
 ## B. v4.10 の続き（試写1の準備と改善）
@@ -23,8 +32,8 @@ AGENTS.md と playbook/70_beyond.md を読んでください。v4.10 は試写1�
 1. 変える前に、変える所・理由・影響する時刻を短く示してください（原則と矛盾がないか、playbook/00_summary.md で確かめる）。
 2. scripts/ と comp/ を直し、bash scripts/60_render.sh v4.11 で書き出してください。
 3. qc/v4.11/report.md と目視用シートを自分で見て直してください。
-4. bash scripts/45_review_pack.sh v4.11 を実行し、request.md を書いてください。独立レビューは別のセッションで行うので、私に「qc/v4.11/review_pack を開いて、その AGENTS.md に従ってレビューして」と頼む文を用意して止まってください。
-5. レビューが返ったら、指摘ごとの対応を docs/decisions.md に書き、直してから私に出してください。
+4. bash scripts/45_review_pack.sh v4.11 を実行し、qc/v4.11/request.md を書いて、45 をもう一度実行してください。独立レビューは別のセッションで行うので、私に「qc/v4.11/review_pack を開いて、その AGENTS.md に従ってレビューし、review.md をそのフォルダに書いて」と頼む文を用意して止まってください。
+5. レビューが返ったら bash scripts/45_review_pack.sh v4.11 --collect で qc/v4.11/review.md に移し、指摘ごとの対応を docs/decisions.md に書き、直してから私に出してください。
 【試写1の指摘：　】
 ```
 

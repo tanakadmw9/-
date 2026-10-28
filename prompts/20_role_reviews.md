@@ -1,8 +1,8 @@
 # 担当レビュー（チームで磨く）の指示文
 
-使い方：版を1つ決め（例 v4.10）、担当ごとに**別のセッション**を立てて「共通ブリーフ」＋「担当の段」を渡す。担当はリポジトリを読むだけで、書くのは `reviews/<版>/<担当>.md` だけ。全員がそろったら、監督のセッションで prompts/30_director_synthesis.md を使う。
+使い方：版を1つ決め（例 v4.10）、担当ごとに**別のセッション**を立てて「共通ブリーフ」＋「担当の段」を渡す。担当は本体（comp/・scripts/・docs/ など）を読むだけ。書いてよいのは `reviews/<版>/<担当>.md`（残す）と `work/<担当>/`（作業用、.gitignore 済み）だけ。全員がそろったら、監督のセッションで prompts/30_director_synthesis.md を使う。
 
-今回（v4.6 → v4.7）の実例：reference/plans/brushup/（director_team/00_BRIEF.md が共通ブリーフ）。
+今回（v4.6 → v4.7）の実例：reference/plans/brushup/（director_team/00_BRIEF.md が共通ブリーフ、00_director.md が監督の統合）。
 
 ---
 
@@ -15,7 +15,7 @@
 
 見るもの：
 - 書き出し：【renders/draft/v4.x.mp4】、目視用シート：【qc/v4.x/*.jpg】、QC：【qc/v4.x/report.md、levels.png】
-- 計画（承認済み）：【plan/content.md、plan/editing.md】（例は reference/plans/）
+- 計画（承認済み）：【v4.10 の続きなら reference/plans/content.md、reference/plans/editing.md。新しいパートなら plan/content.md、plan/editing.md】
 - 原稿：comp/narration.json、タイミング：comp/timeline.json（shots・vo・se・scenes・beats）
 - 規定：docs/01、04（§8 やってはいけないこと）、05、07。決定記録：docs/decisions.md の直近。前回の独立レビュー：【qc/v4.x/review.md】
 - 事実確認メモ：reference/research/kijunten.md
@@ -24,7 +24,7 @@
 制約：
 - 実写は約40秒の焼き込み入り完成品だけ。新しい撮影なし。スロー・水増しなし。尺は24小節の格子が基本。大きく伸ばす案は別案として出す。
 - 動画は画像で、音は数値（ffmpeg・numpy）で判断する。聞こえ方の最終判断は人。
-- リポジトリは読むだけ。自分の作業ファイルは work/<担当>/ に。画像は読みすぎない（シート優先）。
+- 本体は読むだけ。書いてよいのは reviews/<版>/<担当>.md と work/<担当>/ だけ。画像は読みすぎない（シート優先）。
 
 返すもの（reviews/<版>/<担当>.md）：
 1. 今の良い点（壊してはいけないもの）3つ以内

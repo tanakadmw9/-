@@ -48,7 +48,10 @@ brew install git ffmpeg node python
 ```
 
 ### プロジェクト内（Claude Code に実行させてよい）
+> **この一式では使わない**：下の `npm init`・`npm i` は最初に作ったときの記録。そのまま貼ると最新の HyperFrames が入り、版の固定（0.8.206）が壊れる。いまは `bash scripts/00_setup.sh`（中で `npm ci`）を使う。
+
 ```bash
+# 記録（実行しない）
 npm init -y
 npm i -D hyperframes gsap @fontsource/biz-udpgothic @fontsource/biz-udgothic
 npx hyperframes telemetry disable      # 匿名の利用統計を止める

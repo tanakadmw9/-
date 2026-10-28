@@ -2,6 +2,9 @@
 # 環境の差（クラウド／Mac／Windows の WSL）を吸収する共通設定。ほかのスクリプトから source する。
 # 外部には何も送らない。HyperFrames のテレメトリは止める。
 export HYPERFRAMES_NO_TELEMETRY=1 DO_NOT_TRACK=1 HYPERFRAMES_NO_UPDATE_CHECK=1
+# 0) Python：00_setup.sh が .venv を作った場合はそれを使う
+_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ -z "${VIRTUAL_ENV:-}" ] && [ -f "$_root/.venv/bin/activate" ]; then source "$_root/.venv/bin/activate"; fi
 # 1) Chromium：HYPERFRAMES_BROWSER_PATH が空なら、よくある場所を順に探す。見つからなければ HyperFrames 自身の探し方に任せる
 if [ -z "${HYPERFRAMES_BROWSER_PATH:-}" ]; then
   for c in /opt/pw-browsers/chromium-*/chrome-linux64/chrome /opt/pw-browsers/chromium \

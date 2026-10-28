@@ -19,4 +19,11 @@ ffmpeg -hide_banner -loglevel error -y -i "$DIR/${VER}_video.mp4" -i audio/mix/m
   -color_primaries bt709 -color_trc bt709 -colorspace bt709 \
   -c:a aac -b:a 320k -ar 48000 -ac 2 -shortest -movflags +faststart "$DIR/${VER}.mp4"
 ffprobe -v error -show_entries format=duration -of csv=p=0 "$DIR/${VER}.mp4"
-[ -f scripts/40_qc.py ] && python3 scripts/40_qc.py "$DIR/${VER}.mp4" "$VER" || true
+# 自動QC：FAIL でも書き出しは残す（rc=0）。STRICT=1 なら FAIL で rc=1。結果は最後の行と qc/<版>/report.md の「総合」
+rc=0; python3 scripts/40_qc.py "$DIR/${VER}.mp4" "$VER" || rc=$?
+echo "================================================================"
+if [ "$rc" = 0 ]; then echo "自動QC 総合 PASS：qc/$VER/report.md（WARN の行も読む）"
+else echo "自動QC 総合 FAIL：qc/$VER/report.md の ❌ の行を読む（代わりの音で作った場合の「ナレとBGMの差」は想定どおり）"; fi
+echo "================================================================"
+[ "${STRICT:-0}" = 1 ] && exit "$rc"
+exit 0

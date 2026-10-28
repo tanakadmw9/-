@@ -4,12 +4,12 @@
 
 ## 1. 仕組み
 
-- 正本：`comp/timeline.json`（`scripts/20_plan_timeline.py` が仮ナレの長さから生成）。**手で直さない**。
+- 正本：`comp/timeline.json`（`scripts/20_plan_timeline.py` が生成。v4.5 からは24小節の格子に置く。v4.1 の頃は仮ナレの長さから並べていた）。**手で直さない**。
 - `comp/index.html` は `scripts/21_build_index.py` が生成。**手で直さない**。
 - 各場面は `comp/compositions/<id>.html` の sub-composition。タイミングは**すべて変数 `cues`（JSON文字列、場面頭からの秒）**で受け取り、ハードコードしない。ナレが差し替わると cues の数値だけが変わる。
 - 場面の長さは変数 `dur`（秒）。場面は `dur` が多少変わっても破綻しないこと（最後の状態で止まって待つ）。
 - 1場面だけの確認：`python3 scripts/21_build_index.py --scene <id>` → `dev/<id>/` ができる（assets 等は comp/ へのリンク。実写の上に乗る場面は下の実写も敷かれる）。
-  - `export HYPERFRAMES_BROWSER_PATH=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome`
+  - Chromium の場所は `source scripts/lib_env.sh` が探す（見つからなければ `HYPERFRAMES_BROWSER_PATH` を指定）
   - `npx hyperframes lint dev/<id>` → `npx hyperframes check dev/<id> --json` → `npx hyperframes snapshot dev/<id> --at 0.5,1.2,...`（PNG を Read で見る）
 - HyperFrames の書き方：`node_modules/hyperframes/dist/skills/hyperframes/SKILL.md` と `references/format.md`、`references/motion.md`。
 

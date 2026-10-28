@@ -23,5 +23,16 @@ assets/se/
 source/music/
 # 独立レビューのフォルダ（作り直せる）
 qc/*/review_pack/
-# 計画の絵コンテ画像（元映像から作った。media の zip）
+# 元映像から作った画像・映像（社内の映像の一部。media の zip で渡す。新しいリポジトリにコミットしない）
 plan/editing_storyboard.png
+qc/**/*.jpg
+qc/**/*.png
+analysis/**/*.jpg
+analysis/**/*.png
+storyboard/
+reference/renders/
+*.mp4
+# Python の部品（scripts/00_setup.sh が作る）
+.venv/
+# 担当レビューの作業場所（prompts/20）
+work/

@@ -610,6 +610,13 @@ def main():
                   f"{len(beats) - len(off)}/{len(beats)} が拍の1コマ前 ±1.5コマ以内" + (f"、外れ: " + ", ".join(f"{tc(b[0])}({b[3]:+}コマ)" for b in off) if off else "")))
     nk = sum(n for _, n in kan)
     R.append(("【要監修】", (nk == 0) if final else ("WARN" if nk else True), f"合計 {nk}（最終版でゼロ）"))
+    # どの音で作ったか（BGM・効果音が無いと代わりの音で進む：scripts/70_build_all.sh）。代わりの音では「ナレとBGMの差」が FAIL になりやすい（想定どおり）
+    real_bgm = (ROOT / "audio/bgm/bgm.wav").exists()
+    lab_se = any(str(e.get("src", "")).endswith(".mp3") for e in T["se"])
+    R.append(("音の素材", True if (real_bgm and lab_se) else "WARN",
+              f"BGM：{'選曲（audio/bgm/bgm.wav）' if real_bgm else '**自作の仮BGM**（曲の山がない確認用）'}、"
+              f"効果音：{'効果音ラボ' if lab_se else '**自作の合成音**（SE_SET=synth）'}"
+              + ("" if (real_bgm and lab_se) else "。v4.10 と同じ音にならない。仮BGM では「ナレとBGMの差」が FAIL になりやすい（想定どおり。曲を置けば消える）")))
     miss = [c[0] for c in cred if not c[2]]
     R.append(("素材台帳", not miss, "漏れなし" if not miss else "未記載: " + "、".join(miss)))
 

@@ -1,0 +1,8 @@
+# v4.10 を作り直して音がビット一致した版（2026-10-28、Python 3.13）。scripts/00_setup.sh がまずこれを入れ、入らなければ requirements.txt
+numpy==2.5.3
+scipy==1.18.1
+soundfile==0.14.0
+librosa==1.0.0
+opencv-python-headless==5.0.0.93
+pillow==12.3.0
+matplotlib==3.11.2

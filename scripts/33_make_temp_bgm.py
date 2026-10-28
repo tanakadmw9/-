@@ -1,14 +1,16 @@
 """仮BGM（TEMPORARY PLACEHOLDER）を数式で合成する。AI音楽生成は使わない。
-目的は「リズムと『間』（bgm.pause）を監督が判断できること」だけ。本番は人間が選んだ曲を
-audio/bgm/bgm.wav に置く（置けば scripts/30_mix.py はそちらを使う）。
+目的は、曲（source/music/01_new_departure.mp3）が無い環境でも最後まで作り直せること、と、構成を変えるときにリズムを確かめること。
+本番は人間が選んだ曲を audio/bgm/bgm.wav に置く（置けば scripts/30_mix.py はそちらを使う）。
+v4.10 の曲の山（8・9・21小節の強い頭）はないので、v4.10 と同じ音にはならない。自動QC の「ナレとBGMの差」は FAIL になりやすい（想定どおり）。
 
 出力：
   audio/bgm/temp_bgm.wav        48kHz stereo 24bit。ファイルの0秒 = timeline の bgm.start、長さ = bgm.end − bgm.start
   audio/bgm/temp_bgm_beats.json 拍・小節の時刻（timeline 上の秒とファイル内の秒の両方）
 
 音楽の設計（comp/timeline.json から毎回計算）：
-- テンポ：bgm.start〜bgm.pause.end がちょうど整数小節になるよう 85〜100BPM の中で 92BPM に最も近い値を選ぶ
-  → 「間」明けの答え（N7b）がちょうど小節の頭（主和音）に来る。
+- テンポ：timeline に「間」（bgm.pause）が無いとき（v4.5 以降）は、拍の格子（grid.beat）と同じテンポ（v4.10 は 94.9BPM）。
+  「間」があるとき（v4.4 まで）は、bgm.start〜bgm.pause.end が整数小節になるよう 85〜100BPM で 92BPM に最も近い値
+  → 「間」明けの答え（N7b）が小節の頭（主和音）に来る。
 - 調：D major。進行は I–V–vi–IV。「間」の前は ii–V、「間」の小節は V で宙づりにして止め、明けて I に着地。
 - 構成：静かな入り（パッドのみ）→ アルペジオ（4分）→ 一定のテンポ（8分＋ベース、図解区間）
   → 「間」の前で少し積み上がる → 間明けで開く（広いパッド、対旋律、シェイカー）

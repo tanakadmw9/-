@@ -1,7 +1,7 @@
 {
-  "name": "-",
+  "name": "kijunten-kit",
   "version": "1.0.0",
-  "description": "家族参観ミニシアターの「基準点測量」パートを、Claude Code に制作させるための一式です。 このフォルダをそのまま Claude Code の作業フォルダにして、`prompts/00_kickoff.md` を貼り付ければ始められます。",
+  "description": "家族参観ミニシアター「基準点測量」パートの映像制作一式（v4.10）。AI エージェント（Codex・Claude Code）は AGENTS.md から、人は README.md から読む。",
   "main": "index.js",
   "directories": {
     "doc": "docs"

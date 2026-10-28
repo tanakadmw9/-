@@ -24,7 +24,7 @@
 2. `playbook/00_summary.md` — 品質を決めたもの、原則
 3. `docs/01_brief.md` — 目的・観客・メッセージ・仕様
 4. `playbook/20_craft_rules.md` — 数値つきの作り方の決まり（規定の全文は `docs/04_design_system.md`・`docs/05_audio_design.md`・`docs/07_qc_and_review.md`）
-5. `playbook/10_process.md` — 進め方、チーム、独立レビュー、ゲート
+5. `playbook/10_process.md` — 進め方、チーム、独立レビュー、ゲート。段階ごとの「終わった」の基準は `playbook/15_checklists.md`
 6. `playbook/40_pitfalls.md` — 実際に起きた失敗
 7. 作業に応じて：`playbook/30_case_study.md`（経緯）、`playbook/50_environment.md`（環境）、`playbook/60_next_part.md`（次のパート）、`playbook/70_beyond.md`（v4.10 の先）、`docs/08_build_spec.md`（部品の約束）、`docs/12_kanshu.md`（技術監修の確認表）
 
@@ -64,24 +64,28 @@ v4.10 は**ゲート3（試写1）の直前**にいる。続きをするなら `
 
 ## あなたの限界と、その補い方
 
-- **動画を直接は見られない** → フレームを書き出して画像で確認する。タイル状のシートを使い、画像を読みすぎない。1コマは `npx hyperframes snapshot comp --at 12.5,30.1 --no-end`（約1分）、1場面だけの確認は `python3 scripts/21_build_index.py --scene d2_topview`。
+- Python の部品が `.venv` に入った環境では、`python3 scripts/…` を直接呼ぶ前に `source .venv/bin/activate`（`scripts/*.sh` は自動で使う）。
+- **動画を直接は見られない** → フレームを書き出して画像で確認する。タイル状のシートを使い、画像を読みすぎない。1コマは `npx hyperframes snapshot comp --at 12.5,30.1 --no-end`（約15秒。PNG は `comp/.hyperframes/artifacts/snapshots/` の一番新しいフォルダ、`ls -t` の先頭）、1場面だけの確認は `python3 scripts/21_build_index.py --scene d2_topview` → `npx hyperframes snapshot dev/d2_topview --at 1.0,4.0 --no-end`。
 - **音は聞けない** → 波形・スペクトログラム・ラウドネス・拍で判断し（`scripts/lib_audio.py`、`audio/mix/keyframes.json`、`qc/<版>/levels.png`）、聞こえ方の最終判断は人間に任せる。試聴用の mp3 を作って渡す。
 - **自分の作品を自分でレビューしても甘くなる** → 書き出しのたびに独立レビュー（下）。
+- **長い処理がコマンドの時間制限で切られることがある** → 書き出し（60）は約14分、全部の作り直し（70）は約20分（うち QC 約8分）。`nohup bash scripts/60_render.sh v4.11 > v4.11.log 2>&1 &` で走らせ、`tail v4.11.log` で見る。それでも止められる環境なら、人に端末での実行を頼む。
 
 ## 作業の基本ループ（版を作るたび）
 
 ```bash
 # 直す：scripts/20_plan_timeline.py（尺・タイミング）、comp/compositions/*.html（図解・文字）、
 #       comp/narration.json（原稿と読み方）、scripts/30_mix.py（音の数値）など
-bash scripts/60_render.sh v4.11            # timeline → ミックス → index → lint → 書き出し → 自動QC
-bash scripts/45_review_pack.sh v4.11       # 独立レビュー用のフォルダ qc/v4.11/review_pack/
+# 02_intermediates.py（切り出し・色補正）を直したときは先に：python3 scripts/02_intermediates.py B && bash scripts/04_stage_assets.sh B
+bash scripts/60_render.sh v4.11            # timeline → ミックス → index → lint → 書き出し → 自動QC（成否は最後の行。STRICT=1 で FAIL を rc=1 に）
+bash scripts/45_review_pack.sh v4.11       # 独立レビュー用のフォルダ qc/v4.11/review_pack/ と、依頼のひな形 qc/v4.11/request.md
 ```
 
 1. `qc/<版>/report.md` を読む。FAIL・WARN は直すか、理由を decisions.md に。**0件の検査は FAIL**。
 2. 目視用シートを**自分で**見て直す：`contact_0p5s_*.jpg`、`text_strips_*.jpg`、`storyboard_compare.jpg`、`hf_review/`、`levels.png`。照準が見える区間は細かく見る。
-3. **独立レビュー**：作り手と別のセッションで `qc/<版>/review_pack/` だけを開き、その中の AGENTS.md に従って `review.md` を書かせる（Codex：新しいセッション／タスク。Claude Code：`video-reviewer` サブエージェント）。
-4. 指摘ごとに「対応／据え置き（理由）／人に聞く」を decisions.md に書く。
-5. それから人間に出す。
+3. **独立レビュー**：`qc/<版>/request.md`（変更・見てほしい所・前回の指摘への対応）を書き、45 をもう一度実行してフォルダに入れる。作り手と別のセッションで `qc/<版>/review_pack/` だけを開き、その中の AGENTS.md に従って `review.md` を**そのフォルダに**書かせる（Codex：新しいセッション／タスク。Claude Code：`video-reviewer` サブエージェント）。
+4. `bash scripts/45_review_pack.sh <版> --collect` でレビューを `qc/<版>/review.md` に移す（review_pack/ は作り直すたびに消える。残すのは qc/<版>/ の request.md と review.md。次の版のレビュー用フォルダに自動で入る）。
+5. 指摘ごとに「対応／据え置き（理由）／人に聞く」を decisions.md に書く。
+6. それから人間に出す。
 
 仮ナレを作り直す：`python3 scripts/11_tts_voicevox.py 14 audio/vo_temp 1.0 1.1 1.4 0.04`（VOICEVOX エンジンが要る。`playbook/50_environment.md` §3）。最初から全部：`bash scripts/70_build_all.sh v4.11`。
 
@@ -97,6 +101,7 @@ bash scripts/45_review_pack.sh v4.11       # 独立レビュー用のフォル�
 | `scripts/34_prep_bgm.py` | 曲の小節編集（1〜12＋25〜36小節、最後の和音を3秒のばす） |
 | `scripts/02_intermediates.py` | 切り出し（焼き込みテロップを外す）・色補正・静止画 |
 | `scripts/40_qc.py`・`44_text_timing.mjs` | 自動QC と目視用シート、画面の文字の実測 |
+| `scripts/45_review_pack.sh`・`46_compare_ref.sh` | 独立レビュー用のフォルダ／書き出しを v4.10 と比べる（再現の確認） |
 | `playbook/` | この制作の知見（進め方・決まり・事例・落とし穴・環境・次のパート） |
 | `prompts/` | 担当レビュー、監督の統合、独立レビュー、対抗案、ゲート報告、キックオフの指示文 |
 | `templates/` | ブリーフ・計画書・絵コンテ・原稿・記録・台帳・監修表・アンケートのひな形 |
@@ -105,4 +110,4 @@ bash scripts/45_review_pack.sh v4.11       # 独立レビュー用のフォル�
 
 ## 版の名前とコミット
 
-`v<フェーズ>.<連番>`（例 v4.11）。`renders/`・`qc/` のフォルダ名とコミットの題（「v4.11：何をしたか」）をそろえる。書き出し（mp4）と素材はコミットしない。
+`v<フェーズ>.<連番>`（例 v4.11）。`renders/`・`qc/` のフォルダ名とコミットの題（「v4.11：何をしたか」）をそろえる。コミットするのは文書・コード・`qc/<版>/` の report.md・request.md・review.md・text_timing.json。書き出し（mp4）、素材、元映像から作った画像（qc・analysis のシート、storyboard/）はコミットしない（.gitignore 済み）。

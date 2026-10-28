@@ -1,0 +1,262 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"open\":0.0,\"cross\":1.2,\"shrink\":1.95,\"ground\":2.85,\"level\":3.25,\"staff_b\":3.65,\"line\":4.05,\"read_b\":4.75,\"fill\":5.3,\"caption\":6.0,\"low\":7.35}"},{"id":"dur","type":"number","label":"dur","default":10.1075},{"id":"eye_x","type":"number","label":"接眼レンズ x（L_look_end.png の上）","default":950},{"id":"eye_y","type":"number","label":"接眼レンズ y","default":555}]'>
+<body>
+<template>
+  <style>
+    /* B5 d2_scope（しくみの核心）：のぞく顔の最後のコマ → 接眼レンズから丸いのぞき穴が開き、画面いっぱいの「望遠鏡の中」
+       （標尺の目盛り 1.1/1.2/1.3 と十字線）→ 横の線がオレンジに灯り「1.2 m」→ 丸が縮んで横から見た図の左の標尺の吹き出しになる
+       → 地面・機械・右の標尺 → 十字の横線が点線で右の標尺まで伸びる → 右の吹き出し「1.8 m」→ 線から地面までをオレンジで塗る
+       → 「目盛りが大きいほうが、低い」→ 右の地面の段が紺で灯り「0.6 m 低い」「9.40 m」。
+       縮尺：標尺 3 m＝520px（1 m＝173.3px）。目線の高さ y=564。左の標尺の足 y=772（1.2 m）、右の標尺の足 y=876（1.8 m）。
+       【要監修：標尺の目盛りの描き方は簡略化（E 字の形）、水準点の標石の形】 */
+    #root { position: absolute; inset: 0; overflow: hidden; background: var(--paper); }
+    #ds-paper { position: absolute; inset: 0; background: var(--paper); }
+    #ds-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #ds-photo-wrap { position: absolute; inset: 0; overflow: hidden; }
+    #ds-photo { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; }
+    #ds-dark { position: absolute; inset: 0; background: var(--ink); opacity: 0; }
+    /* 望遠鏡の中（左の吹き出しになる）と、右の吹き出し：どちらも 1920×1080 の座標で中心 (960,540)・半径 465 の丸として描き、外側を縮める */
+    .ds-scope { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    .ds-hole { position: absolute; inset: 0; }
+    .ds-view { position: absolute; left: 495px; top: 75px; width: 930px; height: 930px; border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, var(--paper) 58%, color-mix(in srgb, var(--ink) 20%, var(--paper)) 100%); }
+    .ds-scope svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    .ds-txt { position: absolute; font-family: var(--font-ja); line-height: 1.3; font-feature-settings: "palt"; white-space: nowrap; }
+    /* 読みの板：紺の板＋左にオレンジの線（暗い望遠鏡の外でも、紙の上でも同じ形） */
+    .ds-read { padding: 6px 26px 10px 32px; background: var(--ink); border-radius: var(--plate-radius); opacity: 0; }
+    .ds-read::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--orange); border-radius: 3px 0 0 3px; }
+    .ds-read span { font-family: var(--font-num); font-weight: 700; font-size: 72px; color: var(--white); letter-spacing: -0.02em; }
+    #ds-read-a { left: 1490px; top: 486px; }
+    #ds-read-b { left: 1596px; top: 316px; }
+    .ds-chip { padding: 4px 14px 6px; border-radius: 8px; background: color-mix(in srgb, var(--paper) 94%, transparent); }
+    #ds-bm { left: 110px; top: 812px; width: 236px; text-align: right; opacity: 0; }
+    #ds-bm-a { font-weight: 700; font-size: 48px; color: var(--navy); }
+    #ds-bm-n { font-family: var(--font-num); font-weight: 700; font-size: 56px; color: var(--navy); letter-spacing: -0.02em; }
+    #ds-cap { left: 0; width: 1920px; top: 96px; text-align: center; opacity: 0; }
+    #ds-cap-t { position: relative; display: inline-block; font-weight: 700; font-size: 72px; color: var(--ink); padding-bottom: 14px; letter-spacing: 0.02em; }
+    #ds-cap-u { position: absolute; left: 0; right: 0; bottom: 0; height: 7px; background: var(--orange-dark); border-radius: 4px; transform-origin: 0% 50%; }
+    #ds-low { left: 1592px; top: 764px; opacity: 0; line-height: 1.15; }
+    #ds-low-n { font-family: var(--font-num); font-weight: 700; font-size: 56px; color: var(--navy); letter-spacing: -0.02em; }
+    #ds-low-a { font-weight: 700; font-size: 48px; color: var(--navy); }
+    #ds-new { left: 1230px; top: 900px; width: 250px; text-align: right; opacity: 0; }
+    #ds-new-n { font-family: var(--font-num); font-weight: 700; font-size: 64px; color: var(--orange-dark); letter-spacing: -0.02em; }
+    #ds-note { right: 96px; bottom: 58px; font-weight: 400; font-size: 34px; color: color-mix(in srgb, var(--ink) 80%, var(--paper)); opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="d2_scope" data-width="1920" data-height="1080">
+    <div id="ds-paper"></div>
+    <!-- 横から見た図（紙の上） -->
+    <svg id="ds-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="ds-gridpat" x="0" y="4" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0 H0 V80" fill="none" stroke="var(--grid)" stroke-width="1.5"/>
+        </pattern>
+        <pattern id="ds-hatchpat" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
+          <path d="M0 18 H36" stroke="var(--grid)" stroke-width="4"/>
+        </pattern>
+        <clipPath id="ds-gclip"><rect id="ds-gclip-r" x="0" y="0" width="0" height="1080"/></clipPath>
+      </defs>
+      <rect id="ds-grid" x="0" y="0" width="1920" height="1080" fill="url(#ds-gridpat)" opacity="0"/>
+      <!-- 地面：右へ下がる（y = 784 + 0.1 (x − 420)） -->
+      <g clip-path="url(#ds-gclip)">
+        <path d="M0 742 L1920 934 V1080 H0 Z" style="fill: color-mix(in srgb, var(--grid) 38%, var(--paper))"/>
+        <path d="M0 742 L1920 934 V1080 H0 Z" fill="url(#ds-hatchpat)" opacity="0.8"/>
+      </g>
+      <line id="ds-ground" x1="0" y1="742" x2="1920" y2="934" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100"/>
+
+      <!-- 段の強調（low）：左の標尺の足の高さの紺の点線と、右の地面までの段 -->
+      <line id="ds-lowline" x1="420" y1="772" x2="420" y2="772" stroke="var(--navy)" stroke-width="5" stroke-linecap="round" stroke-dasharray="16 12" opacity="0"/>
+      <rect id="ds-step" x="1536" y="772" width="48" height="104" style="fill: color-mix(in srgb, var(--navy) 30%, transparent)" opacity="0"/>
+      <g id="ds-dim" opacity="0" stroke="var(--navy)" stroke-width="5" stroke-linecap="round">
+        <line x1="1560" y1="772" x2="1560" y2="876"/><line x1="1546" y1="772" x2="1574" y2="772"/><line x1="1546" y1="876" x2="1574" y2="876"/>
+      </g>
+
+      <!-- 水準点の標石（左の標尺の足元）：断面なので地面の下も見せる -->
+      <g id="ds-stone" opacity="0">
+        <rect x="378" y="780" width="84" height="110" rx="3" stroke="var(--navy)" stroke-width="5" style="fill: var(--paper)"/>
+        <path d="M404 780 A16 9 0 0 1 436 780 Z" stroke="var(--navy)" stroke-width="3" style="fill: var(--navy)"/>
+      </g>
+      <!-- 右の標尺の台 -->
+      <path id="ds-plate" d="M1462 892 L1474 876 H1526 L1538 892 Z" stroke="var(--navy)" stroke-width="5" stroke-linejoin="round" style="fill: var(--paper)" opacity="0"/>
+
+      <!-- 標尺：幅 44、高さ 520（3 m）。目盛りは JS で描く -->
+      <g id="ds-staff-a" opacity="0"></g>
+      <g id="ds-staff-b" opacity="0"></g>
+
+      <!-- レベル（三脚の上）：望遠鏡の中心が目線の高さ y=564 -->
+      <g id="ds-level" opacity="0" stroke="var(--navy)" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M934 624 L868 828 M986 624 L1052 844" stroke-width="6" fill="none"/>
+        <path d="M960 624 L960 838" stroke-width="4" fill="none" opacity="0.55"/>
+        <rect x="914" y="608" width="92" height="16" rx="3" stroke-width="5" style="fill: var(--paper)"/>
+        <path d="M922 608 L934 588 H986 L998 608 Z" stroke-width="5" style="fill: var(--paper)"/>
+        <rect x="878" y="540" width="164" height="48" rx="10" stroke-width="5" style="fill: var(--paper)"/>
+        <rect x="864" y="546" width="18" height="36" rx="4" stroke-width="5" style="fill: var(--paper)"/>
+        <rect x="1040" y="552" width="20" height="24" rx="4" stroke-width="5" style="fill: var(--paper)"/>
+      </g>
+
+      <!-- 目線の点線（十字の横線が伸びる）と、右の標尺の上の印 -->
+      <line id="ds-sight" x1="360" y1="564" x2="360" y2="564" stroke="var(--orange)" stroke-width="9" stroke-linecap="round" stroke-dasharray="0 20" opacity="0"/>
+      <line id="ds-tick-b" x1="1470" y1="564" x2="1530" y2="564" stroke="var(--orange)" stroke-width="7" stroke-linecap="round" opacity="0"/>
+      <circle id="ds-newpt" cx="1500" cy="892" r="12" style="fill: var(--orange)" stroke="var(--paper)" stroke-width="4" opacity="0"/>
+    </svg>
+
+    <div id="ds-bm" class="ds-txt ds-chip"><div id="ds-bm-a">水準点</div><div id="ds-bm-n">10.00 m</div></div>
+    <div id="ds-low" class="ds-txt ds-chip"><div id="ds-low-n">0.6 m</div><div id="ds-low-a">低い</div></div>
+    <div id="ds-new" class="ds-txt ds-chip"><span id="ds-new-n">9.40 m</span></div>
+    <div id="ds-cap" class="ds-txt"><span id="ds-cap-t">目盛りが大きいほうが、低い<span id="ds-cap-u"></span></span></div>
+    <div id="ds-note" class="ds-txt ds-chip">数字は例です</div>
+
+    <!-- 右の吹き出し（1.8 m）：最初から小さく、右の標尺の横に置く -->
+    <div id="ds-scope-b" class="ds-scope"><div id="ds-hole-b" class="ds-hole"><div class="ds-view"></div><svg viewBox="0 0 1920 1080"><g id="ds-staffview-b"></g></svg></div></div>
+
+    <!-- のぞく顔の最後のコマ → 暗くなる → 望遠鏡の中 -->
+    <div id="ds-photo-wrap"><img id="ds-photo" src="assets/video/L_look_end.png" alt=""></div>
+    <div id="ds-dark"></div>
+    <div id="ds-scope-a" class="ds-scope"><div id="ds-hole-a" class="ds-hole"><div id="ds-view-a" class="ds-view"></div><svg viewBox="0 0 1920 1080"><g id="ds-staffview-a"></g></svg></div></div>
+    <div id="ds-read-a" class="ds-txt ds-read"><span>1.2 m</span></div>
+    <div id="ds-read-b" class="ds-txt ds-read"><span>1.8 m</span></div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 10.1;
+      const ex = Number(v.eye_x), ey = Number(v.eye_y);
+      const q = (s) => document.querySelector(s);
+      const NS = "http://www.w3.org/2000/svg";
+
+      // ── 望遠鏡の中の絵：白い標尺（E 字の目盛り）と十字線。中心 (960,540) が読み value（m）。1 cm＝32px ──
+      const PXCM = 32, CX = 960, CY = 540, R = 465;
+      function scopeView(value, hairId) {
+        const yOf = (m) => CY - (m - value) * 100 * PXCM;
+        let s = `<g class="ds-focus"><rect x="770" y="40" width="380" height="1000" style="fill: var(--white)" stroke="var(--grid)" stroke-width="3"/>`;
+        const lo = Math.floor((value - 0.16) * 10) / 10, hi = value + 0.16;
+        for (let d = lo; d <= hi + 1e-6; d = Math.round((d + 0.1) * 10) / 10) {
+          // 1 dm ごと：下の 5 cm に E（左の列）、上の 5 cm に向きを逆にした E（まんなかの列）
+          const y0 = yOf(d), c1 = PXCM;
+          s += `<path d="M790 ${y0 - 5 * c1}h30v${5 * c1}h-30z M820 ${y0 - c1}h70v${c1}h-70z M820 ${y0 - 3 * c1}h70v${c1}h-70z M820 ${y0 - 5 * c1}h70v${c1}h-70z" style="fill: var(--navy)"/>`;
+          s += `<path d="M960 ${y0 - 10 * c1}h30v${5 * c1}h-30z M890 ${y0 - 6 * c1}h70v${c1}h-70z M890 ${y0 - 8 * c1}h70v${c1}h-70z M890 ${y0 - 10 * c1}h70v${c1}h-70z" style="fill: var(--navy)"/>`;
+          // 数字：目盛りの線（dm）の上に置く
+          // 丸の縁で切れる数字は描かない（字の箱の4隅が丸の内側にあるものだけ）
+          const bx0 = 1000, bx1 = 1140, by0 = y0 - 8 - 76, by1 = y0 - 4;
+          const inside = [[bx0, by0], [bx1, by0], [bx0, by1], [bx1, by1]].every(([x, y]) => Math.hypot(x - CX, y - CY) < R - 14);
+          if (inside) s += `<text x="1000" y="${y0 - 8}" font-family="BIZ UDGothic, monospace" font-weight="700" font-size="84" style="fill: var(--navy)">${d.toFixed(1)}</text>`;
+        }
+        s += `</g>`;
+        // 十字線（細い紺）＋スタジア線（短い横線）
+        s += `<line x1="${CX}" y1="${CY - R}" x2="${CX}" y2="${CY + R}" class="ds-vhair" stroke="var(--ink)" stroke-width="4"/>`;
+        s += `<g id="${hairId}"><line x1="${CX - R}" y1="${CY}" x2="${CX + R}" y2="${CY}" class="ds-hk" stroke="var(--ink)" stroke-width="4"/>`;
+        s += `<line x1="${CX - R}" y1="${CY}" x2="${CX + R}" y2="${CY}" class="ds-ho" stroke="var(--orange)" stroke-width="7" opacity="0"/></g>`;
+        s += `<path class="ds-stadia" d="M${CX - 70} ${CY - 160}H${CX + 70}M${CX - 70} ${CY + 160}H${CX + 70}" stroke="var(--ink)" stroke-width="4"/>`;
+        // 吹き出しの縁（縮んだ時に約 5px）
+        s += `<circle cx="${CX}" cy="${CY}" r="${R - 9}" class="ds-ring" fill="none" stroke="var(--navy)" stroke-width="18" opacity="0"/>`;
+        return s;
+      }
+      q("#ds-staffview-a").innerHTML = scopeView(1.2, "ds-hair-a");
+      q("#ds-staffview-b").innerHTML = scopeView(1.8, "ds-hair-b");
+
+      // ── 横から見た図の標尺：幅 44・高さ 520（3 m）。5 cm ごとの紺の目盛り（片側）、1 m ごとに長い線 ──
+      function sideStaff(x, bottom, fillId, fillTop) {
+        let s = `<rect x="${x - 22}" y="${bottom - 520}" width="44" height="520" rx="3" style="fill: var(--white)" stroke="var(--navy)" stroke-width="4"/>`;
+        // 線から地面まで（fill）のオレンジ：白地の上・目盛りの下に置く（目盛りが読めるまま塗られる）
+        s += `<rect id="${fillId}" x="${x - 20}" y="${bottom}" width="40" height="0" style="fill: var(--orange)" opacity="0"/>`;
+        const pm = 520 / 3;
+        for (let i = 0; i < 60; i += 2) {
+          const y = bottom - (i + 1) * pm / 20;
+          s += `<rect x="${x - 20}" y="${y}" width="${i % 20 === 0 ? 40 : 18}" height="${pm / 20}" style="fill: var(--navy)"/>`;
+        }
+        return s;
+      }
+      q("#ds-staff-a").innerHTML = sideStaff(420, 772, "ds-fill-a");
+      q("#ds-staff-b").innerHTML = sideStaff(1500, 876, "ds-fill-b");
+
+      // 吹き出しの位置：左＝(230,564)、右＝(1690,564)。半径 465 → 130
+      const K = 130 / R;
+      const A = [230, 564], B = [1690, 564];
+      gsap.set(["#ds-scope-a", "#ds-scope-b"], { transformOrigin: "960px 540px" });
+      gsap.set("#ds-scope-b", { x: B[0] - CX, y: B[1] - CY, scale: K });
+
+      const tl = gsap.timeline({ paused: true });
+      const IN = { duration: 0.5, ease: "power3.out" };
+
+      // open：接眼レンズの位置から丸いのぞき穴が開き、画面の中央の大きな丸へ。外は暗く、のぞく顔は少し寄りながら沈む。
+      //        中の標尺はわずかに大きくぼけた所からピントが合う（1.03→1）
+      const o0 = c.open, OD = 0.85;
+      tl.fromTo("#ds-hole-a", { clipPath: `circle(0px at ${ex}px ${ey}px)` }, { clipPath: `circle(${R}px at ${CX}px ${CY}px)`, duration: OD, ease: "power2.inOut" }, o0);
+      tl.fromTo("#ds-photo", { scale: 1, transformOrigin: `${ex}px ${ey}px` }, { scale: 1.14, transformOrigin: `${ex}px ${ey}px`, duration: OD, ease: "power2.in" }, o0);
+      tl.fromTo("#ds-dark", { opacity: 0 }, { opacity: 1, duration: OD * 0.8, ease: "power1.inOut" }, o0 + 0.1);
+      tl.fromTo("#ds-staffview-a .ds-focus", { scale: 1.03, svgOrigin: "960 540", filter: "blur(6px)" },
+        { scale: 1, svgOrigin: "960 540", filter: "blur(0px)", duration: 1.0, ease: "power2.out" }, o0 + 0.25);
+      tl.set("#ds-photo-wrap", { opacity: 0 }, o0 + OD + 0.05);
+
+      // cross：十字の横線がオレンジに灯り、丸の横に「1.2 m」
+      tl.fromTo("#ds-hair-a .ds-ho", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.cross);
+      tl.fromTo("#ds-read-a", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.cross + 0.15);
+
+      // shrink：丸が縮んで左の標尺の横の吹き出しになる（0.8 秒）。外の暗さは消え、紙と方眼と左の標尺が現れる。
+      //         縮むあいだに線を太らせ、小さくなっても十字が見えるようにする
+      const s0 = c.shrink, SD = 0.8;
+      const MV = { duration: SD, ease: "power2.inOut" };
+      tl.fromTo("#ds-scope-a", { x: 0, y: 0, scale: 1 }, { x: A[0] - CX, y: A[1] - CY, scale: K, ...MV }, s0);
+      tl.fromTo("#ds-hair-a .ds-ho", { attr: { "stroke-width": 7 } }, { attr: { "stroke-width": 22 }, ...MV }, s0);
+      tl.fromTo("#ds-staffview-a .ds-vhair, #ds-staffview-a .ds-stadia", { attr: { "stroke-width": 4 } }, { attr: { "stroke-width": 12 }, ...MV }, s0);
+      tl.fromTo("#ds-staffview-a .ds-ring", { opacity: 0 }, { opacity: 1, duration: SD * 0.6, ease: "power1.in" }, s0 + SD * 0.4);
+      tl.fromTo("#ds-dark", { opacity: 1 }, { opacity: 0, duration: SD, ease: "power2.inOut", immediateRender: false }, s0);
+      tl.fromTo("#ds-read-a", { x: 0, y: 0 }, { x: 120 - 1490, y: 318 - 486, ...MV, immediateRender: false }, s0);
+      tl.fromTo("#ds-grid", { opacity: 0 }, { opacity: 0.7, duration: SD, ease: "power1.inOut" }, s0 + 0.2);
+      tl.fromTo("#ds-staff-a", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, s0 + 0.45);
+
+      // ground：地面（右へ下がる）が左から右へ。左の標尺の足元に水準点の標石と「水準点 10.00 m」
+      const g0 = c.ground;
+      tl.fromTo("#ds-ground", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.6, ease: "power2.inOut" }, g0);
+      tl.fromTo("#ds-gclip-r", { attr: { width: 0 } }, { attr: { width: 1920 }, duration: 0.6, ease: "power2.inOut" }, g0);
+      tl.fromTo("#ds-stone", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, g0 + 0.1);
+      tl.fromTo("#ds-bm", { opacity: 0, y: 16 }, { opacity: 1, y: 0, ...IN }, g0 + 0.25);
+
+      // level：まんなかに三脚の上のレベル
+      tl.fromTo("#ds-level", { opacity: 0, y: -24 }, { opacity: 1, y: 0, ...IN }, c.level);
+      // staff_b：右の標尺が台の上に立つ
+      tl.fromTo("#ds-plate", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" }, c.staff_b);
+      tl.fromTo("#ds-staff-b", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.staff_b + 0.08);
+
+      // line：吹き出しの横線がそのまま点線になって、レベルを通り右の標尺まで伸びる（0.6 秒）→ 右の標尺の上に印
+      tl.set("#ds-sight", { opacity: 1 }, c.line);
+      tl.fromTo("#ds-sight", { attr: { x2: 360 } }, { attr: { x2: 1500 }, duration: 0.6, ease: "power2.inOut" }, c.line);
+      tl.fromTo("#ds-tick-b", { opacity: 0, scale: 0.3, svgOrigin: "1500 564" }, { opacity: 1, scale: 1, svgOrigin: "1500 564", duration: 0.3, ease: "power3.out" }, c.line + 0.55);
+
+      // read_b：右の吹き出しが標尺の横に開き（左と同じのぞき穴）、横線はオレンジ、「1.8 m」
+      tl.fromTo("#ds-hole-b", { clipPath: `circle(0px at ${CX}px ${CY}px)` }, { clipPath: `circle(${R}px at ${CX}px ${CY}px)`, duration: 0.45, ease: "power2.out" }, c.read_b);
+      tl.set("#ds-hair-b .ds-ho", { opacity: 1, attr: { "stroke-width": 22 } }, 0);
+      tl.set("#ds-staffview-b .ds-vhair, #ds-staffview-b .ds-stadia", { attr: { "stroke-width": 12 } }, 0);
+      tl.set("#ds-staffview-b .ds-ring", { opacity: 1 }, 0);
+      tl.fromTo("#ds-read-b", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.read_b + 0.2);
+
+      // fill：線から地面までをオレンジで塗る（左 1.2 → 右 1.8 の順。下から上へ）
+      tl.fromTo("#ds-fill-a", { opacity: 0.85, attr: { y: 772, height: 0 } }, { attr: { y: 564, height: 208 }, duration: 0.5, ease: "power2.out" }, c.fill);
+      tl.fromTo("#ds-fill-b", { opacity: 0.85, attr: { y: 876, height: 0 } }, { attr: { y: 564, height: 312 }, duration: 0.6, ease: "power2.out" }, c.fill + 0.6);
+
+      // caption：上に大きく「目盛りが大きいほうが、低い」、下線が左から伸びる
+      tl.fromTo("#ds-cap", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.caption);
+      tl.fromTo("#ds-cap-u", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, c.caption + 0.3);
+
+      // low：左の標尺の足の高さから紺の点線が右へ → 右の地面までの段が紺で灯り「0.6 m 低い」→ 右の地面の点に「9.40 m」
+      const l0 = c.low;
+      tl.set("#ds-lowline", { opacity: 1 }, l0);
+      tl.fromTo("#ds-lowline", { attr: { x2: 420 } }, { attr: { x2: 1590 }, duration: 0.4, ease: "power2.inOut" }, l0);
+      tl.fromTo("#ds-step", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, l0 + 0.12);
+      tl.fromTo("#ds-dim", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, l0 + 0.12);
+      tl.fromTo("#ds-low", { opacity: 0, x: -16 }, { opacity: 1, x: 0, ...IN }, l0 + 0.15);
+      tl.fromTo("#ds-newpt", { opacity: 0, scale: 0.4, svgOrigin: "1500 892" }, { opacity: 1, scale: 1, svgOrigin: "1500 892", duration: 0.3, ease: "power3.out" }, l0 + 0.8);
+      tl.fromTo("#ds-new", { opacity: 0, y: 16 }, { opacity: 1, y: 0, ...IN }, l0 + 0.9);
+      const nn = q("#ds-new-n"), cnt = { v: 10 };
+      tl.fromTo(cnt, { v: 10 }, { v: 9.4, duration: 0.5, ease: "power2.out", onUpdate: () => { nn.textContent = cnt.v.toFixed(2) + " m"; } }, l0 + 0.9);
+
+      // 数字は例です（図が組み上がったところで、目立たない右下に）
+      tl.fromTo("#ds-note", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power1.out" }, c.ground + 0.6);
+
+      tl.set({}, {}, dur);
+      window.__timelines["d2_scope"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

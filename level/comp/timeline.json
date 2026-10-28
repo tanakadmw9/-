@@ -22,49 +22,49 @@
    "start": 7.5742,
    "end": 15.1818,
    "dur": 7.584,
-   "purpose": "人と現場。前のパート（位置）と対の「高さ」"
+   "purpose": "人と現場の到着。問い（雨の水はなぜ道のはしへ流れる）を置く"
   },
   {
    "id": "B3",
    "start": 15.1818,
    "end": 20.2202,
    "dur": 5.056,
-   "purpose": "水準点とは"
+   "purpose": "水準点とは（高さの目印。海からの高さ）"
   },
   {
    "id": "B4",
    "start": 20.2202,
    "end": 27.7944,
    "dur": 7.584,
-   "purpose": "はかる（道具と目線）"
+   "purpose": "はかる（道具・目線・のぞく）"
   },
   {
    "id": "B5",
    "start": 27.7944,
-   "end": 37.9045,
-   "dur": 10.112,
-   "purpose": "しくみ（目盛りが大きいほうが低い）"
+   "end": 38.5385,
+   "dur": 10.744,
+   "purpose": "しくみ（同じ水平な線で2本を読みくらべる。目盛りが大きいほうが低い）"
   },
   {
    "id": "B6",
-   "start": 37.9045,
+   "start": 38.5385,
    "end": 42.9763,
-   "dur": 5.056,
-   "purpose": "確かめる人"
+   "dur": 4.424,
+   "purpose": "確かめる人と、次の場所へ"
   },
   {
    "id": "B7",
    "start": 42.9763,
    "end": 50.5505,
    "dur": 7.584,
-   "purpose": "高さをつなぐ"
+   "purpose": "高さを、となりへつなぐ → 水が流れる道（見返り）"
   },
   {
    "id": "B8",
    "start": 50.5505,
    "end": 60.6606,
    "dur": 10.112,
-   "purpose": "締め"
+   "purpose": "締め（目に見えない高さを、つないでいく）"
   }
  ],
  "shots": [
@@ -74,26 +74,26 @@
    "src": "assets/video/L02.mp4",
    "start": 7.5409,
    "dur": 2.5358,
-   "media_start": 0.2,
-   "purpose": "三脚を立てて脚を開く。人と現場"
+   "media_start": 0.0,
+   "purpose": "野帳を持って三脚へ歩いてくる人。人と現場の到着"
   },
   {
    "id": "L03@10.0767",
    "shot": "L03",
    "src": "assets/video/L03.mp4",
    "start": 10.0767,
-   "dur": 3.8038,
-   "media_start": 0.2,
-   "purpose": "箱から出したレベルを三脚に載せる（批評 v1：51–53.6 秒）"
+   "dur": 2.5359,
+   "media_start": 0.0,
+   "purpose": "三脚を立て、脚を何度も合わせる（12 倍の早回し）＝準備に手間をかける仕事"
   },
   {
-   "id": "L04@13.8805",
+   "id": "L04@12.6126",
    "shot": "L04",
    "src": "assets/video/L04.mp4",
-   "start": 13.8805,
-   "dur": 1.268,
-   "media_start": 0.15,
-   "purpose": "遠くで標尺を立てる人。次の用語（水準点）の前ぶれ（批評 v1）"
+   "start": 12.6126,
+   "dur": 2.5359,
+   "media_start": 0.0,
+   "purpose": "レベルを箱から出して三脚に載せる（実時間、1.2 倍）＝主役の機械を据える"
   },
   {
    "id": "L05@20.1868",
@@ -102,25 +102,25 @@
    "start": 20.1868,
    "dur": 3.8038,
    "media_start": 0.0,
-   "purpose": "のぞく人と遠くの標尺の人。道具の名前（ラベル）"
+   "purpose": "かがんでのぞく人と遠くの標尺の人。道具の名前と、目線が人と人をつなぐこと"
   },
   {
    "id": "L06@23.9906",
    "shot": "L06",
    "src": "assets/video/L06.mp4",
    "start": 23.9906,
-   "dur": 1.9019,
-   "media_start": 0.1,
-   "purpose": "のぞき始める顔。「のぞくと」の言葉に合わせる"
+   "dur": 3.7705,
+   "media_start": 0.0,
+   "purpose": "のぞく顔（「のぞいて」が顔の頭に来る）。最後に接眼レンズへ寄る＝看板の動きの助走"
   },
   {
-   "id": "L07@37.8712",
+   "id": "L07@38.5051",
    "shot": "L07",
    "src": "assets/video/L07.mp4",
-   "start": 37.8712,
-   "dur": 2.5358,
-   "media_start": 0.1,
-   "purpose": "書きとめる人（腰から上）。奥に標尺の人"
+   "start": 38.5051,
+   "dur": 1.9019,
+   "media_start": 0.2,
+   "purpose": "立って野帳に書きとめる（腰から上、ペンが動いている所から）。図解から人へ戻る"
   },
   {
    "id": "L08@40.407",
@@ -128,17 +128,17 @@
    "src": "assets/video/L08.mp4",
    "start": 40.407,
    "dur": 2.5359,
-   "media_start": 0.2,
-   "purpose": "つまみを回してのぞく顔。図解から人へ戻る"
+   "media_start": 0.0,
+   "purpose": "次の場所で書き、機械をのぞく（3 倍の早回し）＝B2 の早回しと韻を踏む（また据える＝くり返す仕事）"
   },
   {
    "id": "L09@42.9429",
    "shot": "L09",
    "src": "assets/video/L09.mp4",
    "start": 42.9429,
-   "dur": 1.2679,
-   "media_start": 0.2,
-   "purpose": "標尺を持って次の点へ歩き出す人＝「目で読める所まで」"
+   "dur": 2.5359,
+   "media_start": 0.0,
+   "purpose": "標尺を持った人が機械の横を通って先へ歩く（本物の尺取り）"
   },
   {
    "id": "L10@50.5171",
@@ -147,7 +147,7 @@
    "start": 50.5171,
    "dur": 5.639,
    "media_start": 0.0,
-   "purpose": "のぞく人と遠くの人。仕事は続く。曲の最後の一打で切り替え（480p なので寄りはごく弱く）"
+   "purpose": "のぞく人と遠くの標尺の人。仕事は続く。曲の最後の一打で切り替え（480p なので寄りはごく弱く）"
   }
  ],
  "stills": [
@@ -205,89 +205,94 @@
    "purpose": "章の提示。照準がレベルの対物レンズに合う"
   },
   {
-   "id": "d0_benchmark",
-   "comp": "compositions/d0_benchmark.html",
+   "id": "d0_sea",
+   "comp": "compositions/d0_sea.html",
    "template": null,
    "start": 15.1485,
    "dur": 5.0383,
    "cues": {
-    "stone_in": 0.0,
-    "staff_in": 0.6,
-    "term_in": 1.1,
-    "pulse": 2.803,
+    "ground_in": 0.0,
+    "stone_in": 0.593,
+    "term_in": 1.763,
+    "sea_in": 2.113,
+    "sea_line": 2.413,
+    "height": 2.813,
     "out": 5.006
    },
    "overlay": false,
    "diagram": true,
    "variables": {},
-   "purpose": "用語「水準点」を、標石の形と標尺が立つ姿と一緒に（L04 の標尺から形でつなぐ）"
+   "purpose": "用語「水準点」と、高さの「0」が海であること（地面の断面・標石 → 海の面 → 海から 10.00 m）"
   },
   {
-   "id": "k_labels",
-   "comp": "compositions/k_labels.html",
+   "id": "k_sight",
+   "comp": "compositions/k_sight.html",
    "template": null,
    "start": 20.1868,
    "dur": 3.8038,
    "cues": {
-    "level": 0.333,
-    "staff": 0.483,
-    "out": 3.492
+    "level": 0.4,
+    "staff": 0.85,
+    "line": 1.833,
+    "out": 3.692
    },
    "overlay": true,
    "diagram": false,
    "variables": {
-    "lv_x": 1080,
-    "lv_y": 368,
-    "st_x": 714,
-    "st_y": 610
+    "lv_x": 1060,
+    "lv_y": 382,
+    "st_x": 712,
+    "st_y": 462
    },
-   "purpose": "何をどの道具ではかるか（レベル・標尺＝ものさし）"
+   "purpose": "道具の名前（レベル・標尺）と、本物のレベルから本物の標尺へ引く目線の点線（中心の絵を実写に置く）"
   },
   {
-   "id": "d2_level",
-   "comp": "compositions/d2_level.html",
+   "id": "d2_scope",
+   "comp": "compositions/d2_scope.html",
    "template": null,
-   "start": 25.8925,
-   "dur": 11.9787,
+   "start": 27.7611,
+   "dur": 10.744,
    "cues": {
-    "line": 1.777,
-    "shrink": 2.627,
-    "zero": 6.467,
-    "read_a": 5.947,
-    "read_b": 6.667,
-    "caption": 7.877,
-    "diff": 8.377,
-    "low": 10.477
+    "open": 0.0,
+    "cross": 1.0,
+    "shrink": 1.9,
+    "ground": 2.2,
+    "level": 2.45,
+    "staff_b": 2.7,
+    "line": 2.9,
+    "read_b": 4.41,
+    "fill": 5.55,
+    "caption": 6.45,
+    "low": 8.41
    },
    "overlay": false,
    "diagram": true,
    "variables": {
-    "eye_x": 912,
-    "eye_y": 520,
-    "mid_x": 1125
+    "eye_x": 960,
+    "eye_y": 548
    },
-   "purpose": "しくみの核心：目線＝水平の線 → 横から見た図 → 2本のものさし → 目盛りが大きいほうが低い"
+   "purpose": "しくみの核心：のぞき穴の中の十字線 → 横線が 1.2 m を指す → そのまま水平な線になり右の標尺 1.8 m へ → 目盛りが大きいほうが低い"
   },
   {
    "id": "d3_relay",
    "comp": "compositions/d3_relay.html",
    "template": null,
-   "start": 44.2108,
-   "dur": 6.3063,
+   "start": 45.4788,
+   "dur": 5.0383,
    "cues": {
     "in": 0.0,
-    "reach": 0.029,
-    "p1": 1.229,
-    "move": 2.089,
-    "leap": 3.339,
-    "line2": 3.639,
-    "p2": 3.639,
-    "out": 6.27
+    "hop1": 0.62,
+    "hop2": 1.62,
+    "hop3": 2.15,
+    "road": 2.65,
+    "drop": 3.15,
+    "drop_end": 4.15,
+    "out": 5.006
    },
    "overlay": false,
    "diagram": true,
    "variables": {},
-   "purpose": "高さのバトン：機械を前へ移し、高さを次の点へつなぐ（部門の中での役割＝高さのもと）"
+   "purpose": "見返り：つないだ高さで、水が流れる道がつくれる（N2 の問いの答え。しずくは声なし）"
   },
   {
    "id": "endcard",
@@ -296,12 +301,13 @@
    "start": 50.5171,
    "dur": 10.1435,
    "cues": {
-    "text_in": 0.15,
+    "sight": 0.473,
+    "text_in": 1.373,
     "bg_in": 5.586,
-    "reticle": 4.743,
-    "paper": 5.693,
-    "door": 6.493,
-    "lock": 8.033,
+    "reticle": 3.783,
+    "paper": 4.733,
+    "door": 5.533,
+    "lock": 7.053,
     "fade": 9.645
    },
    "overlay": true,
@@ -313,9 +319,13 @@
     "icon_y": 470,
     "point_x": 1600,
     "point_y": 760,
-    "active": 1
+    "active": 1,
+    "lv_x": 1268,
+    "lv_y": 350,
+    "st_x": 884,
+    "st_y": 490
    },
-   "purpose": "締めの一文。照準が縮んで章扉の水準測量アイコンに戻る（章扉と同じ形で閉じる）"
+   "purpose": "締め：B4 と同じ目線の点線（ブックエンド）→ 締めの一文 → 照準が章扉の水準測量アイコンに戻る"
   }
  ],
  "telops": [],
@@ -337,58 +347,58 @@
   {
    "id": "N2",
    "src": "assets/audio/vo/N2.wav",
-   "start": 7.9746,
-   "dur": 4.9,
-   "text": "地図や道路の図面には、位置だけでなく、高さも要ります。"
+   "start": 7.9413,
+   "dur": 5.91,
+   "text": "雨の水が、道のはしへ流れるのは、わずかな“高さのちがい”があるから。"
   },
   {
    "id": "N3",
    "src": "assets/audio/vo/N3.wav",
-   "start": 15.6156,
-   "dur": 3.77,
-   "text": "高さがわかっている点を、「水準点」といいます。"
+   "start": 15.2819,
+   "dur": 4.79,
+   "text": "高さの目印、「水準点」。海からの高さが、わかっています。"
   },
   {
    "id": "N4",
    "src": "assets/audio/vo/N4.wav",
-   "start": 23.9906,
-   "dur": 5.32,
-   "text": "この機械でのぞくと、目線が、ぴったり水平な線になります。"
+   "start": 20.5872,
+   "dur": 4.51,
+   "text": "この機械で、向こうに立てた“ものさし”を、のぞいて読みます。"
   },
   {
    "id": "N5a",
    "src": "assets/audio/vo/N5a.wav",
-   "start": 29.5629,
+   "start": 30.2969,
    "dur": 3.98,
-   "text": "その線から地面までを、2本のものさしで読むと、"
+   "text": "同じ水平な線で、2本のものさしを読みくらべると、"
   },
   {
    "id": "N5b",
    "src": "assets/audio/vo/N5b.wav",
-   "start": 34.0674,
-   "dur": 3.09,
+   "start": 34.5345,
+   "dur": 2.73,
    "text": "目盛りが大きいほうが、低いんです。"
   },
   {
    "id": "N6",
    "src": "assets/audio/vo/N6.wav",
-   "start": 38.3049,
-   "dur": 3.61,
-   "text": "読んだ数字を書きとめ、行きと帰りで確かめます。"
+   "start": 38.7387,
+   "dur": 4.33,
+   "text": "読んだら書きとめ、何度も確かめて、次の場所へ。"
   },
   {
    "id": "N7",
    "src": "assets/audio/vo/N7.wav",
-   "start": 42.9763,
-   "dur": 7.36,
-   "text": "線がとどくのは、目で読める所まで。だから機械を前へ移して、高さを次の点へつなぎます。"
+   "start": 43.9439,
+   "dur": 4.19,
+   "text": "となりへ、となりへ、高さを、つないでいきます。"
   },
   {
    "id": "N8",
    "src": "assets/audio/vo/N8.wav",
-   "start": 51.4514,
-   "dur": 6.98,
-   "text": "見えない水平の線で、高さをつないでいく。それが、水準測量です。"
+   "start": 51.3847,
+   "dur": 6.06,
+   "text": "目に見えない“高さ”を、つないでいく。それが、水準測量です。"
   }
  ],
  "se": [
@@ -410,17 +420,34 @@
   },
   {
    "kind": "foley",
-   "start": 27.661,
-   "note": "目線の点線が伸びる（電子音にしない＝光と区別：批評 v1）",
+   "start": 27.7611,
+   "note": "のぞき穴が開く（やわらかい場面転換音、低く）",
    "src": "assets/se/tones/sceneswitch1.mp3",
-   "dur": 1.2,
-   "target": -30.0,
+   "dur": 1.0,
+   "target": -32.0,
    "level": "p90",
-   "fade_out": 0.3
+   "highpass": 150,
+   "fade_out": 0.35
+  },
+  {
+   "kind": "measure",
+   "start": 28.9289,
+   "note": "十字の横線が 1.2 m を読む（声なしの区間）",
+   "gain_db": -2.0,
+   "src": "assets/se/tones/cursor3.mp3",
+   "target": -10.0
+  },
+  {
+   "kind": "measure",
+   "start": 32.032,
+   "note": "右の標尺 1.8 m を読む（「2本」の前の読点の間に置く。声の語にかぶせない）",
+   "gain_db": -3.0,
+   "src": "assets/se/tones/cursor3.mp3",
+   "target": -10.0
   },
   {
    "kind": "foley",
-   "start": 39.0056,
+   "start": 39.039,
    "note": "書く音（ごく小さく）",
    "src": "assets/se/foley/mechanical-pencil-write1.mp3",
    "dur": 1.4,
@@ -431,16 +458,28 @@
    "fade_out": 0.3
   },
   {
-   "kind": "click",
-   "start": 47.8478,
-   "note": "次の点に高さが灯る（9.75 m を 2 秒以上読ませる：QC v1.1）",
-   "gain_db": -3.0,
-   "src": "assets/se/tones/decision28.mp3",
-   "target": -8.0
+   "kind": "foley",
+   "start": 42.9763,
+   "note": "標尺の人の足音（ごく小さく。画の手前を歩く）",
+   "src": "assets/se/foley/walk-soil1.mp3",
+   "dur": 1.6,
+   "target": -34.0,
+   "level": "p90",
+   "highpass": 120,
+   "fade_in": 0.05,
+   "fade_out": 0.4
+  },
+  {
+   "kind": "measure",
+   "start": 49.6162,
+   "note": "しずくが低い点（排水の口）で止まる（ごく小さく1回）",
+   "gain_db": -5.0,
+   "src": "assets/se/tones/cursor3.mp3",
+   "target": -10.0
   },
   {
    "kind": "lock",
-   "start": 58.5585,
+   "start": 57.5909,
    "note": "照準が章扉のアイコンに戻り、文が終わった後の合図（小さめ）",
    "gain_db": -3.0,
    "src": "assets/se/tones/decision6.mp3",
@@ -457,13 +496,20 @@
    "len": 3.0,
    "xfade": 0.4
   },
+  "under": [
+   {
+    "t": 21.104,
+    "db": -19.0
+   }
+  ],
   "note": "基準点パートと同じ曲・同じ編集（シリーズで統一）。1〜12＋25〜36小節、最後の和音を 3 秒のばす"
  },
  "amb": [
   {
    "start": 0.0,
    "end": null,
-   "note": "環境音。図解区間は下げる（ミックスで指定）"
+   "src": "audio/amb/amb_loc.wav",
+   "note": "環境音。実写の下は元の映像の現場音（道ばたの車と風）、図解区間は下げる（ミックスで指定）"
   }
  ],
  "moves": [
@@ -476,7 +522,20 @@
     1.1011184
    ],
    "origin": "68.65% 46.02%",
+   "ease": "none",
    "purpose": "照準とレンズへ視線を集める（毎秒2%）"
+  },
+  {
+   "target": "v_L06",
+   "start": 26.5599,
+   "dur": 1.2,
+   "scale": [
+    1.0,
+    1.5
+   ],
+   "origin": "50.00% 50.74%",
+   "ease": "power2.in",
+   "purpose": "のぞき穴の中へ入る看板の動き（接眼レンズへ寄る。d2_scope の最初のコマ L_look_end.png と同じ倍率・中心）"
   },
   {
    "target": "v_L10",
@@ -486,7 +545,8 @@
     1.0,
     1.0224764
    ],
-   "origin": "50% 45%",
+   "origin": "50% 40%",
+   "ease": "none",
    "purpose": "止まって見えないための、ごく弱い寄り（毎秒0.4%）"
   }
  ],
@@ -494,15 +554,15 @@
   0.0,
   7.5409,
   10.0767,
-  13.8805,
+  12.6126,
   15.1485,
   20.1868,
   23.9906,
-  25.8925,
-  37.8712,
+  27.7611,
+  38.5051,
   40.407,
   42.9429,
-  44.2108,
+  45.4788,
   50.5171
  ],
  "intended_freezes": [
@@ -512,16 +572,22 @@
    "L01_still"
   ],
   [
-   25.8925,
-   28.4951,
-   "L11_still（人が離れたレベルに目線の点線を引く静止）"
+   27.7611,
+   28.3617,
+   "d2_scope の頭：L_look_end.png（のぞく顔の最後のコマ）からのぞき穴が開く。寄りの終わりと同じ画なので止まって見えない"
+  ],
+  [
+   28.7621,
+   29.663,
+   "d2_scope：望遠鏡の中で横線が 1.2 m を指したまま読ませる（声なし。決めの読み）"
   ],
   [
    56.1561,
    60.6606,
-   "endcard（L10 の最後のコマ）"
+   "endcard（L10 の最後のコマ。紙が覆う前後の 0.4 秒だけ見える）"
   ]
  ],
+ "grade": "Bplus",
  "text_exceptions": [
   {
    "comp": "chapter_door",
@@ -552,8 +618,49 @@
    "comp": "endcard",
    "text": "ナレーション（仮）VOICEVOX:冥鳴ひまり",
    "reason": "仮ナレの規約上の表示。本ナレに差し替えたら消す"
+  },
+  {
+   "comp": "d0_sea",
+   "pattern": "\\d\\.\\d\\dm",
+   "reason": "「海から 10.00 m」へ数え上がる途中の数字（0.5 秒で数え上がる動き。読ませる文字ではない）"
+  },
+  {
+   "comp": "d0_sea",
+   "text": "10.00m",
+   "reason": "N3 の尺（9 小節の手前）で 2.5 秒に届かない。同じ「水準点 10.00 m」が d2_scope（約 8 秒）と d3_relay（約 4.5 秒）でもう一度読める"
+  },
+  {
+   "comp": "d0_sea",
+   "text": "（数字は例）",
+   "reason": "小さな注記（補足）。同じ注記「数字は例です」が d2_scope・d3_relay で長く出る"
+  },
+  {
+   "comp": "d2_scope",
+   "text": "9.40m",
+   "reason": "場面の終わりに出る新しい点の高さ（補足）。同じ「9.40 m」が d3_relay の1回目のホップで約 4 秒読める"
+  },
+  {
+   "comp": "d2_scope",
+   "pattern": "9\\.\\d\\dm",
+   "reason": "「10.00 m」から「9.40 m」へ数え下がる途中の数字（読ませる文字ではない）"
+  }
+ ],
+ "caption_exceptions": [
+  {
+   "shots": [
+    "L02",
+    "L03",
+    "L04",
+    "L05",
+    "L06",
+    "L07",
+    "L08",
+    "L09",
+    "L10"
+   ],
+   "reason": "水準の元素材（S・K・N）には焼き込みテロップがない（analysis/shot_log.md）。この検査は基準点パートの青いテロップ用で、L04 の青い車（Bplus で彩度が上がる）を拾う。検出は表に残す"
   }
  ],
  "duration": 60.6606,
- "speech_ratio": 0.698
+ "speech_ratio": 0.656
 }

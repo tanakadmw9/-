@@ -7,7 +7,7 @@
   BGM : audio/bgm/bgm.wav（人間が選んだ曲。あればこちらを優先）／無ければ audio/bgm/temp_bgm.wav
         どちらもファイルの0秒を timeline.bgm.start に置く
   SE  : audio/se/<kind>.wav（timeline.se[]）
-  AMB : audio/amb/amb.wav（timeline.amb[]）
+  AMB : timeline.amb[].src（水準 v3：audio/amb/amb_loc.wav＝元の映像の現場音。無ければ audio/amb/amb.wav＝合成の風）
 出力
   audio/mix/{vo,bgm,se,amb}.wav, audio/mix/mix.wav（48kHz stereo 24bit、長さ = timeline.duration）
   audio/mix/keyframes.json（BGM・AMB の音量キーフレーム、各SEのゲイン、測定値）
@@ -254,14 +254,19 @@ def main():
                                  "fader_db": None if f is None else round(f, 2)} for (s, e), f in zip(gaps, free_fader)])
 
     # ---------------- AMB ----------------
-    a = load(ROOT / "audio/amb/amb.wav")
-    amb_ref = float(np.median(short_term(a)[1]))          # 突風で上下するので中央値で校正
-    amb = np.zeros((N, 2))
+    # 水準 v3：timeline.amb[].src（既定 audio/amb/amb.wav＝合成の風）。amb_loc.wav（元の映像の現場音、35_make_loc_amb.py）は timeline と同じ時刻で作ってある
+    amb = np.zeros((N, 2)); amb_ref = None
     for seg in T["amb"]:
+        ap = ROOT / seg.get("src", "audio/amb/amb.wav")
+        if not ap.exists():
+            print(f"WARNING: {ap.relative_to(ROOT)} が無い → 合成の風（audio/amb/amb.wav）"); ap = ROOT / "audio/amb/amb.wav"
+        a = load(ap)
+        ref = float(np.median(short_term(a)[1][short_term(a)[1] > -70]))   # 突風・車の通過で上下するので中央値で校正
+        amb_ref = ref if amb_ref is None else amb_ref
         s0 = seg["start"]; e0 = seg["end"] if seg["end"] is not None else DUR
         n = min(len(a), int(round((e0 - s0) * SR)))
-        put(amb, fade_edges(a[:n], 0.5, 0.010), s0)
-    amb *= db(VO_REF - amb_ref)
+        put(amb, fade_edges(a[:n] * db(VO_REF - ref), 0.5, 0.010), s0)
+        report["amb_source"] = str(ap.relative_to(ROOT))
     diag = merged([(s["start"], s["start"] + s["dur"]) for s in T["scenes"] if s.get("diagram", s["id"].startswith("d"))], 2.0)
     title = [(s["start"], s["start"] + s["dur"]) for s in T["scenes"] if s["id"] == "title"]
     endc = [s for s in T["scenes"] if s["id"] == "endcard"]

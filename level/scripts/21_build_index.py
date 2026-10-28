@@ -29,7 +29,7 @@ def tail(moves=(), offset=0.0):
     lines = []
     for m in moves:
         lines.append(f'  tl.fromTo("#{m["el"]}", {{ scale: {m["scale"][0]}, transformOrigin: "{m["origin"]}" }},'
-                     f' {{ scale: {round(m["scale"][1], 4)}, transformOrigin: "{m["origin"]}", duration: {m["dur"]}, ease: "none",'
+                     f' {{ scale: {round(m["scale"][1], 4)}, transformOrigin: "{m["origin"]}", duration: {m["dur"]}, ease: "{m.get('ease', 'none')}",'
                      f' immediateRender: false }}, {round(m["start"] - offset, 4)});')
     return ("<script>\n  window.__timelines = window.__timelines || {};\n  const tl = gsap.timeline({ paused: true });\n"
             + "\n".join(lines) + ("\n" if lines else "") + '  window.__timelines["main"] = tl;\n</script>\n</body>\n</html>\n')

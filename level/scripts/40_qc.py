@@ -249,7 +249,12 @@ def check_telops(outdir, run_probe=True):
         else:
             merged_items.append(dict(it))
     items = merged_items
-    exc = {(e["comp"], e["text"]): e["reason"] for e in T.get("text_exceptions", [])}
+    exc = {(e["comp"], e["text"]): e["reason"] for e in T.get("text_exceptions", []) if "text" in e}
+    # 水準 v3：pattern（正規表現、文字全体に合う）で挙げる例外。数字のカウントアップの途中の値のように、測る刻みで文字が変わるもの
+    exc_pat = [(e["comp"], re.compile(e["pattern"]), e["reason"]) for e in T.get("text_exceptions", []) if "pattern" in e]
+    for it in items:
+        for c, rx, why in exc_pat:
+            if it["comp"] == c and rx.fullmatch(it["text"]): exc.setdefault((it["comp"], it["text"]), why)
     rows = []
     for it in items + [{"comp": "telops", "text": tp["text"], "dur": tp["dur"], "start": tp["start"],
                         "end": tp["start"] + tp["dur"]} for tp in T.get("telops", [])]:
@@ -580,7 +585,12 @@ def main():
     un_live = [f for f in frz if f[2].startswith("**")]; un_diag = [f for f in frz if f[2].startswith("図解")]
     R.append(("意図しない静止（freezedetect）", "WARN" if (un_diag and not un_live) else not un_live,
               f"実写で意図外 {len(un_live)} 件、図解の静止 {len(un_diag)} 件（目視）、意図どおり {len(frz) - len(un_live) - len(un_diag)} 件"))
-    R.append(("焼き込みテロップの漏れ（4fps）", not caps, f"検出 {len(caps)} フレーム" + (f"（{tc(caps[0][0])}〜{tc(caps[-1][0])}）" if caps else "")))
+    # 水準 v3：timeline.caption_exceptions（ショット id と理由）に入る検出は「例外」として表に残し、判定からは外す（黙って弱めない）
+    cap_exc = {sid: e["reason"] for e in T.get("caption_exceptions", []) for sid in e["shots"]}
+    cap_why = lambda t: next((cap_exc[w[5:]] for w in where(t) if w.startswith("shot:") and w[5:] in cap_exc), None)
+    caps_ng = [c for c in caps if cap_why(c[0]) is None]
+    R.append(("焼き込みテロップの漏れ（4fps）", not caps_ng, f"検出 {len(caps)} フレーム" + (f"（{tc(caps[0][0])}〜{tc(caps[-1][0])}）" if caps else "")
+              + (f"、うち例外 {len(caps) - len(caps_ng)}（理由つき、§4）" if len(caps_ng) < len(caps) else "")))
     R.append(("1コマの黒（平均輝度<8）", not fl["dark_frames"], f"{len(fl['dark_frames'])} コマ" + (f"（{', '.join(tc(t) for t in fl['dark_frames'][:5])}）" if fl["dark_frames"] else "")))
     R.append(("点滅（>3回/秒）", fl["max_flashes_per_s"] <= 3, f"最大 {fl['max_flashes_per_s']} 回/秒" + (f" @ {tc(fl['at'])}" if fl["at"] is not None else "")))
     n_ok, n_exc, n_ng = (sum(r[5] == k for r in tel) for k in ("OK", "例外", "NG"))
@@ -641,7 +651,8 @@ def main():
     if caps:
         L += [f"検出 {len(caps)} フレーム。切り抜き: `caption_hits/`（連続検出の先頭のみ保存）", "", "| 時刻 | 場所 | 成分（x,y,w,h,面積,S中央値） |", "|---|---|---|"]
         shown = caps if len(caps) <= 40 else caps[:20] + caps[-20:]
-        L += [f"| {tc(t)} | {', '.join(where(t))} | " + "; ".join(f"{x},{y},{w},{h},{ar},{sm:.0f}" for x, y, w, h, ar, sm in b) + " |" for t, b in shown]
+        L += [f"| {tc(t)} | {', '.join(where(t))} | " + "; ".join(f"{x},{y},{w},{h},{ar},{sm:.0f}" for x, y, w, h, ar, sm in b)
+              + (f"（例外：{cap_why(t)}）" if cap_why(t) else "") + " |" for t, b in shown]
         if len(caps) > 40: L.append(f"（中略：全 {len(caps)} フレーム）")
     else:
         L.append("検出なし")

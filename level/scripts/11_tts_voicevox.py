@@ -3,7 +3,7 @@ comp/narration.json → <out>/<id>.wav（48kHz mono）と <out>/vo_timing.json�
 使い方: python3 scripts/11_tts_voicevox.py <style_id> [out_dir=audio/vo_temp] [speed=1.0] [intonation=1.0] [pause=1.6] [pitch=0]
   speed・intonation は文ごとの演出値に掛ける倍率、pitch は足す量、pause は読点の間の倍率。
 narration.json の vv_kana（手で直した読み・アクセント）で合成し、vv_dir（文ごとの演出）を当てる：
-  速さ・高さ・抑揚・音量、強調語（少し高く・少し長く）、語の前の間、語尾（soft＝下げて少し伸ばす／firm＝言い切る／cont＝下げずに次へ／soft_long）、
+  速さ・高さ・抑揚・音量・読点の間（pause、倍率）、強調語（少し高く・少し長く）、語の前の間、語尾（soft＝下げて少し伸ばす／firm＝言い切る／cont＝下げずに次へ／soft_long）、
   文の中で少しずつ下がる自然な高さ（下降）、母音の長さのわずかなゆらぎ（固定シードで再現可能）。
 キーワードの発話開始は、合成に使ったモーラ列の中でキーワードの読みを探し、その手前までのモーラ長の合計とする。
 エンジンの起動: docker run -d --name vv -p 50021:50021 voicevox/voicevox_engine:cpu-latest
@@ -34,7 +34,8 @@ def query(t, kana=None, d=None):
     if kana:
         q["accent_phrases"] = json.loads(post("/accent_phrases", {"text": kana, "speaker": STYLE, "is_kana": "true"}))
     q.update(speedScale=d.get("speed", 0.92) * SPEED, intonationScale=min(d.get("inton", 1.15) * INTON, 1.4),  # 1.4 を超えると機械的に聞こえやすい
-             pauseLengthScale=PAUSE, pitchScale=d.get("pitch", 0) + PITCH, volumeScale=d.get("volume", 1.0),
+             pauseLengthScale=PAUSE * d.get("pause", 1.0),  # vv_dir.pause：その文だけ読点の間を縮める（尺に収める）
+             pitchScale=d.get("pitch", 0) + PITCH, volumeScale=d.get("volume", 1.0),
              prePhonemeLength=0.0, postPhonemeLength=0.0, outputSamplingRate=SR, outputStereo=False)
     return q
 

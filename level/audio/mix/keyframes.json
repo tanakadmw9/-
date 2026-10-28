@@ -31,59 +31,91 @@
   ],
   [
    5.6939,
-   -10.16
+   -10.1
   ],
   [
-   7.6246,
-   -10.16
+   7.5913,
+   -10.1
   ],
   [
-   7.9246,
+   7.8913,
    -20.59
   ],
   [
-   12.9728,
+   13.9468,
    -20.59
   ],
   [
-   13.3228,
-   -11.85
+   14.2968,
+   -11.89
   ],
   [
-   15.2656,
-   -11.85
+   14.9319,
+   -11.89
   ],
   [
-   15.5656,
-   -19.93
+   15.2319,
+   -23.8
   ],
   [
-   19.4856,
-   -19.93
+   25.1972,
+   -23.8
   ],
   [
-   19.8356,
-   -13.78
+   25.5472,
+   -14.48
   ],
   [
-   23.6406,
-   -13.78
+   29.9469,
+   -14.48
   ],
   [
-   23.9406,
-   -22.55
+   30.2469,
+   -23.22
   ],
   [
-   58.5291,
-   -22.55
+   37.3628,
+   -23.22
   ],
   [
-   59.5291,
-   -16.55
+   37.7128,
+   -13.92
+  ],
+  [
+   38.3887,
+   -13.92
+  ],
+  [
+   38.6887,
+   -22.95
+  ],
+  [
+   48.2335,
+   -22.95
+  ],
+  [
+   48.5835,
+   -13.85
+  ],
+  [
+   51.0347,
+   -13.85
+  ],
+  [
+   51.3347,
+   -19.08
+  ],
+  [
+   57.5447,
+   -19.08
+  ],
+  [
+   58.5447,
+   -13.08
   ],
   [
    60.6606,
-   -16.55
+   -13.08
   ]
  ],
  "amb_keyframes": [
@@ -136,27 +168,27 @@
    -21.5
   ],
   [
-   25.5925,
+   27.4611,
    -21.5
   ],
   [
-   26.3925,
+   28.2611,
    -31.5
   ],
   [
-   37.3712,
+   38.0051,
    -31.5
   ],
   [
-   38.1712,
+   38.8051,
    -21.5
   ],
   [
-   43.9108,
+   45.1788,
    -21.5
   ],
   [
-   44.7108,
+   45.9788,
    -31.5
   ],
   [
@@ -168,11 +200,11 @@
    -25.25
   ],
   [
-   56.2101,
+   55.2501,
    -21.5
   ],
   [
-   56.8101,
+   55.8501,
    -29.5
   ],
   [
@@ -202,28 +234,49 @@
   {
    "kind": "foley",
    "src": "assets/se/tones/sceneswitch1.mp3",
-   "t": 27.661,
-   "gain_db": -33.36,
-   "target_re_vo_ref_db": -30.0
+   "t": 27.7611,
+   "gain_db": -35.35,
+   "target_re_vo_ref_db": -32.0
+  },
+  {
+   "kind": "measure",
+   "src": "assets/se/tones/cursor3.mp3",
+   "t": 28.9289,
+   "gain_db": -14.51,
+   "target_re_vo_ref_db": -10.0
+  },
+  {
+   "kind": "measure",
+   "src": "assets/se/tones/cursor3.mp3",
+   "t": 32.032,
+   "gain_db": -15.51,
+   "target_re_vo_ref_db": -10.0
   },
   {
    "kind": "foley",
    "src": "assets/se/foley/mechanical-pencil-write1.mp3",
-   "t": 39.0056,
+   "t": 39.039,
    "gain_db": -18.48,
    "target_re_vo_ref_db": -28.0
   },
   {
-   "kind": "click",
-   "src": "assets/se/tones/decision28.mp3",
-   "t": 47.8478,
-   "gain_db": -12.5,
-   "target_re_vo_ref_db": -8.0
+   "kind": "foley",
+   "src": "assets/se/foley/walk-soil1.mp3",
+   "t": 42.9763,
+   "gain_db": -27.81,
+   "target_re_vo_ref_db": -34.0
+  },
+  {
+   "kind": "measure",
+   "src": "assets/se/tones/cursor3.mp3",
+   "t": 49.6162,
+   "gain_db": -17.51,
+   "target_re_vo_ref_db": -10.0
   },
   {
    "kind": "lock",
    "src": "assets/se/tones/decision6.mp3",
-   "t": 58.5585,
+   "t": 57.5909,
    "gain_db": -9.15,
    "target_re_vo_ref_db": -9.0
   }
@@ -248,21 +301,33 @@
    },
    {
     "type": "under_vo",
-    "start": 7.975,
-    "end": 12.873,
+    "start": 7.941,
+    "end": 13.847,
     "fader_db": -20.59
    },
    {
     "type": "under_vo",
-    "start": 15.616,
-    "end": 19.386,
-    "fader_db": -19.93
+    "start": 15.282,
+    "end": 25.097,
+    "fader_db": -23.8
    },
    {
     "type": "under_vo",
-    "start": 23.991,
-    "end": 58.429,
-    "fader_db": -22.55
+    "start": 30.297,
+    "end": 37.263,
+    "fader_db": -23.22
+   },
+   {
+    "type": "under_vo",
+    "start": 38.739,
+    "end": 48.133,
+    "fader_db": -22.95
+   },
+   {
+    "type": "under_vo",
+    "start": 51.385,
+    "end": 57.445,
+    "fader_db": -19.08
    },
    {
     "type": "free",
@@ -279,59 +344,72 @@
    {
     "type": "free",
     "start": 5.694,
-    "end": 7.625,
-    "fader_db": -10.16
+    "end": 7.591,
+    "fader_db": -10.1
    },
    {
     "type": "free",
-    "start": 13.323,
-    "end": 15.266,
-    "fader_db": -11.85
+    "start": 14.297,
+    "end": 14.932,
+    "fader_db": -11.89
    },
    {
     "type": "free",
-    "start": 19.836,
-    "end": 23.641,
-    "fader_db": -13.78
+    "start": 25.547,
+    "end": 29.947,
+    "fader_db": -14.48
    },
    {
     "type": "free",
-    "start": 58.879,
+    "start": 37.713,
+    "end": 38.389,
+    "fader_db": -13.92
+   },
+   {
+    "type": "free",
+    "start": 48.583,
+    "end": 51.035,
+    "fader_db": -13.85
+   },
+   {
+    "type": "free",
+    "start": 57.895,
     "end": 60.661,
-    "fader_db": -16.55
+    "fader_db": -13.08
    }
   ],
+  "amb_source": "audio/amb/amb_loc.wav",
   "integrated_lufs_py": -24.0,
   "integrated_lufs_ffmpeg": -24.0,
-  "true_peak_dbtp_py": -8.98,
-  "true_peak_dbtp_ffmpeg": -9.0,
+  "true_peak_dbtp_py": -8.36,
+  "true_peak_dbtp_ffmpeg": -8.4,
   "limiter_max_gr_db": null,
   "stems_sum_residual": 1.1102230246251565e-16,
   "vo_minus_bgm_per_line_db": {
    "N1a": 20.7,
    "N1b": 18.9,
-   "N2": 17.9,
-   "N3": 18.2,
-   "N4": 16.7,
-   "N5a": 16.4,
-   "N5b": 17.5,
-   "N6": 17.2,
-   "N7": 17.3,
-   "N8": 22.3
+   "N2": 17.8,
+   "N3": 22.3,
+   "N4": 17.8,
+   "N5a": 17.2,
+   "N5b": 18.1,
+   "N6": 17.3,
+   "N7": 17.8,
+   "N8": 18.8
   },
   "vo_minus_bgm_short_term_inside_lines": {
-   "median": 16.6,
-   "p5": 15.0,
-   "min": 14.6,
-   "n_windows": 151
+   "median": 16.9,
+   "p5": 15.6,
+   "min": 15.1,
+   "n_windows": 128
   },
-  "vo_median_short_term_lufs": -24.6,
-  "bgm_free_max_short_term_re_vo": -5.3,
-  "amb_re_vo_live_median": -19.5,
-  "amb_re_vo_diagram_median": -27.3,
+  "vo_median_short_term_lufs": -24.1,
+  "bgm_free_max_short_term_re_vo": -6.5,
+  "amb_re_vo_live_median": -20.3,
+  "amb_re_vo_diagram_median": -28.0,
   "se_max_100ms_re_vo_max_100ms": -11.8,
-  "se_max_100ms_re_vo_integrated": -5.0,
-  "se_peak_re_vo_peak_db": -9.6,
+  "se_max_100ms_re_vo_integrated": -4.9,
+  "se_peak_re_vo_peak_db": -9.7,
   "bgm_in_pause_short_term_lufs": null
  }
 }

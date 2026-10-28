@@ -1,0 +1,145 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"ground_in\":0.0,\"stone_in\":0.45,\"term_in\":0.85,\"sea_in\":1.9,\"sea_line\":2.35,\"height\":3.15,\"out\":4.95}"},{"id":"dur","type":"number","label":"dur","default":5.0383}]'>
+<body>
+<template>
+  <style>
+    /* B3 d0_sea（紙・全面）：地面の断面に水準点の標石 → 用語カード → 左に海 → 海の高さの点線が地面の下を標石の真下まで
+       → 縦の矢印「海から 10.00 m」。目的：高さの「0」は海だと、絵で一度だけ見せる。【要監修：平均海面を「海」と言ってよいか、標石の形】 */
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s0-bg { position: absolute; inset: 0; background: var(--paper); }
+    #s0-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    .s0-txt { position: absolute; font-family: var(--font-ja); line-height: 1.3; font-feature-settings: "palt"; white-space: nowrap; }
+    #s0-card { left: 1370px; top: 150px; padding: 6px 0 10px 40px; }
+    #s0-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--orange); border-radius: 3px; }
+    #s0-term { font-weight: 700; font-size: 72px; color: var(--ink); letter-spacing: 0.04em; }
+    #s0-desc { margin-top: 6px; font-weight: 400; font-size: 48px; color: var(--ink); }
+    #s0-sea-lbl { left: 150px; top: 878px; font-weight: 700; font-size: 56px; color: var(--navy); }
+    /* 高さの数字：矢印の上半分の左、空の中（地の箱は敷かない。地面の線を切らない） */
+    #s0-h { left: 600px; top: 262px; width: 520px; text-align: right; }
+    #s0-h-a { font-weight: 700; font-size: 48px; color: var(--navy); }
+    #s0-h-n { font-family: var(--font-num); font-weight: 700; font-size: 72px; color: var(--navy); letter-spacing: -0.02em; }
+    #s0-h-ex { margin-top: 2px; font-weight: 400; font-size: 34px; color: var(--navy); }
+  </style>
+  <div id="root" data-composition-id="d0_sea" data-width="1920" data-height="1080">
+    <div id="s0-bg"></div>
+    <svg id="s0-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="s0-gridpat" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0 H0 V80" fill="none" stroke="var(--grid)" stroke-width="1.5"/>
+        </pattern>
+        <pattern id="s0-hatchpat" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
+          <path d="M0 18 H36" stroke="var(--grid)" stroke-width="4"/>
+        </pattern>
+        <clipPath id="s0-seaclip"><rect x="0" y="600" width="760" height="480"/></clipPath>
+        <clipPath id="s0-groundclip"><rect id="s0-groundclip-r" x="0" y="0" width="0" height="1080"/></clipPath>
+      </defs>
+      <rect id="s0-grid" x="0" y="0" width="1920" height="1080" fill="url(#s0-gridpat)" opacity="0"/>
+
+      <!-- 海：水の面は y=860（＝高さ 0）。地面より奥に描く -->
+      <g id="s0-sea" clip-path="url(#s0-seaclip)">
+        <g id="s0-water-in">
+          <rect x="0" y="860" width="760" height="220" style="fill: color-mix(in srgb, var(--navy) 22%, var(--paper))"/>
+          <!-- 波：ゆっくり横へ流れる（一定の速さ） -->
+          <path id="s0-wave" d="M-240 860 q30 -14 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0"
+                fill="none" stroke="var(--navy)" stroke-width="5" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- 地面の断面：海の底から岸へ上がり、右は平らに画面の端まで -->
+      <g clip-path="url(#s0-groundclip)">
+        <path id="s0-earth" d="M0 1010 C200 990 420 940 560 862 C680 790 760 520 930 482 C1100 455 1500 474 1920 462 V1080 H0 Z"
+              style="fill: color-mix(in srgb, var(--grid) 38%, var(--paper))"/>
+        <path d="M0 1010 C200 990 420 940 560 862 C680 790 760 520 930 482 C1100 455 1500 474 1920 462 V1080 H0 Z" fill="url(#s0-hatchpat)" opacity="0.8"/>
+      </g>
+      <path id="s0-ground" d="M0 1010 C200 990 420 940 560 862 C680 790 760 520 930 482 C1100 455 1500 474 1920 462"
+            fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100"/>
+
+      <!-- 海の高さの点線：海の面から地面の下を通って標石の真下まで -->
+      <line id="s0-sealine" x1="96" y1="860" x2="1330" y2="860" stroke="var(--navy)" stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="18 14" opacity="0"/>
+
+      <!-- 高さの矢印（標石の左）：点線から標石の頭まで -->
+      <g id="s0-dim" opacity="0">
+        <line x1="1128" y1="436" x2="1206" y2="436" stroke="var(--navy)" stroke-width="3" stroke-linecap="round"/>
+        <line id="s0-arrow" x1="1150" y1="852" x2="1150" y2="446" stroke="var(--navy)" stroke-width="5" stroke-linecap="round"/>
+        <path id="s0-head" d="M1150 438 L1136 466 H1164 Z" fill="var(--navy)" stroke="var(--navy)" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M1150 860 L1136 832 H1164 Z" fill="var(--navy)" stroke="var(--navy)" stroke-width="3" stroke-linejoin="round"/>
+      </g>
+
+      <!-- 水準点の標石：四角い石の柱。頭が少し地面から出て、真ん中に金属のしるし（断面なので地面の下も見せる） -->
+      <g id="s0-stone">
+        <g id="s0-stone-in" opacity="0">
+          <rect x="1196" y="448" width="120" height="262" rx="3" stroke="var(--navy)" stroke-width="5" style="fill: var(--paper)"/>
+          <path d="M1196 476 H1316" stroke="var(--navy)" stroke-width="3" stroke-dasharray="8 8" opacity="0.6"/>
+          <path id="s0-cap" d="M1236 448 A20 13 0 0 1 1276 448 Z" stroke="var(--navy)" stroke-width="3" style="fill: var(--navy)"/>
+        </g>
+      </g>
+      <circle id="s0-pulse" cx="1256" cy="440" r="20" fill="none" stroke="var(--navy)" stroke-width="4" opacity="0"/>
+      <!-- 用語カードから標石へ：細い引き出し線 -->
+      <path id="s0-lead" d="M1360 300 L1284 420" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100"/>
+    </svg>
+
+    <div id="s0-card" class="s0-txt" style="opacity:0">
+      <div id="s0-bar"></div>
+      <div id="s0-term">水準点</div>
+      <div id="s0-desc">高さの目印</div>
+    </div>
+    <div id="s0-sea-lbl" class="s0-txt" style="opacity:0">海</div>
+    <div id="s0-h" class="s0-txt" style="opacity:0">
+      <div><span id="s0-h-a">海から&#8202;</span><span id="s0-h-n">10.00 m</span></div>
+      <div id="s0-h-ex">（数字は例）</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 5.04;
+      const tl = gsap.timeline({ paused: true });
+      const IN = { duration: 0.5, ease: "power3.out" };
+
+      // ground_in：方眼 → 地面の線が左から右へ描かれ、断面の地が同じ速さで現れる
+      const g0 = c.ground_in;
+      tl.fromTo("#s0-grid", { opacity: 0 }, { opacity: 0.7, duration: 0.4, ease: "power1.out" }, g0);
+      tl.fromTo("#s0-ground", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.75, ease: "power2.inOut" }, g0);
+      tl.fromTo("#s0-groundclip-r", { attr: { width: 0 } }, { attr: { width: 1920 }, duration: 0.75, ease: "power2.inOut" }, g0);
+
+      // stone_in：標石が地面から持ち上がって現れ、頭の金属のしるしが一度だけ灯る（紺の輪が広がる）
+      tl.fromTo("#s0-stone-in", { opacity: 0, y: 26 }, { opacity: 1, y: 0, ...IN }, c.stone_in);
+      tl.fromTo("#s0-pulse", { opacity: 0 }, { opacity: 0.9, duration: 0.05, ease: "none" }, c.stone_in + 0.35);
+      tl.fromTo("#s0-pulse", { opacity: 0.9, attr: { r: 18 } }, { opacity: 0, attr: { r: 64 }, duration: 0.7, ease: "power2.out", immediateRender: false }, c.stone_in + 0.4);
+
+      // term_in：用語カード「水準点／高さの目印」と、標石への引き出し線
+      tl.fromTo("#s0-lead", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out" }, c.term_in);
+      tl.fromTo("#s0-card", { opacity: 0, y: 20 }, { opacity: 1, y: 0, ...IN }, c.term_in + 0.12);
+
+      // sea_in：左に海。水が下から満ち、波は場面の終わりまでゆっくり流れる（止まって見せない）
+      tl.fromTo("#s0-water-in", { y: 240 }, { y: 0, duration: 0.6, ease: "power3.out" }, c.sea_in);
+      tl.fromTo("#s0-wave", { x: 0 }, { x: 120, duration: Math.max(0.5, dur - c.sea_in), ease: "none" }, c.sea_in);
+      tl.fromTo("#s0-sea-lbl", { opacity: 0, y: 16 }, { opacity: 1, y: 0, ...IN }, c.sea_in + 0.2);
+
+      // sea_line：海の面の高さが、紺の点線で地面の下を右へ、標石の真下まで伸びる（＝高さの 0）
+      const sl = document.getElementById("s0-sealine");
+      tl.set(sl, { opacity: 1 }, c.sea_line);
+      tl.fromTo(sl, { attr: { x2: 96 } }, { attr: { x2: 1330 }, duration: 0.75, ease: "power2.inOut" }, c.sea_line);
+
+      // height：点線から標石の頭まで矢印が上へ伸び、数字が 0.00 → 10.00 と数えて止まる
+      const h0 = c.height;
+      tl.set("#s0-dim", { opacity: 1 }, h0);
+      tl.fromTo("#s0-arrow", { attr: { y2: 852 } }, { attr: { y2: 446 }, duration: 0.6, ease: "power2.inOut" }, h0);
+      tl.fromTo("#s0-head", { y: 414 }, { y: 0, duration: 0.6, ease: "power2.inOut" }, h0);
+      tl.fromTo("#s0-h", { opacity: 0, y: 16 }, { opacity: 1, y: 0, ...IN }, h0 + 0.15);
+      const num = document.getElementById("s0-h-n");
+      const cnt = { v: 0 };
+      tl.fromTo(cnt, { v: 0 }, { v: 10, duration: 0.6, ease: "power2.out",
+        onUpdate: () => { num.textContent = cnt.v.toFixed(2) + " m"; } }, h0 + 0.15);
+
+      // out：次はカット。最後の状態のまま（波だけ流れ続ける）
+      tl.set({}, {}, dur);
+      window.__timelines["d0_sea"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

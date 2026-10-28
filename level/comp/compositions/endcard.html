@@ -1,7 +1,9 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"text_in\":0.15,\"bg_in\":3.0,\"reticle\":3.4,\"door\":4.85,\"fade\":6.5}"},{"id":"dur","type":"number","label":"dur","default":7.0},{"id":"push_from","type":"number","label":"S10 の寄りの終わりの倍率","default":1.045},{"id":"push_rate","type":"number","label":"寄りの速さ（毎秒）","default":0.015},{"id":"icon_x","type":"number","label":"章扉の基準点アイコン x","default":340},{"id":"icon_y","type":"number","label":"章扉の基準点アイコン y","default":470},{"id":"point_x","type":"number","label":"照準が現れる位置 x（2人の間の地面）","default":930},{"id":"point_y","type":"number","label":"照準が現れる位置 y","default":540},{"id":"active","type":"number","label":"灯るアイコン","default":0}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"sight\":1.4,\"text_in\":2.4,\"sight_out\":3.4,\"reticle\":4.743,\"bg_in\":5.586,\"paper\":5.693,\"door\":6.493,\"lock\":8.033,\"fade\":9.645}"},{"id":"dur","type":"number","label":"dur","default":10.1435},{"id":"push_from","type":"number","label":"S10 の寄りの終わりの倍率","default":1.0225},{"id":"push_rate","type":"number","label":"寄りの速さ（毎秒）","default":0.004},{"id":"icon_x","type":"number","label":"章扉の水準測量アイコン x","default":650},{"id":"icon_y","type":"number","label":"章扉の水準測量アイコン y","default":470},{"id":"point_x","type":"number","label":"照準が現れる位置 x（2人の間の地面）","default":1600},{"id":"point_y","type":"number","label":"照準が現れる位置 y","default":760},{"id":"active","type":"number","label":"灯るアイコン","default":1},{"id":"lv_x","type":"number","label":"レベルの対物レンズ x（S 172.9– を 1920×1080 に拡大した座標）","default":1268},{"id":"lv_y","type":"number","label":"レベルの対物レンズ y","default":350},{"id":"st_x","type":"number","label":"遠くの標尺の目線の高さ x","default":884},{"id":"st_y","type":"number","label":"遠くの標尺の目線の高さ y","default":490}]'>
 <body>
 <template>
   <style>
+    /* 締め（水準 v3）：S 172.9– の上で、B4 と同じオレンジの点線がレベルから遠くの標尺へ（ブックエンド。sight → sight_out で消える）
+       → 締めの一文。以下は v1.3 のまま。 */
     /* 締め：S10 の上に締めの一文 → 2人の間の地面の一点に照準が合い、その場で縮む → 紙に溶けてから章扉の基準点アイコンへ戻る → 章扉の並びで閉じる → 黒へ */
     #root { position: absolute; inset: 0; background: transparent; overflow: hidden; }
     #ec-all { position: absolute; inset: 0; }
@@ -50,10 +52,22 @@
     #ec-halo { position: absolute; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%;
       background: color-mix(in srgb, var(--orange) 16%, transparent); opacity: 0; }
     #ec-black { position: absolute; inset: 0; background: #000; opacity: 0; }
+    #ec-sight-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
   </style>
   <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
     <div id="ec-all">
       <img id="ec-bg" src="assets/video/L10_last.png" alt="">
+      <!-- 目線の点線（k_sight と同じ形）：人の頭と顔を通らない（レベル → 胸の高さで遠くの標尺へ） -->
+      <svg id="ec-sight-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+        <g id="ec-sight">
+          <line id="ec-sight-edge" stroke="var(--navy)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 20" opacity="0.6"/>
+          <line id="ec-sight-line" stroke="var(--orange)" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 20"/>
+          <g id="ec-tick" opacity="0">
+          <circle id="ec-tick-h" r="14" fill="none" stroke="var(--navy)" stroke-width="9" opacity="0.6"/>
+          <circle id="ec-tick-o" r="14" fill="none" stroke="var(--orange)" stroke-width="5"/>
+        </g>
+        </g>
+      </svg>
       <div id="ec-grad"></div>
       <div id="ec-paper">
         <svg id="ec-grid" viewBox="0 0 1920 1080" aria-hidden="true"><g id="ec-grid-lines" stroke="var(--grid)" stroke-width="1.5"></g></svg>
@@ -80,9 +94,9 @@
       <g class="mini-line"><circle cx="48" cy="48" r="28"/><path d="M48 8v20M48 68v20M8 48h20M68 48h20"/><path d="M48 20v4M48 72v4M20 48h4M72 48h4" stroke-width="2"/></g>
     </svg>
       <div id="ec-text">
-        <div class="ec-line">見えない水平の線で、</div>
-        <div class="ec-line">高さをつないでいく</div>
-        <div class="ec-ink"><div class="ec-line">見えない水平の線で、</div><div class="ec-line">高さをつないでいく</div></div>
+        <div class="ec-line">目に見えない“高さ”を、</div>
+        <div class="ec-line">つないでいく</div>
+        <div class="ec-ink"><div class="ec-line">目に見えない“高さ”を、</div><div class="ec-line">つないでいく</div></div>
       </div>
       <div id="ec-credit"><span>ナレーション（仮）　VOICEVOX:冥鳴ひまり</span><span class="ec-ink">ナレーション（仮）　VOICEVOX:冥鳴ひまり</span></div>
     </div>
@@ -127,6 +141,24 @@
       const S_ICON = 0.396;   // 章扉の照準アイコン（160px、円 r=46.7）と同じ大きさ
 
       const tl = gsap.timeline({ paused: true });
+
+      // sight：本物のレベルから遠くの標尺へオレンジの点線が 0.6 秒で伸び、先に小さな印（B4 k_sight と同じ）。
+      //        紙に溶ける前（sight_out。無ければ paper の 0.5 秒前まで）に 0.3 秒で消える
+      if (c.sight != null) {
+        const lx = Number(v.lv_x), ly = Number(v.lv_y), sx = Number(v.st_x), sy = Number(v.st_y);
+        ["#ec-sight-line", "#ec-sight-edge"].forEach((sel) => { const e = document.querySelector(sel);
+          e.setAttribute("x1", lx); e.setAttribute("y1", ly); e.setAttribute("x2", lx); e.setAttribute("y2", ly); });
+        const tk = document.querySelector("#ec-tick");
+        ["#ec-tick-h", "#ec-tick-o"].forEach((t) => { const e = document.querySelector(t); e.setAttribute("cx", sx); e.setAttribute("cy", sy); });
+        tl.fromTo(["#ec-sight-line", "#ec-sight-edge"], { attr: { x2: lx, y2: ly } }, { attr: { x2: sx, y2: sy }, duration: 0.6, ease: "power2.inOut" }, c.sight);
+        tl.fromTo("#ec-tick", { opacity: 0, scale: 0.3, svgOrigin: sx + " " + sy }, { opacity: 1, scale: 1, svgOrigin: sx + " " + sy, duration: 0.3, ease: "power3.out" }, c.sight + 0.55);
+        // 実写のごく弱い寄り（bg_in で push_from に達する、毎秒 push_rate）に点線もそろえる
+        if (c.bg_in != null) tl.fromTo("#ec-sight-svg", { scale: Number(v.push_from) - Number(v.push_rate) * c.bg_in, transformOrigin: "50% 40%" },
+          { scale: Number(v.push_from), transformOrigin: "50% 40%", duration: c.bg_in, ease: "none" }, 0);
+        const pp = c.paper != null ? c.paper : c.door - 0.45;
+        const so = Math.min(c.sight_out != null ? c.sight_out : c.sight + 2.2, pp - 0.5, (c.bg_in != null ? c.bg_in : pp) - 0.35);
+        tl.fromTo("#ec-sight", { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, Math.max(c.sight + 0.9, so));
+      }
 
       // text_in：S10 の上に締めの一文（左下）。下からの紺のグラデーションで守る
       tl.fromTo("#ec-grad", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, c.text_in - 0.1);

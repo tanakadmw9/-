@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 VER=${1:?版を指定（例 v4.11）}; Q=${2:-draft}
 source scripts/lib_env.sh
 for f in S_sueru K_kansoku N_nozoki; do [ -f source/$f.mp4 ] || { echo "source/$f.mp4 がありません"; exit 1; }; done
-echo "■ 1/6 中間素材（切り出し・色補正 B・静止画）"; python3 scripts/02_intermediates.py B
+echo "■ 1/6 中間素材（切り出し・早回し・色補正 Bplus・静止画）"; python3 scripts/02_intermediates.py Bplus
 echo "■ 2/6 仮ナレ"
 if [ -n "$(ls audio/vo_temp/*.wav 2>/dev/null)" ] && [ "${REDO_VO:-0}" != 1 ]; then
   echo "  audio/vo_temp/ の wav を使う（作り直すときは REDO_VO=1）"
@@ -18,7 +18,8 @@ else
 fi
 echo "■ 3/6 尺の計画（timeline.json）"; python3 scripts/20_plan_timeline.py
 echo "■ 4/6 効果音（合成の予備）・環境音"; python3 scripts/31_make_se.py; python3 scripts/32_make_amb.py
-bash scripts/04_stage_assets.sh B
+python3 scripts/35_make_loc_amb.py   # 元の映像の現場音の環境音（timeline の後）
+bash scripts/04_stage_assets.sh Bplus
 echo "■ 5/6 BGM"
 if [ -f source/music/01_new_departure.mp3 ]; then python3 scripts/34_prep_bgm.py source/music/01_new_departure.mp3
 else echo "  WARNING: source/music/01_new_departure.mp3 が無い → 自作の仮BGM（テンポは格子どおりだが、曲の山がない確認用の音。QC の「ナレとBGMの差」は FAIL になりやすい）"; rm -f audio/bgm/bgm.wav; python3 scripts/33_make_temp_bgm.py; fi

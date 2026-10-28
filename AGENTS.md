@@ -23,7 +23,7 @@
 1. `docs/decisions.md` — これまでの決定と理由（毎回最初に読む。決めたら追記する）
 2. `playbook/00_summary.md` — 品質を決めたもの、原則
 3. `docs/01_brief.md` — 目的・観客・メッセージ・仕様
-4. `playbook/20_craft_rules.md` — 数値つきの作り方の決まり（規定の全文は `docs/04_design_system.md`・`docs/05_audio_design.md`・`docs/07_qc_and_review.md`）
+4. `playbook/20_craft_rules.md` — 数値つきの作り方の決まり（規定の全文は `docs/04_design_system.md`・`docs/05_audio_design.md`・`docs/07_qc_and_review.md`）。計画の中身の物差しは `playbook/25_plan_quality.md`（手順を守っても中身が弱いと良くならない）
 5. `playbook/10_process.md` — 進め方、チーム、独立レビュー、ゲート。段階ごとの「終わった」の基準は `playbook/15_checklists.md`
 6. `playbook/40_pitfalls.md` — 実際に起きた失敗
 7. 作業に応じて：`playbook/30_case_study.md`（経緯）、`playbook/50_environment.md`（環境）、`playbook/60_next_part.md`（次のパート）、`playbook/70_beyond.md`（v4.10 の先）、`docs/08_build_spec.md`（部品の約束）、`docs/12_kanshu.md`（技術監修の確認表）
@@ -52,7 +52,7 @@
 |---|---|---|
 | 0 準備 | `bash scripts/00_setup.sh`、素材を置く、`bash scripts/00_doctor.sh` | 環境チェックの結果 |
 | 1 素材分析 | `bash scripts/01_analyze.sh`、カットごとの IN/OUT・焼き込みテロップ・使える静止フレーム・足りない画 | analysis/shot_log.md、シート画像 |
-| 2 演出設計 | 前の案の弱点を5つ以上、別案を1つ以上 → 推奨案。**内容計画と編集計画を分けて**書く（templates/）。ナレ原稿。絵コンテ（拍ごとに時間・画・ナレ・文字・図解・音・**目的**） | **ゲート1**：計画と絵コンテと原稿の承認 |
+| 2 演出設計 | 事実の調べ。中心の絵（たとえ）の候補3つ。前の案の弱点を5つ以上、本気の別案を1つ以上 → 推奨案。**内容計画と編集計画を分けて**書く（templates/）。ナレ原稿。絵コンテ（拍ごとに時間・画・ナレ・文字・図解・音・**目的**）。`playbook/25_plan_quality.md` で採点し、**別のセッションで批評**（`prompts/15_plan_critique.md`）を通して直す | **ゲート1**：計画と絵コンテと原稿の承認 |
 | 3 デザイン | tokens.css と部品、スタイルフレーム、色補正2〜3案、焼き込みの処理の比較 | **ゲート2**：見た目の決定 |
 | 4 アニマティック | 仮ナレ（VOICEVOX）、曲、粗い図解、timeline、書き出し＋QC＋独立レビュー | **ゲート3**：試写1（構成とリズム） |
 | 5 本制作 | 図解・色・文字・効果音・環境音・ミックスの仕上げ、書き出し＋QC＋独立レビュー | **ゲート4**：試写2（技術監修）・試写3（対象者テスト） |
@@ -67,7 +67,7 @@ v4.10 は**ゲート3（試写1）の直前**にいる。続きをするなら `
 - Python の部品が `.venv` に入った環境では、`python3 scripts/…` を直接呼ぶ前に `source .venv/bin/activate`（`scripts/*.sh` は自動で使う）。
 - **動画を直接は見られない** → フレームを書き出して画像で確認する。タイル状のシートを使い、画像を読みすぎない。1コマは `npx hyperframes snapshot comp --at 12.5,30.1 --no-end`（約15秒。PNG は `comp/.hyperframes/artifacts/snapshots/` の一番新しいフォルダ、`ls -t` の先頭）、1場面だけの確認は `python3 scripts/21_build_index.py --scene d2_topview` → `npx hyperframes snapshot dev/d2_topview --at 1.0,4.0 --no-end`。
 - **音は聞けない** → 波形・スペクトログラム・ラウドネス・拍で判断し（`scripts/lib_audio.py`、`audio/mix/keyframes.json`、`qc/<版>/levels.png`）、聞こえ方の最終判断は人間に任せる。試聴用の mp3 を作って渡す。
-- **自分の作品を自分でレビューしても甘くなる** → 書き出しのたびに独立レビュー（下）。
+- **自分の作品を自分でレビューしても甘くなる** → 書き出しのたびに独立レビュー（下）。計画も同じで、ゲート1の前に別のセッションで批評する（`prompts/15_plan_critique.md`）。最初の計画が弱いのは普通（A案も構成を2回作り直した）。
 - **長い処理がコマンドの時間制限で切られることがある** → 書き出し（60）は約14分、全部の作り直し（70）は約20分（うち QC 約8分）。`nohup bash scripts/60_render.sh v4.11 > v4.11.log 2>&1 &` で走らせ、`tail v4.11.log` で見る。それでも止められる環境なら、人に端末での実行を頼む。
 
 ## 作業の基本ループ（版を作るたび）
@@ -103,7 +103,7 @@ bash scripts/45_review_pack.sh v4.11       # 独立レビュー用のフォル�
 | `scripts/40_qc.py`・`44_text_timing.mjs` | 自動QC と目視用シート、画面の文字の実測 |
 | `scripts/45_review_pack.sh`・`46_compare_ref.sh` | 独立レビュー用のフォルダ／書き出しを v4.10 と比べる（再現の確認） |
 | `playbook/` | この制作の知見（進め方・決まり・事例・落とし穴・環境・次のパート） |
-| `prompts/` | 担当レビュー、監督の統合、独立レビュー、対抗案、ゲート報告、キックオフの指示文 |
+| `prompts/` | キックオフ（00）、ゲート報告（10）、計画の批評（15）、担当レビュー（20）、監督の統合（30）、独立レビュー（40）、対抗案（50）の指示文 |
 | `templates/` | ブリーフ・計画書・絵コンテ・原稿・記録・台帳・監修表・アンケートのひな形 |
 | `qc/v4.x/` | 各版の自動QC（report.md）と独立レビュー（review.md）。画像は media の zip |
 | `reference/` | チームレビュー、事実確認、B案の計画。記録の中の古いパス（`/mnt/project-files/…`）の読み替えは reference/README.md |

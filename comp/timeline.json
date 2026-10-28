@@ -418,7 +418,7 @@
    "start": 1.2679,
    "note": "章扉で基準点のアイコンが灯る",
    "gain_db": 0.0,
-   "src": "/mnt/project-files/assets/se/tones/decision28.mp3",
+   "src": "assets/se/tones/decision28.mp3",
    "target": -12.0
   },
   {
@@ -426,7 +426,7 @@
    "start": 3.8038,
    "note": "照準が合う電子音（シリーズ共通の合図）",
    "gain_db": 0.0,
-   "src": "/mnt/project-files/assets/se/tones/decision6.mp3",
+   "src": "assets/se/tones/decision6.mp3",
    "target": -9.0
   },
   {
@@ -434,7 +434,7 @@
    "start": 25.5255,
    "note": "測距の短い電子音",
    "gain_db": 0.0,
-   "src": "/mnt/project-files/assets/se/tones/cursor3.mp3",
+   "src": "assets/se/tones/cursor3.mp3",
    "target": -10.0
   },
   {
@@ -442,7 +442,7 @@
    "start": 33.4,
    "note": "新しい点が決まる",
    "gain_db": 0.0,
-   "src": "/mnt/project-files/assets/se/tones/decision28.mp3",
+   "src": "assets/se/tones/decision28.mp3",
    "target": -8.0
   },
   {
@@ -450,14 +450,14 @@
    "start": 49.1825,
    "note": "アイコンが灯る（小さめ）",
    "gain_db": -3.0,
-   "src": "/mnt/project-files/assets/se/tones/decision28.mp3",
+   "src": "assets/se/tones/decision28.mp3",
    "target": -8.0
   },
   {
    "kind": "foley",
    "start": 45.6122,
    "note": "等高線・道路の線が描かれる間のシャーペンの音（ごく小さく）",
-   "src": "/mnt/project-files/assets/se/foley/mechanical-pencil-write1.mp3",
+   "src": "assets/se/foley/mechanical-pencil-write1.mp3",
    "dur": 2.4,
    "target": -26.0,
    "level": "p90",
@@ -470,7 +470,7 @@
    "start": 58.8922,
    "note": "照準が章扉のアイコンに戻り、文が終わった後の合図（小さめ）",
    "gain_db": -3.0,
-   "src": "/mnt/project-files/assets/se/tones/decision6.mp3",
+   "src": "assets/se/tones/decision6.mp3",
    "target": -9.0
   }
  ],

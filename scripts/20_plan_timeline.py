@@ -71,9 +71,19 @@ def move(target, start, end, scale0, scale1, origin, purpose):
                        "origin": origin, "purpose": purpose})
 
 # 効果音の組（v4.7）："lab"＝効果音ラボの音（声の帯域より上にあり、ナレの最中でも聞こえる：音のレビュー A3）／"synth"＝v4.6 までの自作の合成音
-# 効果音ラボの規約で素材の再配布は禁止 → mp3 は /mnt/project-files/assets/se/ から読み、リポジトリには入れない
-SE_SET = "lab"
-SE_ASSETS = "/mnt/project-files/assets/se"
+# 効果音ラボの規約で素材の再配布は禁止 → mp3 はリポジトリに入れず、SE_DIR（既定 assets/se/、.gitignore 済み）に各自で置く（assets/README.md）
+# 環境変数 SE_SET=lab|synth|auto（既定 auto：SE_DIR に必要な mp3 がそろっていれば lab、なければ synth に落として警告）
+import os
+SE_ASSETS = os.environ.get("SE_DIR", "assets/se")       # 相対パスはリポジトリの根から
+SE_NEED = ["tones/decision28.mp3", "tones/decision6.mp3", "tones/cursor3.mp3", "foley/mechanical-pencil-write1.mp3"]
+_se_root = pathlib.Path(SE_ASSETS) if os.path.isabs(SE_ASSETS) else ROOT / SE_ASSETS
+_missing = [n for n in SE_NEED if not (_se_root / n).exists()]
+SE_SET = os.environ.get("SE_SET", "auto")
+if SE_SET == "auto":
+    SE_SET = "synth" if _missing else "lab"
+    if _missing:
+        print(f"WARNING: 効果音ラボの素材が {_se_root} にない（{', '.join(_missing)}）→ 自作の合成音（SE_SET=synth）で作る。"
+              " v4.10 と同じ音にするには assets/README.md の手順で置く")
 SE_LAB = {"glow": ("tones/decision28.mp3", -12.0), "lock": ("tones/decision6.mp3", -9.0),
           "measure": ("tones/cursor3.mp3", -10.0), "click": ("tones/decision28.mp3", -8.0)}   # (素材, 0.4秒窓の最大の VO_REF 比)
 
@@ -85,6 +95,8 @@ def se(kind, t, note="", gain_db=0.0):
     T["se"].append(e)
 
 def foley(src, t, dur, target, note="", **kw):
+    if SE_SET != "lab":   # 合成音の組には「描く音」がない（v4.6 まで無し）
+        return
     T["se"].append({"kind": "foley", "start": f(t), "note": note, "src": f"{SE_ASSETS}/{src}", "dur": dur, "target": target,
                     "level": "p90", **kw})
 

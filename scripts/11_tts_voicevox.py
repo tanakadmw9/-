@@ -8,7 +8,7 @@ narration.json の vv_kana（手で直した読み・アクセント）で合成
 キーワードの発話開始は、合成に使ったモーラ列の中でキーワードの読みを探し、その手前までのモーラ長の合計とする。
 エンジンの起動: docker run -d --name vv -p 50021:50021 voicevox/voicevox_engine:cpu-latest
 """
-import json, sys, pathlib, re, io, random, urllib.request, urllib.parse, wave
+import json, sys, os, pathlib, re, io, random, urllib.request, urllib.parse, wave
 import numpy as np
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -16,7 +16,7 @@ STYLE = int(sys.argv[1])
 OUT = ROOT / (sys.argv[2] if len(sys.argv) > 2 else "audio/vo_temp")
 A = sys.argv + [None] * 6
 SPEED = float(A[3] or 1.0); INTON = float(A[4] or 1.0); PAUSE = float(A[5] or 1.6); PITCH = float(A[6] or 0)
-API = "http://127.0.0.1:50021"
+API = os.environ.get("VOICEVOX_URL", "http://127.0.0.1:50021")   # Docker 版でもデスクトップ版アプリでも同じ API
 SR = 48000
 
 def clean(t):  # 合成用に記号を落とす（読みは変えない）

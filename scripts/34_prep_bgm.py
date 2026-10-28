@@ -15,7 +15,7 @@ import json, sys, pathlib, subprocess
 import numpy as np, soundfile as sf
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC = pathlib.Path(sys.argv[1])
+SRC = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ROOT / "source/music/01_new_departure.mp3")   # 曲は各自で入手（source/README.md）
 B0 = float(sys.argv[2]) if len(sys.argv) > 2 else 1.9567
 BP = float(sys.argv[3]) if len(sys.argv) > 3 else 0.63199
 SR = 48000; BAR = 4 * BP

@@ -3,7 +3,7 @@
 測量士（技術監修）に試写2で確認してもらう表現の一覧。各行に【要監修】を付け、QC（`scripts/40_qc.py` §10）がこの表の数を数える。
 確認が済んだら、行の状態を「確認済み（日付・確認者・結論）」に書き換え、【要監修】を消す。消すのは監修の確認の後だけ（CLAUDE.md）。
 
-出どころ：plan/content.md §7（内容）、/mnt/project-files/plan/brushup/accuracy.md §4（正確さ）、qc/v4.7/review.md §3・qc/v4.8/review.md §3（独立レビュー）。
+出どころ：reference/plans/content.md §7（内容）、reference/plans/brushup/accuracy.md §4（正確さ）、qc/v4.7/review.md §3・qc/v4.8/review.md §3（独立レビュー）。
 
 | 番号 | 時刻（v4.9） | 画・ことば | 確かめたいこと | 状態 |
 |---|---|---|---|---|

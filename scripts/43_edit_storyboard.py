@@ -10,7 +10,7 @@ V44, OUT = sys.argv[1], sys.argv[2]
 SRC = str(ROOT / "source/input.mp4")
 BAR = 4 * 0.63199
 CROP = {"S01": (150, 0, 1360, 765), "S02": (300, 0, 1360, 765), "S03": (311, 180, 1600, 900), "S09": (311, 180, 1600, 900)}
-FONT = "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
+FONT = next((f for f in [str(ROOT / "tools/fonts/BIZUDPGothic-Regular.ttf"), "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"] if pathlib.Path(f).exists()))
 f_b, f_m, f_s = ImageFont.truetype(FONT, 30), ImageFont.truetype(FONT, 24), ImageFont.truetype(FONT, 20)
 
 # (拍, 開始拍(小節,拍), 長さ(拍), 種類, 素材, in秒, out秒, 動き・つなぎ, 曲)

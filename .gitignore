@@ -1,5 +1,6 @@
 node_modules/
-source/
+source/*
+!source/README.md
 intermediate/
 renders/
 deliver/*.mp4
@@ -16,3 +17,11 @@ comp/.hyperframes/
 comp/compositions/gen/
 comp/assets/fonts/*.woff2
 comp/assets/vendor/
+
+# 外部の素材（再配布禁止：効果音ラボ、OpenTracks）。assets/README.md・source/README.md
+assets/se/
+source/music/
+# 独立レビューのフォルダ（作り直せる）
+qc/*/review_pack/
+# 計画の絵コンテ画像（元映像から作った。media の zip）
+plan/editing_storyboard.png

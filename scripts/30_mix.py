@@ -94,8 +94,9 @@ def vo_eq(x):
 
 
 def load_any(path):
-    """mp3 も読む（効果音ラボの素材は mp3 のまま /mnt/project-files/assets/se/ に置く。リポジトリには入れない）。"""
+    """mp3 も読む（効果音ラボの素材は mp3 のまま SE_DIR（既定 assets/se/）に置く。リポジトリには入れない）。相対パスはリポジトリの根から。"""
     path = pathlib.Path(path)
+    if not path.is_absolute(): path = ROOT / path
     if path.suffix.lower() == ".mp3":
         tmp = ROOT / "dev/se_ext" / (path.stem + ".wav"); tmp.parent.mkdir(parents=True, exist_ok=True)
         if not tmp.exists():

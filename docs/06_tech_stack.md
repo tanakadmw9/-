@@ -1,5 +1,7 @@
 # 06 技術構成（無料・安全なツールだけで組む）
 
+> 最初のキットのときの技術構成。採用・不採用の理由（§1・§2）は今も有効。**実際の手順は playbook/50_environment.md と scripts/00_setup.sh**、書き出しのループは AGENTS.md。変わった所：§3 の npm の導入は package.json と package-lock.json で版を固定済み（`npm ci`）、§5-4 の音は HyperFrames の `<audio>` ではなく scripts/30_mix.py（手書きのキーフレームで1本の mix.wav）、§4 の図解は D0・D1・D2・点つなぎ（D3〜D5 は v4.5 で廃止）。
+
 ## 1. 採用するツール
 
 | 用途 | ツール | ライセンス／費用 | 採用理由 |
@@ -68,7 +70,7 @@ npx hyperframes doctor                 # 環境チェック（FFmpeg / Chrome �
 kijunten/
 ├─ CLAUDE.md
 ├─ docs/            このキットの設計書（＋ decisions.md・credits_and_licenses.md）
-├─ prompts/         Claude Code に渡すプロンプト
+├─ prompts/         AI エージェントに渡す指示文
 ├─ .claude/agents/  レビュー用サブエージェント
 ├─ source/          元素材（読み取り専用。上書き・削除しない）
 ├─ analysis/        カット表、コンタクトシート、音声分析

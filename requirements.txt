@@ -1,0 +1,9 @@
+# Python 3.10 以上。scripts/ が使う（すべてローカル処理）
+numpy>=1.26
+scipy>=1.11
+soundfile>=0.12
+librosa>=0.10
+opencv-python-headless>=4.8
+pillow>=10.0
+matplotlib>=3.8
+# 予備の仮ナレ（VOICEVOX が使えないときだけ）：pyopenjtalk-plus

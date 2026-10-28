@@ -29,16 +29,24 @@ rng = np.random.default_rng(33)
 T = json.loads((ROOT / "comp/timeline.json").read_text())
 
 B0 = T["bgm"]["start"]; BEND = T["bgm"]["end"]
-PS, PE = T["bgm"]["pause"]["start"], T["bgm"]["pause"]["end"]
+BEND = BEND or T["duration"]
 LEN = BEND - B0
 N = int(round(LEN * SR))
 
-# ---- テンポ：B0〜PE が整数小節 ------------------------------------------------------------
-cands = []
-for nb in range(4, 60):
-    bpm = 60 * 4 * nb / (PE - B0)
-    if 85 <= bpm <= 100: cands.append((abs(bpm - 92), nb, bpm))
-_, PAUSE_BAR, BPM = min(cands)
+if T["bgm"].get("pause"):
+    PS, PE = T["bgm"]["pause"]["start"], T["bgm"]["pause"]["end"]
+    # ---- テンポ：B0〜PE が整数小節 --------------------------------------------------------
+    cands = []
+    for nb in range(4, 60):
+        bpm = 60 * 4 * nb / (PE - B0)
+        if 85 <= bpm <= 100: cands.append((abs(bpm - 92), nb, bpm))
+    _, PAUSE_BAR, BPM = min(cands)
+else:
+    # 「間」のない構成（v4.5 以降の24小節の格子）：timeline の格子の拍をそのまま使い、
+    # 9小節目（いちばん強い頭＝「はかる」）から「開く」。曲を選ぶまでのつなぎ（New Departure の代わり）
+    PS = PE = -1.0
+    BPM = 60 / T["grid"]["beat"]
+    PAUSE_BAR = 8
 BEAT = 60 / BPM; BAR = 4 * BEAT
 NBEATS = int(LEN / BEAT) + 1
 
@@ -268,7 +276,7 @@ info = {
     "note": "TEMPORARY placeholder BGM (algorithmic). t = timeline seconds, t_file = seconds in temp_bgm.wav",
     "bpm": round(BPM, 3), "beat_sec": round(BEAT, 5), "bar_sec": round(BAR, 5), "meter": "4/4", "key": "D major",
     "file_offset_in_timeline": B0,
-    "pause": {"start": PS, "end": PE, "end_is_bar": PAUSE_BAR + 1},
+    "pause": {"start": PS, "end": PE, "end_is_bar": PAUSE_BAR + 1} if PE > 0 else None, "open_bar": PAUSE_BAR + 1,
     "final_chord": {"t": round(FINAL_T, 4), "bar": FINAL // 4 + 1, "beat": FINAL % 4 + 1, "tail_sec": round(TAIL, 3)},
     "sections": [{"bar": b + 1, "t": round(B0 + b * BAR, 4), "chord": chord_of_bar(b), "section": section(b)}
                  for b in range(FINAL_BAR + 1)],

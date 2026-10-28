@@ -78,6 +78,8 @@
 - `fix`：座標の数字が P の近くでカウントして止まる（`var(--font-num)` 40px `--ink`：「X 1234.567 m」「Y 2345.678 m」、0.7秒で止まる。止まる瞬間＝`fix`）。下に「（数値は例）」34px。ここで効果音クリック。
 - 以降は止まって待つ。
 
+> **d3_traverse・d4_bridge・d5_everyday は v4.5 の構成Aで廃止**（部品は reference/history/obsolete/）。いまの場面は chapter_door・title・d0_marker・d1_observe・d2_topview・map_link・endcard（comp/timeline.json の scenes）。
+
 ### d3_traverse（紙・全面）
 - 冒頭：d2 の A・B・P を同じ位置で描いた状態から、0.9秒で全体を縮小（0.55倍、中心を左寄りに）して視野を広げる。座標表示やラベルは描かない（すっきり）。
 - `chain`：P→Q→R→S とオレンジの線と◎がリズムよく（0.35秒おき）つながる（右方向へ）。

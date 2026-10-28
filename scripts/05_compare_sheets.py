@@ -8,7 +8,7 @@ src = (ROOT / "scripts/02_intermediates.py").read_text()
 ns = {"__file__": str(ROOT / "scripts/02_intermediates.py")}; exec(src.split("def run(cmd)")[0].replace("OUT.mkdir(parents=True, exist_ok=True)", ""), ns)
 CROPS, GRADES, POST = ns["CROPS"], ns["GRADES"], ns["POST"]
 SRC = str(ROOT / "source/input.mp4"); OUT = ROOT / "analysis"
-FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT = next((f for f in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", str(pathlib.Path(__file__).resolve().parent.parent / "tools/fonts/BIZUDPGothic-Regular.ttf")] if pathlib.Path(f).exists()))
 FRAMES = [("S01", 3.0), ("S04", 16.0), ("S07", 25.0), ("S09", 34.4)]
 
 def ff(args):

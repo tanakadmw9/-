@@ -30,6 +30,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 T = json.loads((ROOT / "comp/timeline.json").read_text())
 
 CAP_H, CAP_S, CAP_V, CAP_AREA, CAP_SMED = (100, 125), 150, 170, 3000, 190
+# シートの文字に使う日本語フォント（tools/fonts に OFL の BIZ UDPゴシックを同梱。無ければ OS のもの）
+JA_FONTS = [str(ROOT / "tools/fonts/BIZUDPGothic-Regular.ttf"), "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf",
+            "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc", "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc", "C:/Windows/Fonts/meiryo.ttc"]
 
 
 # ---------------------------------------------------------------- helpers
@@ -427,7 +430,7 @@ def text_strips(path, outdir, tel, per_page=8, tw=384, th=216, lw=360, cw=440):
     """§6 の表の全件（場面の中の文字を含む）の3コマ（docs/07 §2）。出・消は text_timing.json の「読める」区間（独立レビュー v4.8）。
     右端に、中間のコマの文字の所を等倍で切り出した小窓（36px の補足が実寸で読めるか見る。独立レビュー v4.9）。"""
     from PIL import Image, ImageDraw, ImageFont
-    fp = next((f for f in ["/mnt/project-files/assets/fonts/BIZUDPGothic-Regular.ttf", "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"]
+    fp = next((f for f in JA_FONTS
                if pathlib.Path(f).exists()), None)
     font = ImageFont.truetype(fp, 20) if fp else ImageFont.load_default()
     js = outdir / "text_timing.json"
@@ -495,12 +498,12 @@ def storyboard_compare(path, outdir, tw=384, th=216, lw=420):
     行ごとに：計画の画｜書き出しの「頭＋0.3秒」｜「中間」。計画のシートが無ければ作らない。"""
     import ast
     from PIL import Image, ImageDraw, ImageFont
-    sb = pathlib.Path("/mnt/project-files/plan/editing_storyboard.png")
+    sb = ROOT / "plan/editing_storyboard.png"   # 編集計画の絵コンテ（素材から作った画像なので media の zip に入っている）
     src = (ROOT / "scripts/43_edit_storyboard.py").read_text()
     if not sb.exists() or "SEG = [" not in src: return []
     seg = ast.literal_eval(src[src.index("SEG = [") + 6:src.index("\n]\n", src.index("SEG = [")) + 2])
     board = Image.open(sb).convert("RGB")
-    fp = next((f for f in ["/mnt/project-files/assets/fonts/BIZUDPGothic-Regular.ttf", "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"]
+    fp = next((f for f in JA_FONTS
                if pathlib.Path(f).exists()), None)
     font = ImageFont.truetype(fp, 20) if fp else ImageFont.load_default()
     beat = T["grid"]["beat"]

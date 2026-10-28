@@ -49,7 +49,7 @@
       for (let y = 0; y <= 1080; y += 60) d += `M0 ${y}H1920`;
       g.innerHTML = `<path d="${d}"/>`;
 
-      // 部門の作業（アイコンは /mnt/project-files/assets/icons/custom の自作線画。【要確認】作業名と並びは部門の実際に合わせる）
+      // 部門の作業（アイコンは 制作時の共有フォルダ assets/icons/custom の自作線画。【要確認】作業名と並びは部門の実際に合わせる）
       const JOBS = [
         ["基準点測量", '<rect x="35" y="22" width="26" height="28" rx="4"/><circle cx="48" cy="33" r="6"/><path d="M41 44h14"/><path d="M33 54h30"/><path d="M39 56 24 88M57 56l15 32M48 56v32"/>'],
         ["水準測量", '<rect x="16" y="42" width="34" height="12" rx="3"/><path d="M33 54v4M22 60h22M28 62l-8 26M38 62l8 26M33 62v26"/><path d="M54 48h12" stroke-dasharray="3 6"/><rect x="70" y="12" width="14" height="76" rx="2"/><path d="M70 24h7M70 36h7M70 48h7M70 60h7M70 72h7"/>'],

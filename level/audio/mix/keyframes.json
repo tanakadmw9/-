@@ -1,0 +1,337 @@
+{
+ "note": "dB は VO_REF（各ナレ行の統合ラウドネス）からの相対。ラウドネス合わせ前の値。",
+ "bgm_keyframes": [
+  [
+   0.0,
+   -8.93
+  ],
+  [
+   0.2503,
+   -8.93
+  ],
+  [
+   2.3703,
+   -8.93
+  ],
+  [
+   2.7203,
+   -3.07
+  ],
+  [
+   3.5539,
+   -3.07
+  ],
+  [
+   3.8539,
+   -15.72
+  ],
+  [
+   5.3439,
+   -15.72
+  ],
+  [
+   5.6939,
+   -10.16
+  ],
+  [
+   7.6246,
+   -10.16
+  ],
+  [
+   7.9246,
+   -20.59
+  ],
+  [
+   12.9728,
+   -20.59
+  ],
+  [
+   13.3228,
+   -11.85
+  ],
+  [
+   15.2656,
+   -11.85
+  ],
+  [
+   15.5656,
+   -19.93
+  ],
+  [
+   19.4856,
+   -19.93
+  ],
+  [
+   19.8356,
+   -13.78
+  ],
+  [
+   23.6406,
+   -13.78
+  ],
+  [
+   23.9406,
+   -22.55
+  ],
+  [
+   58.5291,
+   -22.55
+  ],
+  [
+   59.5291,
+   -16.55
+  ],
+  [
+   60.6606,
+   -16.55
+  ]
+ ],
+ "amb_keyframes": [
+  [
+   0.0,
+   -25.25
+  ],
+  [
+   0.5,
+   -31.5
+  ],
+  [
+   2.0025,
+   -31.5
+  ],
+  [
+   2.2025,
+   -29.0
+  ],
+  [
+   2.8025,
+   -26.0
+  ],
+  [
+   3.0025,
+   -27.5
+  ],
+  [
+   7.0409,
+   -27.5
+  ],
+  [
+   7.8409,
+   -21.5
+  ],
+  [
+   14.8485,
+   -21.5
+  ],
+  [
+   15.6485,
+   -31.5
+  ],
+  [
+   19.6868,
+   -31.5
+  ],
+  [
+   20.4868,
+   -21.5
+  ],
+  [
+   25.5925,
+   -21.5
+  ],
+  [
+   26.3925,
+   -31.5
+  ],
+  [
+   37.3712,
+   -31.5
+  ],
+  [
+   38.1712,
+   -21.5
+  ],
+  [
+   43.9108,
+   -21.5
+  ],
+  [
+   44.7108,
+   -31.5
+  ],
+  [
+   50.0171,
+   -31.5
+  ],
+  [
+   50.5171,
+   -25.25
+  ],
+  [
+   56.5601,
+   -21.5
+  ],
+  [
+   57.1601,
+   -29.5
+  ],
+  [
+   60.1621,
+   -29.5
+  ],
+  [
+   60.6606,
+   -90.0
+  ]
+ ],
+ "se": [
+  {
+   "kind": "glow",
+   "src": "assets/se/tones/decision28.mp3",
+   "t": 1.2679,
+   "gain_db": -13.5,
+   "target_re_vo_ref_db": -12.0
+  },
+  {
+   "kind": "lock",
+   "src": "assets/se/tones/decision6.mp3",
+   "t": 3.8038,
+   "gain_db": -6.15,
+   "target_re_vo_ref_db": -9.0
+  },
+  {
+   "kind": "foley",
+   "src": "assets/se/tones/sceneswitch1.mp3",
+   "t": 27.661,
+   "gain_db": -33.36,
+   "target_re_vo_ref_db": -30.0
+  },
+  {
+   "kind": "foley",
+   "src": "assets/se/foley/mechanical-pencil-write1.mp3",
+   "t": 39.0056,
+   "gain_db": -18.48,
+   "target_re_vo_ref_db": -28.0
+  },
+  {
+   "kind": "click",
+   "src": "assets/se/tones/decision28.mp3",
+   "t": 47.7811,
+   "gain_db": -12.5,
+   "target_re_vo_ref_db": -8.0
+  },
+  {
+   "kind": "lock",
+   "src": "assets/se/tones/decision6.mp3",
+   "t": 58.5585,
+   "gain_db": -9.15,
+   "target_re_vo_ref_db": -9.0
+  }
+ ],
+ "report": {
+  "duration": 60.6606,
+  "samples": 2911709,
+  "vo_lines": 10,
+  "bgm_source": "audio/bgm/bgm.wav",
+  "bgm_regions": [
+   {
+    "type": "under_vo",
+    "start": 0.3,
+    "end": 2.27,
+    "fader_db": -8.93
+   },
+   {
+    "type": "under_vo",
+    "start": 3.904,
+    "end": 5.244,
+    "fader_db": -15.72
+   },
+   {
+    "type": "under_vo",
+    "start": 7.975,
+    "end": 12.873,
+    "fader_db": -20.59
+   },
+   {
+    "type": "under_vo",
+    "start": 15.616,
+    "end": 19.386,
+    "fader_db": -19.93
+   },
+   {
+    "type": "under_vo",
+    "start": 23.991,
+    "end": 58.429,
+    "fader_db": -22.55
+   },
+   {
+    "type": "free",
+    "start": 0.0,
+    "end": -0.05,
+    "fader_db": null
+   },
+   {
+    "type": "free",
+    "start": 2.72,
+    "end": 3.554,
+    "fader_db": -3.07
+   },
+   {
+    "type": "free",
+    "start": 5.694,
+    "end": 7.625,
+    "fader_db": -10.16
+   },
+   {
+    "type": "free",
+    "start": 13.323,
+    "end": 15.266,
+    "fader_db": -11.85
+   },
+   {
+    "type": "free",
+    "start": 19.836,
+    "end": 23.641,
+    "fader_db": -13.78
+   },
+   {
+    "type": "free",
+    "start": 58.879,
+    "end": 60.661,
+    "fader_db": -16.55
+   }
+  ],
+  "integrated_lufs_py": -24.0,
+  "integrated_lufs_ffmpeg": -24.0,
+  "true_peak_dbtp_py": -8.98,
+  "true_peak_dbtp_ffmpeg": -9.0,
+  "limiter_max_gr_db": null,
+  "stems_sum_residual": 1.1102230246251565e-16,
+  "vo_minus_bgm_per_line_db": {
+   "N1a": 20.7,
+   "N1b": 18.9,
+   "N2": 17.9,
+   "N3": 18.2,
+   "N4": 16.7,
+   "N5a": 16.4,
+   "N5b": 17.5,
+   "N6": 17.2,
+   "N7": 17.3,
+   "N8": 22.3
+  },
+  "vo_minus_bgm_short_term_inside_lines": {
+   "median": 16.6,
+   "p5": 15.0,
+   "min": 14.6,
+   "n_windows": 151
+  },
+  "vo_median_short_term_lufs": -24.6,
+  "bgm_free_max_short_term_re_vo": -5.3,
+  "amb_re_vo_live_median": -19.5,
+  "amb_re_vo_diagram_median": -27.3,
+  "se_max_100ms_re_vo_max_100ms": -11.8,
+  "se_max_100ms_re_vo_integrated": -5.0,
+  "se_peak_re_vo_peak_db": -9.6,
+  "bgm_in_pause_short_term_lufs": null
+ }
+}

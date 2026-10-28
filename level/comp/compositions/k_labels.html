@@ -1,0 +1,55 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"level\":0.3,\"staff\":0.55,\"out\":2.9}"},{"id":"dur","type":"number","label":"dur","default":3.1},{"id":"lv_x","type":"number","label":"レベル x","default":1080},{"id":"lv_y","type":"number","label":"レベル y","default":368},{"id":"st_x","type":"number","label":"標尺 x","default":712},{"id":"st_y","type":"number","label":"標尺 y","default":520}]'>
+<body>
+<template>
+  <style>
+    /* B4 の頭：観測-引き（2人と道具が1つの画）に対象ラベル「レベル」「標尺」。線は引かない（低い位置からの画では水平の線が斜めに写るため：計画 v2）。
+       引き出し線は人の体を通らない向き（レベル→左上の空、標尺→左の建物） */
+    #root { position: absolute; inset: 0; }
+    #kl-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    .kl-plate { position: absolute; background: var(--plate); border-radius: var(--plate-radius);
+      padding: 16px 28px 18px; font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+    .kl-main { font-family: var(--font-ja); font-weight: 700; font-size: 48px; line-height: 1.3; color: var(--white); }
+    .kl-sub { font-family: var(--font-ja); font-weight: 400; font-size: 36px; line-height: 1.35; color: var(--sub); margin-top: 4px; }
+  </style>
+  <div id="root" data-composition-id="k_labels" data-width="1920" data-height="1080">
+    <svg id="kl-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <line id="kl-lv-line" stroke="var(--white)" stroke-width="2" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+      <circle id="kl-lv-dot" r="5" fill="var(--white)" opacity="0"/>
+      <line id="kl-st-line" stroke="var(--white)" stroke-width="2" pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+      <circle id="kl-st-dot" r="5" fill="var(--white)" opacity="0"/>
+    </svg>
+    <div id="kl-lv" class="kl-plate"><div class="kl-main">レベル</div><div class="kl-sub">高さをはかる機械</div></div>
+    <div id="kl-st" class="kl-plate"><div class="kl-main">標尺</div><div class="kl-sub">ものさし</div></div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 3.1;
+      const lx = Number(v.lv_x), ly = Number(v.lv_y), sx = Number(v.st_x), sy = Number(v.st_y);
+      const q = (s) => document.querySelector(s);
+      const setA = (s, o) => { const el = q(s); for (const k in o) el.setAttribute(k, o[k]); };
+      // 板の位置：レベルの板は左上の空（引き出し線の終わりが板の右下）、標尺の板は左（線の終わりが板の右端）
+      const LV = [lx - 300, ly - 210], ST = [sx - 150, sy - 20];
+      setA("#kl-lv-line", { x1: lx, y1: ly, x2: LV[0] + 20, y2: LV[1] + 60 }); setA("#kl-lv-dot", { cx: lx, cy: ly });
+      setA("#kl-st-line", { x1: sx, y1: sy, x2: ST[0], y2: ST[1] }); setA("#kl-st-dot", { cx: sx, cy: sy });
+      const lv = q("#kl-lv"); lv.style.right = (1920 - LV[0] - 20) + "px"; lv.style.top = (LV[1] - 50) + "px";
+      const st = q("#kl-st"); st.style.right = (1920 - ST[0]) + "px"; st.style.top = (ST[1] - 60) + "px";
+
+      const tl = gsap.timeline({ paused: true });
+      const draw = (s, at) => tl.fromTo(s, { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out" }, at);
+      const label = (dot, line, plate, at) => {
+        tl.fromTo(dot, { opacity: 0, attr: { r: 2 } }, { opacity: 1, attr: { r: 5 }, duration: 0.25, ease: "power3.out" }, at);
+        draw(line, at + 0.04);
+        tl.fromTo(plate, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, at + 0.08);
+      };
+      label("#kl-lv-dot", "#kl-lv-line", "#kl-lv", c.level);
+      label("#kl-st-dot", "#kl-st-line", "#kl-st", c.staff);
+      tl.to(["#kl-lv", "#kl-st", "#kl-svg"], { opacity: 0, duration: 0.3, ease: "power2.in" }, c.out);
+      tl.set({}, {}, dur);
+      window.__timelines["k_labels"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"line\":1.3,\"shrink\":3.1,\"zero\":6.0,\"read_a\":6.7,\"read_b\":7.2,\"caption\":7.4,\"diff\":7.7,\"low\":10.0}"},{"id":"dur","type":"number","label":"dur","default":12.0},{"id":"eye_x","type":"number","label":"写真の接眼レンズ x","default":912},{"id":"eye_y","type":"number","label":"写真の目線の高さ y","default":512},{"id":"mid_x","type":"number","label":"写真の機械の中心 x","default":1125}]'>
+<body>
+<template>
+  <style>
+    /* しくみ（B4 の終わり〜B5）：看板の動き「見えない水平の線」。
+       1) 人が離れたレベルの静止（タイトルと同じ角度）に、のぞく目線＝オレンジの点線が接眼レンズから右へまっすぐ伸びる（光の線＝実線とは区別。音も電子音にしない）
+       2) 写真が縮んで、横から見た図の真ん中の機械になる。点線は同じ高さのまま左右の標尺までのびる
+       3) 機械は2本の標尺のちょうど中間（距離の矢印と 0 は v1.2 で外した：説明なしで出て消える＝独立レビュー v1.1）。左の標尺は水準点の上、右は標尺台の上【要監修】
+       4) 標尺の足元が 0。目線から地面までの長さ＝読み（1.2 m・1.8 m、例）→ 差の段 0.6 m →「目盛りが大きいほうが、低い」 */
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #d2-paper { position: absolute; inset: 0; background: var(--paper); }
+    #d2-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #d2-photo { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+    #d2-sight-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    .nv { stroke: var(--navy); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .fp { fill: var(--paper); }
+    .d2-lbl { position: absolute; font-family: var(--font-ja); line-height: 1.3; font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+    .num { font-family: var(--font-num); font-weight: 700; }
+    #d2-cap { position: absolute; left: 0; right: 0; top: 64px; text-align: center; opacity: 0; }
+    #d2-cap span { display: inline-block; font-family: var(--font-ja); font-weight: 700; font-size: 68px; line-height: 1.3; color: var(--ink);
+      font-feature-settings: "palt"; letter-spacing: 0.03em; padding: 0 12px 8px; border-bottom: 6px solid var(--orange); }
+    #d2-ex { position: absolute; right: 96px; bottom: 58px; font-family: var(--font-ja); font-size: 32px; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="d2_level" data-width="1920" data-height="1080">
+    <div id="d2-paper"></div>
+    <svg id="d2-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <!-- 地面の断面（右下がり）。A=380（地面 800）、機械=960（860）、B=1540（920）。1 m = 200 px -->
+      <path id="d2-earth" d="M160 795 L380 800 L1540 920 L1760 925 V1080 H160 Z" fill="var(--grid)" opacity="0"/>
+      <path id="d2-ground" d="M160 795 L380 800 L1540 920 L1760 925" stroke="var(--ink)" stroke-width="4" fill="none" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+      <!-- 左右が同じ距離（機械は中間） -->
+      <g id="d2-eq" opacity="0" stroke="var(--navy)" stroke-width="3" fill="none" stroke-linecap="round">
+        <path d="M392 1000 H948 M392 988 V1012 M948 988 V1012 M972 1000 H1528 M972 988 V1012 M1528 988 V1012"/>
+        <path d="M660 990 l12 10 l-12 10 M684 990 l12 10 l-12 10 M1240 990 l12 10 l-12 10 M1264 990 l12 10 l-12 10" stroke-width="0"/>
+      </g>
+      <!-- 水準点（左の標尺の足元）と標尺台（右） -->
+      <g id="d2-bm" opacity="0">
+        <rect class="nv fp" stroke-width="4" x="352" y="800" width="56" height="12" rx="2"/>
+        <path class="nv" stroke-width="3" stroke-opacity="0.5" stroke-dasharray="8 8" d="M356 812 V900 H404 V812"/>
+        <path d="M368 801 A12 9 0 0 1 392 801 Z" style="fill: var(--navy)"/>
+      </g>
+      <g id="d2-plate" opacity="0">
+        <path class="nv fp" stroke-width="4" d="M1514 920 L1540 904 L1566 920 Z"/>
+      </g>
+      <!-- 標尺 A・B（幅 40、3 m = 600 px、足元が 0） -->
+      <g id="d2-staff-a" opacity="0">
+        <rect class="nv fp" stroke-width="4" x="360" y="200" width="40" height="600" rx="3"/>
+        <path id="d2-ticks-a" class="nv" stroke-width="3" d=""/>
+      </g>
+      <g id="d2-staff-b" opacity="0">
+        <rect class="nv fp" stroke-width="4" x="1520" y="320" width="40" height="600" rx="3"/>
+        <path id="d2-ticks-b" class="nv" stroke-width="3" d=""/>
+      </g>
+      <!-- 読み：目線から地面までの長さ（標尺の上のオレンジの帯） -->
+      <rect id="d2-read-a" x="364" y="560" width="32" height="240" fill="var(--orange)" opacity="0.85"/>
+      <rect id="d2-read-b" x="1524" y="560" width="32" height="360" fill="var(--orange)" opacity="0.85"/>
+      <!-- 差の段：A の地面の高さを右へ（紺の点線）、B の余分 0.6 m を濃く -->
+      <line id="d2-step-line" x1="408" y1="800" x2="1512" y2="800" stroke="var(--navy)" stroke-width="4" stroke-dasharray="2 14" stroke-linecap="round" opacity="0"/>
+      <rect id="d2-step" x="1524" y="800" width="32" height="120" fill="var(--navy)" opacity="0"/>
+      <!-- 機械（レベル）＋三脚。中心 (960,560) -->
+      <g id="d2-inst" opacity="0">
+        <path class="nv" stroke-width="4" d="M948 600 L904 860 M972 600 L1016 860 M960 600 V860"/>
+        <rect class="nv fp" stroke-width="4" x="926" y="588" width="68" height="14" rx="3"/>
+        <rect class="nv fp" stroke-width="4" x="940" y="572" width="40" height="16" rx="3"/>
+        <rect class="nv fp" stroke-width="4" x="900" y="540" width="120" height="34" rx="10"/>
+        <rect class="nv fp" stroke-width="4" x="886" y="548" width="16" height="22" rx="3"/>
+        <rect class="nv fp" stroke-width="4" x="1018" y="544" width="18" height="30" rx="4"/>
+      </g>
+    </svg>
+    <img id="d2-photo" src="assets/video/L11_still.png" alt="">
+    <svg id="d2-sight-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <!-- 目線＝水平の線（オレンジの点線）。光の線（基準点パートの実線）と区別する -->
+      <line id="d2-sight" x1="912" y1="512" x2="912" y2="512" stroke="var(--orange)" stroke-width="7" stroke-linecap="round" stroke-dasharray="2 16"/>
+    </svg>
+    <div id="d2-lbl-bm" class="d2-lbl" style="left: 150px; top: 830px; font-size: 40px; color: var(--navy); font-weight: 700;">水準点</div>
+    <div id="d2-lbl-0a" class="d2-lbl num" style="left: 318px; top: 770px; font-size: 36px; color: var(--navy);">0</div>
+    <div id="d2-lbl-0b" class="d2-lbl num" style="left: 1478px; top: 890px; font-size: 36px; color: var(--navy);">0</div>
+    <div id="d2-lbl-a" class="d2-lbl num" style="left: 420px; top: 640px; font-size: 56px; color: var(--orange-dark);">1.2 m</div>
+    <div id="d2-lbl-b" class="d2-lbl num" style="left: 1316px; top: 700px; font-size: 56px; color: var(--orange-dark);">1.8 m</div>
+    <div id="d2-lbl-low" class="d2-lbl" style="left: 1590px; top: 772px; font-size: 52px; color: var(--navy); font-weight: 700;"><span class="num">0.6 m</span><br>低い</div>
+    <div id="d2-cap"><span>目盛りが大きいほうが、低い</span></div>
+    <div id="d2-ex">数字は例です</div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 12;
+      const ex = Number(v.eye_x), ey = Number(v.eye_y), mx = Number(v.mid_x);
+      const q = (s) => document.querySelector(s);
+      // 標尺の目盛り（10 cm ごと、1 m ごとに長く）
+      const ticks = (x, foot) => { let d = ""; for (let i = 1; i < 30; i++) { const y = foot - i * 20; d += `M${x} ${y}h${i % 10 === 0 ? 26 : (i % 5 === 0 ? 18 : 10)}`; } return d; };
+      q("#d2-ticks-a").setAttribute("d", ticks(360, 800));
+      q("#d2-ticks-b").setAttribute("d", ticks(1520, 920));
+
+      const tl = gsap.timeline({ paused: true });
+      // 1) line：目線の点線が接眼レンズから右へ（0.7 秒）
+      q("#d2-sight").setAttribute("y1", ey); q("#d2-sight").setAttribute("y2", ey);
+      tl.fromTo("#d2-sight", { attr: { x1: ex, x2: ex } }, { attr: { x1: ex, x2: 1940 }, duration: 0.7, ease: "power2.out" }, c.line);
+
+      // 2) shrink：写真が縮んで図の機械 (960,560) になる。点線は写真と一緒に動き、同じ高さのまま
+      const S = 0.25, TX = 960 - S * mx, TY = 560 - S * ey, sd = 1.0, s0 = c.shrink;
+      tl.fromTo("#d2-photo", { x: 0, y: 0, scale: 1 }, { x: TX, y: TY, scale: S, duration: sd, ease: "power2.inOut" }, s0);
+      tl.fromTo("#d2-photo", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "power1.inOut", immediateRender: false }, s0 + sd + 0.05);
+      tl.fromTo("#d2-sight", { attr: { x1: ex, y1: ey, x2: 1940, y2: ey } },
+        { attr: { x1: TX + S * ex, y1: 560, x2: TX + S * 1940, y2: 560 }, duration: sd, ease: "power2.inOut", immediateRender: false }, s0);
+      tl.fromTo("#d2-inst", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power1.inOut" }, s0 + sd + 0.05);
+      // 地面 → 水準点・標尺台 → 標尺 A・B
+      tl.fromTo("#d2-ground", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power2.inOut" }, s0 + 1.45);
+      tl.fromTo("#d2-earth", { opacity: 0 }, { opacity: 0.35, duration: 0.5, ease: "power2.out" }, s0 + 1.6);
+      tl.fromTo(["#d2-bm", "#d2-lbl-bm"], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, s0 + 1.8);
+      tl.fromTo("#d2-plate", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, s0 + 1.9);
+      tl.fromTo("#d2-staff-a", { opacity: 0, y: -50 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, s0 + 2.0);
+      tl.fromTo("#d2-staff-b", { opacity: 0, y: -50 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, s0 + 2.15);
+      // 目線が左右の標尺までのびる（同じ高さのまま）
+      const x1a = TX + S * ex, x2a = TX + S * 1940;
+      tl.fromTo("#d2-sight", { attr: { x1: x1a, x2: x2a } }, { attr: { x1: 380, x2: 1540 }, duration: 0.6, ease: "power2.inOut", immediateRender: false }, s0 + 2.5);
+      // 機械は中間：左右に同じ長さの矢印（1.2 秒だけ）
+
+      // 4) 読み：目線から地面まで、オレンジの帯が下りる（A → B）
+      tl.fromTo("#d2-read-a", { attr: { height: 0 } }, { attr: { height: 240 }, duration: 0.5, ease: "power2.inOut" }, c.read_a);
+      tl.fromTo("#d2-lbl-a", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, c.read_a + 0.3);
+      tl.fromTo("#d2-read-b", { attr: { height: 0 } }, { attr: { height: 360 }, duration: 0.6, ease: "power2.inOut" }, c.read_b);
+      tl.fromTo("#d2-lbl-b", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, c.read_b + 0.4);
+      tl.set("#d2-read-a", { attr: { height: 0 } }, 0); tl.set("#d2-read-b", { attr: { height: 0 } }, 0);
+      // 5) 決め：文字 → 差の段（A の地面の高さを右へ、B の余り 0.6 m）
+      tl.fromTo("#d2-cap", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.caption);
+      tl.fromTo("#d2-step-line", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.diff);
+      tl.fromTo("#d2-step-line", { attr: { x2: 408 } }, { attr: { x2: 1512 }, duration: 0.6, ease: "power2.inOut", immediateRender: false }, c.diff);
+      tl.fromTo("#d2-step", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.diff + 0.6);
+      tl.fromTo("#d2-lbl-low", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, c.diff + 0.6);
+      tl.fromTo("#d2-ex", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, c.read_a);
+      tl.set({}, {}, dur);
+      window.__timelines["d2_level"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

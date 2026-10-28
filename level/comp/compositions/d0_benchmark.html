@@ -1,0 +1,84 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"stone_in\":0.0,\"staff_in\":0.7,\"term_in\":1.2,\"pulse\":2.8,\"out\":4.9}"},{"id":"dur","type":"number","label":"dur","default":5.0}]'>
+<body>
+<template>
+  <style>
+    /* 用語「水準点」（B3）：地面に埋まった標石（四角い石の頭に丸い突起）→ 標尺がその上に立つ → 用語カード。
+       基準点パートの d0（地面のしるし）と同じ組み方で、「位置がわかっている点」と対になる「高さがわかっている点」【要監修：標石の形】 */
+    #root { position: absolute; inset: 0; }
+    #b0-bg { position: absolute; inset: 0; background: var(--paper); }
+    #b0-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #b0-svg .nv { stroke: var(--navy); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    #b0-svg .fp { fill: var(--paper); }
+    #b0-card { position: absolute; left: 1040px; top: 560px; width: 780px; padding: 4px 0 8px 40px; }
+    #b0-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--orange); border-radius: 3px; transform-origin: 50% 0%; }
+    #b0-term { font-family: var(--font-ja); font-weight: 700; font-size: 72px; line-height: 1.3; color: var(--ink);
+      font-feature-settings: "palt"; white-space: nowrap; letter-spacing: 0.04em; }
+    #b0-desc { margin-top: 10px; font-family: var(--font-ja); font-weight: 400; font-size: 48px; line-height: 1.35; color: var(--ink);
+      font-feature-settings: "palt"; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="d0_benchmark" data-width="1920" data-height="1080">
+    <div id="b0-bg"></div>
+    <svg id="b0-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <g id="b0-hatch" stroke="var(--grid)" stroke-width="3" stroke-linecap="round" opacity="0">
+        <path d="M268 742 l-20 24 M304 742 l-20 24 M340 742 l-20 24 M376 742 l-20 24 M412 742 l-20 24 M448 742 l-20 24 M484 742 l-20 24
+                 M776 742 l-20 24 M812 742 l-20 24 M848 742 l-20 24 M884 742 l-20 24 M920 742 l-20 24 M956 742 l-20 24 M992 742 l-20 24"/>
+      </g>
+      <line id="b0-ground" x1="230" y1="730" x2="1010" y2="730" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="110"/>
+      <!-- 標石：地面の下に四角い石。頭だけ少し地面から出て、真ん中に丸い突起 -->
+      <g id="b0-stone" opacity="0">
+        <path class="nv fp" stroke-width="4" d="M572 716 H668 V890 H572 Z" stroke-dasharray="10 10" stroke-opacity="0.55"/>
+        <path class="nv fp" stroke-width="5" d="M566 716 L582 700 H658 L674 716 Z"/>
+        <rect class="nv fp" stroke-width="5" x="566" y="716" width="108" height="16" rx="2"/>
+        <path id="b0-bump" d="M604 702 A16 12 0 0 1 636 702 Z" fill="#1F3A5F" style="fill: var(--navy)"/>
+      </g>
+      <!-- 標尺（目盛りのついたものさし）：突起の上に立つ。足元が 0 -->
+      <g id="b0-staff" opacity="0">
+        <rect class="nv fp" stroke-width="4" x="602" y="250" width="36" height="448" rx="3"/>
+        <path class="nv" stroke-width="3" d="M602 290h14M602 330h22M602 370h14M602 410h22M602 450h14M602 490h22M602 530h14M602 570h22M602 610h14M602 650h22"/>
+      </g>
+      <line id="b0-lead-gap" x1="684" y1="716" x2="1024" y2="640" stroke="var(--paper)" stroke-width="11" stroke-linecap="round" opacity="0"/>
+      <line id="b0-lead" x1="684" y1="716" x2="1024" y2="640" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100 120" stroke-dashoffset="100"/>
+      <circle id="b0-lead-dot" cx="684" cy="716" r="6" fill="var(--ink)" opacity="0"/>
+    </svg>
+    <div id="b0-card">
+      <div id="b0-bar"></div>
+      <div id="b0-term">水準点</div>
+      <div id="b0-desc">高さがわかっている点</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const cs = getComputedStyle(document.documentElement);
+      const tok = (n, fb) => (cs.getPropertyValue(n) || "").trim() || fb;
+      const NAVY = tok("--navy", "#1F3A5F"), ORANGE = tok("--orange", "#E8742A");
+      const tl = gsap.timeline({ paused: true });
+      const s = c.stone_in, st = c.staff_in, k = c.term_in;
+
+      // 地面 → 標石（頭が地面から少し出る）
+      tl.fromTo("#b0-ground", { attr: { "stroke-dashoffset": 110 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.inOut" }, s);
+      tl.fromTo("#b0-hatch", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, s + 0.2);
+      tl.fromTo("#b0-stone", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, s + 0.2);
+      // staff_in：標尺が上から下りて、突起の上に立つ（前のカットの「遠くの標尺の人」から形でつなぐ）
+      tl.fromTo("#b0-staff", { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, st);
+      // term_in：引き出し線 → 用語カード（画が先、言葉が後）
+      tl.fromTo(["#b0-lead-gap", "#b0-lead-dot"], { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, k - 0.22);
+      tl.fromTo("#b0-lead", { attr: { "stroke-dashoffset": 100 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out" }, k - 0.18);
+      tl.fromTo("#b0-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: "power3.out" }, k);
+      tl.fromTo(["#b0-term", "#b0-desc"], { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, k + 0.05);
+      // pulse：言葉「水準点」で突起が1回だけオレンジに灯って紺に戻る
+      tl.fromTo("#b0-bump", { fill: NAVY }, { fill: ORANGE, duration: 0.15, ease: "power2.out" }, c.pulse);
+      tl.fromTo("#b0-bump", { fill: ORANGE }, { fill: NAVY, duration: 0.4, ease: "power2.inOut", immediateRender: false }, c.pulse + 0.45);
+      // 場面全体：標石へゆっくり寄る（毎秒1.5%）
+      const D = Math.max(Number(v.dur) || 0, c.out || 0);
+      tl.fromTo("#b0-svg", { scale: 1, transformOrigin: "620px 716px" }, { scale: 1 + 0.015 * D, transformOrigin: "620px 716px", duration: D, ease: "none" }, 0);
+      tl.set({}, {}, D);
+      window.__timelines["d0_benchmark"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

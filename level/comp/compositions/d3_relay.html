@@ -1,0 +1,85 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"in\":0.0,\"p1\":0.45,\"move\":2.05,\"leap\":2.55,\"line2\":3.05,\"p2\":3.95,\"back\":4.35,\"out\":5.0}"},{"id":"dur","type":"number","label":"dur","default":5.06}]'>
+<body>
+<template>
+  <style>
+    /* 高さのバトン（B7）：目線がとどくのは目で読める所まで → 機械を前へ移し、高さを次の点へつなぐ。
+       現場の順【要監修】：機械が次の中間点へ進む → 前の標尺（P1）はその場に残る → 後ろの標尺（P0）が次の点（P2）へ（図では P0 で消えて P2 に立つ：数字の上を飛ばない＝独立レビュー v1.1）。高さの数字は地面の点の下に付ける。
+       （往復の矢印は尺が足りず外した：残り 0.3 秒では読めない。往復は N6 の声だけ）。1 m = 100 px。数字は例 */
+    #root { position: absolute; inset: 0; }
+    #d3-bg { position: absolute; inset: 0; background: var(--paper); }
+    #d3-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    .nv { stroke: var(--navy); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .fp { fill: var(--paper); }
+    .d3-h { position: absolute; width: 260px; margin-left: -130px; text-align: center; font-family: var(--font-num); font-weight: 700;
+      font-size: 48px; line-height: 1.2; white-space: nowrap; opacity: 0; }
+    .d3-t { position: absolute; font-family: var(--font-ja); white-space: nowrap; opacity: 0; font-feature-settings: "palt"; }
+  </style>
+  <div id="root" data-composition-id="d3_relay" data-width="1920" data-height="1080">
+    <div id="d3-bg"></div>
+    <svg id="d3-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <!-- 地面：P0=300（760）、P1=900（820）、P2=1500（785） -->
+      <path d="M140 755 L300 760 L900 820 L1500 785 L1780 770 V1080 H140 Z" fill="var(--grid)" opacity="0.35"/>
+      <path d="M140 755 L300 760 L900 820 L1500 785 L1780 770" stroke="var(--ink)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- 水準点（P0） -->
+      <rect class="nv fp" stroke-width="4" x="278" y="760" width="44" height="10" rx="2"/>
+      <path d="M290 761 A10 7 0 0 1 310 761 Z" style="fill: var(--navy)"/>
+      <!-- 点の印（P1・P2：標尺台） -->
+      <path class="fp" stroke="var(--orange)" stroke-width="4" stroke-linejoin="round" d="M884 820 L900 808 L916 820 Z"/>
+      <path class="fp" stroke="var(--orange)" stroke-width="4" stroke-linejoin="round" d="M1484 785 L1500 773 L1516 785 Z"/>
+      <!-- 行きの道のり（目線のつながり）と、帰りの点線の矢印 -->
+      <path id="d3-back" d="M1500 900 H300" stroke="var(--navy)" stroke-width="5" stroke-dasharray="4 14" stroke-linecap="round" fill="none"
+            pathLength="100" opacity="0"/>
+      <path id="d3-back-head" d="M324 884 L300 900 L324 916" class="nv" stroke-width="5" opacity="0"/>
+      <!-- 目線（1回目：機械 600、高さ 640 ／ 2回目：機械 1200、高さ 652） -->
+      <line id="d3-far" x1="900" y1="640" x2="900" y2="640" stroke="var(--orange)" stroke-width="6" stroke-dasharray="2 14" stroke-linecap="round"/>
+      <line id="d3-sight" x1="300" y1="640" x2="900" y2="640" stroke="var(--orange)" stroke-width="6" stroke-dasharray="2 14" stroke-linecap="round"/>
+      <!-- 標尺（後ろ＝r、前＝f）。高さ 300 px。足元を (0,0) に置いて動かす -->
+      <g id="d3-staff-r"><rect class="nv fp" stroke-width="3.5" x="-12" y="-300" width="24" height="300" rx="2"/><path class="nv" stroke-width="2" d="M-12 -10h6M-12 -20h6M-12 -30h6M-12 -40h6M-12 -50h10M-12 -60h6M-12 -70h6M-12 -80h6M-12 -90h6M-12 -100h14M-12 -110h6M-12 -120h6M-12 -130h6M-12 -140h6M-12 -150h10M-12 -160h6M-12 -170h6M-12 -180h6M-12 -190h6M-12 -200h14M-12 -210h6M-12 -220h6M-12 -230h6M-12 -240h6M-12 -250h10M-12 -260h6M-12 -270h6M-12 -280h6M-12 -290h6"/></g>
+      <g id="d3-staff-f"><rect class="nv fp" stroke-width="3.5" x="-12" y="-300" width="24" height="300" rx="2"/><path class="nv" stroke-width="2" d="M-12 -10h6M-12 -20h6M-12 -30h6M-12 -40h6M-12 -50h10M-12 -60h6M-12 -70h6M-12 -80h6M-12 -90h6M-12 -100h14M-12 -110h6M-12 -120h6M-12 -130h6M-12 -140h6M-12 -150h10M-12 -160h6M-12 -170h6M-12 -180h6M-12 -190h6M-12 -200h14M-12 -210h6M-12 -220h6M-12 -230h6M-12 -240h6M-12 -250h10M-12 -260h6M-12 -270h6M-12 -280h6M-12 -290h6"/></g>
+      <!-- 機械＋三脚（目線の高さが原点） -->
+      <g id="d3-inst">
+        <path class="nv" stroke-width="3.5" d="M-8 22 L-36 150 M8 22 L36 150 M0 22 V150"/>
+        <rect class="nv fp" stroke-width="3.5" x="-40" y="-13" width="80" height="24" rx="8"/>
+        <rect class="nv fp" stroke-width="3.5" x="-16" y="11" width="32" height="11" rx="2"/>
+      </g>
+    </svg>
+    <div id="d3-h0" class="d3-h" style="left: 300px; top: 790px; color: var(--navy); opacity: 1;">10.00 m</div>
+    <div id="d3-h1" class="d3-h" style="left: 900px; top: 850px; color: var(--orange-dark);">9.40 m</div>
+    <div id="d3-h2" class="d3-h" style="left: 1500px; top: 815px; color: var(--orange-dark);">9.75 m</div>
+    <div class="d3-t" style="left: 150px; top: 690px; font-size: 36px; font-weight: 700; color: var(--navy); opacity: 1;">水準点</div>
+    <div class="d3-t" style="right: 96px; bottom: 58px; font-size: 32px; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); opacity: 1;">数字は例です</div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const dur = Number(v.dur) || 5;
+      const tl = gsap.timeline({ paused: true });
+      // 初めの形：機械は P0 と P1 の中間（600）、後ろの標尺は P0、前の標尺は P1。目線は 1 回目の高さ
+      tl.fromTo("#d3-inst", { x: 600, y: 640 }, { x: 600, y: 640, duration: 0.01 }, 0);
+      tl.fromTo("#d3-staff-r", { x: 300, y: 760 }, { x: 300, y: 760, duration: 0.01 }, 0);
+      tl.fromTo("#d3-staff-f", { x: 900, y: 820 }, { x: 900, y: 820, duration: 0.01 }, 0);
+      // reach：目線は先へも伸びるが、遠くでは薄れて読めない（言葉「目で読める所まで」）
+      tl.fromTo("#d3-far", { attr: { x2: 900 }, opacity: 1 }, { attr: { x2: 1700 }, duration: 0.9, ease: "power1.out" }, c.reach);
+      tl.fromTo("#d3-far", { opacity: 1 }, { opacity: 0, duration: 0.7, ease: "power1.in", immediateRender: false }, c.reach + 0.3);
+      // p1：P1 の高さが灯る（1 回目の結果）
+      tl.fromTo("#d3-h1", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, c.p1);
+      // move：目線が消え、機械が次の中間点（1200）へ進む
+      tl.to("#d3-sight", { opacity: 0, duration: 0.2, ease: "power2.in" }, c.move - 0.1);
+      tl.to("#d3-inst", { x: 1200, y: 652, duration: 0.5, ease: "power2.inOut" }, c.move);
+      // leap：後ろの標尺（P0）が機械を追い越して P2 へ（弧をえがいて）
+      tl.to("#d3-staff-r", { opacity: 0, duration: 0.25, ease: "power2.in" }, c.leap);
+      tl.fromTo("#d3-staff-r", { x: 1500, y: 745 }, { x: 1500, y: 785, duration: 0.3, ease: "power2.out", immediateRender: false }, c.leap + 0.25);
+      tl.fromTo("#d3-staff-r", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, c.leap + 0.25);
+      // line2：2 回目の目線（P1 → P2）
+      tl.fromTo("#d3-sight", { attr: { x1: 900, y1: 652, x2: 900, y2: 652 }, opacity: 1 },
+        { attr: { x1: 900, y1: 652, x2: 1500, y2: 652 }, duration: 0.5, ease: "power2.out", immediateRender: false }, c.line2);
+      // p2：P2 の高さが灯る（言葉「次の点」）
+      tl.fromTo("#d3-h2", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, c.p2);
+      tl.set({}, {}, dur);
+      window.__timelines["d3_relay"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

@@ -1,0 +1,40 @@
+node_modules/
+source/*
+!source/README.md
+intermediate/
+renders/
+deliver/*.mp4
+deliver/*.wav
+comp/assets/video/
+comp/assets/audio/
+audio/**/*.wav
+audio/**/*.mp3
+qc/**/*.mp4
+*.log
+__pycache__/
+dev/
+comp/.hyperframes/
+comp/compositions/gen/
+comp/assets/fonts/*.woff2
+comp/assets/vendor/
+
+# 外部の素材（再配布禁止：効果音ラボ、OpenTracks）。assets/README.md・source/README.md
+assets/se/
+source/music/
+# 独立レビューのフォルダ（作り直せる）
+qc/*/review_pack/
+# 書き出しと参考の比較（scripts/46_compare_ref.sh。作り直せる）
+qc/compare/
+# 元映像から作った画像・映像（社内の映像の一部。media の zip で渡す。新しいリポジトリにコミットしない）
+plan/editing_storyboard.png
+qc/**/*.jpg
+qc/**/*.png
+analysis/**/*.jpg
+analysis/**/*.png
+storyboard/
+reference/renders/
+*.mp4
+# Python の部品（scripts/00_setup.sh が作る）
+.venv/
+# 担当レビューの作業場所（prompts/20）
+work/

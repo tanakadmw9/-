@@ -1,0 +1,17 @@
+{
+ "source": "01_new_departure.mp3",
+ "beat0": 1.9567,
+ "beat_period": 0.63199,
+ "bars": "1-12,25-36",
+ "hold": {
+  "at": 55.0,
+  "len": 3.0,
+  "xfade": 0.4
+ },
+ "splices": [
+  30.336,
+  55.0
+ ],
+ "length": 60.661,
+ "need": 60.661
+}

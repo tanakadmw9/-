@@ -1,0 +1,29 @@
+{
+  "name": "kijunten-kit",
+  "version": "1.0.0",
+  "description": "家族参観ミニシアター「基準点測量」パートの映像制作一式（v4.10）。AI エージェント（Codex・Claude Code）は AGENTS.md から、人は README.md から読む。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanakadmw9/-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tanakadmw9/-/issues"
+  },
+  "homepage": "https://github.com/tanakadmw9/-#readme",
+  "devDependencies": {
+    "@fontsource/biz-udgothic": "5.3.0",
+    "@fontsource/biz-udpgothic": "5.3.0",
+    "gsap": "3.15.0",
+    "hyperframes": "0.8.206"
+  }
+}

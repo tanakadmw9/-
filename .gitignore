@@ -23,6 +23,8 @@ assets/se/
 source/music/
 # 独立レビューのフォルダ（作り直せる）
 qc/*/review_pack/
+# 書き出しと参考の比較（scripts/46_compare_ref.sh。作り直せる）
+qc/compare/
 # 元映像から作った画像・映像（社内の映像の一部。media の zip で渡す。新しいリポジトリにコミットしない）
 plan/editing_storyboard.png
 qc/**/*.jpg

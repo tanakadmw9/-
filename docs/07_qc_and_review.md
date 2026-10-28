@@ -29,7 +29,7 @@ Claude Code は動画を「見る」「聞く」ことができない。だか�
 
 ## 3. 独立レビュー（サブエージェント）
 
-- 書き出しごとに、作った本人ではない別のセッションに審査させる。`bash scripts/45_review_pack.sh <版>` が `qc/<版>/review_pack/`（指示の AGENTS.md、映像、シート、レポート、原稿と時刻、規定、作り手の依頼、前回のレビュー）を作るので、レビュアーはそのフォルダだけを見る（Codex：新しいセッション／タスク。Claude Code：`video-reviewer` サブエージェント）。コードを見ずに、ブリーフと画とレポートだけで判断させる。指示の全文は prompts/40_independent_review.md。
+- 書き出しごとに、作った本人ではない別のセッションに審査させる。`bash scripts/45_review_pack.sh <版>` が `qc/<版>/review_pack/`（指示の AGENTS.md、映像、シート、レポート、原稿と時刻、規定、作り手の依頼、前回のレビュー）を作るので、レビュアーはそのフォルダだけを見る（Codex：新しいセッション／タスク。Claude Code：`video-reviewer` サブエージェント）。コードを見ずに、ブリーフと画とレポートだけで判断させる。指示の全文は prompts/40_independent_review.md。作り手の依頼は `qc/<版>/request.md` に書き、レビュアーはフォルダの中に `review.md` を書く。作り手が `bash scripts/45_review_pack.sh <版> --collect` で `qc/<版>/review.md` に移して残す。
 - 返ってきた指摘は「対応する／しない（理由）」を decisions.md に書いてから直す。
 
 ## 4. 人間の試写

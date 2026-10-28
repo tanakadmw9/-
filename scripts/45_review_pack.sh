@@ -13,7 +13,8 @@ VER=${1:?版を指定（例 v4.11）}
 Q=qc/$VER; P=$Q/review_pack
 collect(){  # review_pack/review.md → qc/<版>/review.md（前のものは review_<時刻>.md に残す）
   [ -f "$P/review.md" ] || return 0
-  if [ -f "$Q/review.md" ] && ! cmp -s "$P/review.md" "$Q/review.md"; then
+  if [ -f "$Q/review.md" ] && cmp -s "$P/review.md" "$Q/review.md"; then return 0; fi   # もう移してある
+  if [ -f "$Q/review.md" ]; then
     mv "$Q/review.md" "$Q/review_$(date +%Y%m%d-%H%M%S).md"
   fi
   cp "$P/review.md" "$Q/review.md"

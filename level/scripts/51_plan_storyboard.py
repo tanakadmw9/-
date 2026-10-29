@@ -1,7 +1,10 @@
-"""計画段階の絵コンテ（ゲート1 用）を、元の素材のコマ（ぼかし済み）と手描きのスケッチから作る。v6.1（32小節・80.9 秒）。
-秒・切り出し窓・文は plan/editing_v6.md（32小節が正本）と plan/content_v6.md（v6.1）§3・§4 の写し。v5 の版は git の履歴にある。
-使い方：python3 scripts/51_plan_storyboard.py /mnt/project-files/level/storyboard_v6/
-出力：storyboard_v6_p1.jpg〜p3.jpg（素材から作った画像なので、リポジトリには入れない）。幅 1080 の縦長＝スマホで縦に読む。
+"""計画段階の絵コンテ（ゲート1 用）を、元の素材のコマ（ぼかし済み）と手描きのスケッチから作る。
+版を2つ持つ：v7「高さの目印をつくる」（既定。plan/editing_v7.md・content_v7.md の写し）と v6.1「ふたりで描く、道の横顔」（editing_v6.md）。v5 の版は git の履歴（04608e5）にある。
+使い方：python3 scripts/51_plan_storyboard.py <出力フォルダ> [v7|v6] [v5 の版のスクリプト（diff_v5.jpg 用。省略可）]
+  例: python3 scripts/51_plan_storyboard.py /mnt/project-files/level/storyboard_v7/ v7 /tmp/sb_v5.py
+      （v5 の版は git show 04608e5:./scripts/51_plan_storyboard.py > /tmp/sb_v5.py で取り出す）
+出力：storyboard_<版>_p1.jpg〜（素材から作った画像なので、リポジトリには入れない）。幅 1080 の縦長＝スマホで縦に読む。
+      v7 のときは diff_v5.jpg（v5 と何が違うかの3コマ）も。
 """
 import pathlib, subprocess, sys, io, math
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -11,6 +14,7 @@ OUT = pathlib.Path(sys.argv[1]); OUT.mkdir(parents=True, exist_ok=True)
 SRC = {k: ROOT / f"source/{v}.mp4" for k, v in {"S": "S_sueru", "K": "K_kansoku", "N": "N_nozoki"}.items()}
 FONT = "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf"
 NAVY, ORANGE, PAPER, GRID, INK, FAINT = "#1F3A5F", "#E8742A", "#F4F1EA", "#E2DCCD", "#14202E", "#B9C1CC"
+PAPER7, GLOW = "#FBF8F2", "#FFD9BC"
 TW, TH = 520, 293          # コマ1枚
 W = 1080
 
@@ -32,10 +36,13 @@ def frame(src, t, crop=None, masks=()):
             im.paste(im.crop(box).filter(ImageFilter.GaussianBlur(r)), box[:2])
     return im.resize((TW, TH), Image.LANCZOS)
 
+GRID_ON = True
 def paper():
-    im = Image.new("RGB", (TW, TH), PAPER); d = ImageDraw.Draw(im)
-    for x in range(0, TW, 26): d.line([(x, 0), (x, TH)], fill=GRID, width=1)
-    for y in range(0, TH, 26): d.line([(0, y), (TW, y)], fill=GRID, width=1)
+    """v6 は方眼。v7 は方眼なしの無地（v5 の方眼の図と見た目を分ける）。"""
+    im = Image.new("RGB", (TW, TH), PAPER if GRID_ON else PAPER7); d = ImageDraw.Draw(im)
+    if GRID_ON:
+        for x in range(0, TW, 26): d.line([(x, 0), (x, TH)], fill=GRID, width=1)
+        for y in range(0, TH, 26): d.line([(0, y), (TW, y)], fill=GRID, width=1)
     return im, d
 
 def dotted(d, a, b, color=ORANGE, w=4, step=12):
@@ -290,7 +297,7 @@ def page(rows, n, of):
     cards = [card(r, tmp) for r in rows]
     H = 120 + sum(c.height for c in cards)
     im = Image.new("RGB", (W, H), "white"); d = ImageDraw.Draw(im)
-    d.text((PAD, 14), f"水準測量パート 絵コンテ v6.1　{n}/{of}", font=font(34), fill=INK)
+    d.text((PAD, 14), f"水準測量パート 絵コンテ {TITLE}　{n}/{of}", font=font(34), fill=INK)
     d.text((PAD, 62), "32小節・80.9秒・曲 V6d（8小節で止め）。コマは元の素材（ぼかし済み）、", font=font(22), fill="#555")
     d.text((PAD, 90), "図は手描きのスケッチ。秒は完成尺。社外に出さない。", font=font(22), fill="#555")
     y = 120
@@ -298,8 +305,209 @@ def page(rows, n, of):
         im.paste(c, (0, y)); y += c.height
     return im
 
-groups = [ROWS[0:4], ROWS[4:8], ROWS[8:12]]
+
+# ======================= v7「高さの目印をつくる」 =======================
+def observer_r(d, x, g, h, color=NAVY, w=3):
+    """観測者（右向き）：機械の左に回って、うしろのものさしをのぞく。"""
+    hip = (x - h * .05, g - h * .50); sh = (x + h * .18, g - h * .78); hr = h * .07
+    d.line([(x + h * .05, g), hip], fill=color, width=w); d.line([(x - h * .12, g), hip], fill=color, width=w)
+    d.line([hip, sh], fill=color, width=w + 2)
+    d.ellipse([sh[0] + h * .20 - hr, sh[1] - hr * 2.2, sh[0] + h * .20 + hr, sh[1] - hr * 0.2], outline=color, width=w)
+    d.line([sh, (sh[0] + h * .10, g - h * .62)], fill=color, width=w)
+
+def mark(d, x, y, col=NAVY, s=11, fill=True):   # □ に点（高さの目印）
+    d.rectangle([x - s, y - s, x + s, y + s], outline=col, width=3, fill=(col if fill else None))
+    d.ellipse([x - 3, y - 3, x + 3, y + 3], fill="white" if fill else col)
+
+def staff(d, x, foot, top, col=NAVY, w=3, dash=False):
+    if dash:
+        for y in range(int(top), int(foot), 10): d.line([(x - 3, y), (x - 3, min(y + 5, foot))], fill=col, width=2); d.line([(x + 3, y), (x + 3, min(y + 5, foot))], fill=col, width=2)
+    else:
+        d.rectangle([x - 3, top, x + 3, foot], outline=col, width=2)
+
+def lit(d, x, y0, y1, col):   # ものさしの「線から下」が灯る（別の棒は足さない）
+    d.line([(x, y0), (x, y1)], fill=GLOW, width=14); d.line([(x, y0), (x, y1)], fill=col, width=6)
+
+def sk7_side2():
+    im, d = paper()
+    gr = [(510, 215), (300, 222), (20, 242)]
+    d.line(gr, fill=NAVY, width=3)
+    eye = (322, 152)
+    level(d, 300, 222, 70)
+    observer(d, 352, 222, 92)
+    holder(d, 66, 242, 92, staff=False); staff(d, 96, 242, 120)
+    dotted(d, eye, (100, 152))
+    lit(d, 96, 152, 242, ORANGE)
+    label(d, (14, 14), "② 真横の図に → 目からの点線（音なし）", 19, box=True)
+    label(d, (120, 108), "水平な一本の線", 22)
+    return tag(im, "22.3–24.4")
+
+def sk7_fold3(caption=True):
+    im, d = paper()
+    gr = [(510, 215), (300, 222), (20, 242)]
+    d.line(gr, fill=NAVY, width=3)
+    level(d, 300, 222, 70)
+    observer_r(d, 262, 222, 92)
+    holder(d, 66, 242, 92, staff=False); staff(d, 96, 242, 120)
+    # まえへの線は消す（観測者の体を通さない。まえの読みは標尺の灯りで残る）
+    mark(d, 452, 215, NAVY, 10); staff(d, 452, 205, 95, NAVY, dash=True)
+    dotted(d, (304, 152), (448, 152))
+    lit(d, 452, 152, 205, NAVY); lit(d, 96, 152, 242, ORANGE)
+    for y in range(215, 242, 1): pass
+    dotted(d, (446, 215), (102, 215), NAVY, 2, 8)                      # うしろの地面の高さを横へ
+    d.line([(96, 215), (96, 242)], fill=GLOW, width=22); d.line([(96, 215), (96, 242)], fill=ORANGE, width=8)
+    label(d, (110, 252), "段差＝まえが低い", 19, fill=ORANGE)
+    label(d, (420, 228), "水準点", 16)
+    label(d, (380, 66), "あらわれる", 18, fill=NAVY)
+    if caption: label(d, (14, 14), "③ うしろのものさしと□があらわれる", 19, box=True)
+    return tag(im, "24.4–30.3")
+
+ST = [(470, 200), (360, 225), (250, 215), (140, 195), (40, 185)]   # S0（紺の□）→ S4（新しい□）。まえ＝左
+def ground7(d, col=NAVY):
+    d.line([(515, 198)] + ST + [(5, 183)], fill=col, width=3)
+
+def arc(d, a, b, col, w=3, up=34, dashed=True):
+    pts = [(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t - up * math.sin(math.pi * t)) for t in [i / 16 for i in range(17)]]
+    for i in range(0, 16, 2 if dashed else 1): d.line([pts[i], pts[i + 1]], fill=col, width=w)
+    d.polygon([(b[0] - 6, b[1] - 12), (b[0] + 6, b[1] - 12), (b[0], b[1] - 3)], fill=col)
+
+def sk7_relay():
+    im, d = paper(); ground7(d)
+    mark(d, *ST[0], NAVY, 10)
+    for i, (x, g) in enumerate(ST[1:4], 1): staff(d, x, g, g - 110, FAINT, 2)
+    for x in (415, 305, 195): level(d, x, 205, 60, FAINT, 2)          # 機械のいた所（うすく）
+    level(d, 90, 195, 60)
+    staff(d, 140, 195, 85); staff(d, 40, 185, 75)
+    for i in range(1, 4): arc(d, (ST[i][0], ST[i][1] - 8), (ST[i + 1][0], ST[i + 1][1] - 8), ORANGE)
+    for x, g in ST[1:4]: d.ellipse([x - 5, g - 13, x + 5, g - 3], fill=ORANGE)
+    d.line([(40, 185), (40, 185)], fill=ORANGE); mark(d, 40, 185, ORANGE, 11)
+    label(d, (14, 14), "尺取り3回（0.9／0.7／0.5秒）：印がとなりへ", 19, box=True)
+    label(d, (190, 56), "となりへ、となりへ", 22)
+    label(d, (14, 236), "新しい高さの目印", 19, fill=ORANGE)
+    label(d, (380, 236), "わかっている□", 17)
+    return tag(im, "35.4–43.0")
+
+def sk7_return():
+    im, d = paper(); ground7(d)
+    mark(d, *ST[0], NAVY, 10)
+    for x, g in ST[1:4]: staff(d, x, g, g - 60, FAINT, 2)
+    for i in range(1, 4): arc(d, (ST[i][0], ST[i][1] - 6), (ST[i + 1][0], ST[i + 1][1] - 6), "#F2C7A6", 2, 26)     # 行き（うすく）
+    for i in range(4, 0, -1): arc(d, (ST[i][0], ST[i][1] - 4), (ST[i - 1][0], ST[i - 1][1] - 4), NAVY, 3, 52)       # 帰り
+    d.ellipse([ST[0][0] - 22, ST[0][1] - 22, ST[0][0] + 22, ST[0][1] + 22], outline=ORANGE, width=3)               # 重なる
+    mark(d, 40, 185, NAVY, 11)
+    d.rectangle([28, 60, 52, 84], outline=ORANGE, width=3); d.line([(56, 72), (78, 72)], fill=INK, width=2)
+    d.polygon([(78, 66), (78, 78), (88, 72)], fill=INK); mark(d, 102, 72, NAVY, 11)
+    label(d, (14, 14), "帰り：逆向き・2倍の速さ。重なって□が紺に", 19, box=True)
+    label(d, (210, 100), "帰り", 20); label(d, (300, 148), "行き", 17, fill=ORANGE)
+    label(d, (14, 236), "高さの目印（オレンジ→紺）", 19)
+    return tag(im, "48.0–53.1")
+
+def sk7_road():
+    im, d = paper()
+    f = lambda x: 205 + 16 * math.sin(x / 47) + 9 * math.sin(x / 19)
+    d.line([(x, f(x)) for x in range(20, TW - 10, 6)], fill=NAVY, width=2)
+    mark(d, 46, f(46), NAVY, 10)
+    road = [(x, 175 - 0.06 * (x - 120) + 8 * math.sin(x / 160)) for x in range(120, TW - 10, 6)]
+    dotted(d, (56, f(46) - 10), road[0], NAVY, 2, 8)
+    d.line(road, fill=NAVY, width=8)
+    label(d, (14, 14), "目印の高さから → 新しい道の線", 19, box=True)
+    label(d, (300, 120), "道の高さ", 24)
+    label(d, (14, 252), "（短く。横顔は小さく、主役は□と道の線）", 16, fill=INK)
+    return tag(im, "53.1–58.1")
+
+def sk7_end():
+    im, d = paper()
+    mark(d, 160, 150, NAVY, 40)
+    d.line([(230, 150), (330, 150)], fill=INK, width=3); d.polygon([(330, 140), (330, 160), (348, 150)], fill=INK)
+    d.ellipse([370, 115, 440, 185], outline=ORANGE, width=5); d.rectangle([400, 128, 410, 172], outline=ORANGE, width=3)
+    label(d, (14, 14), "終わりの画：紺の□が縮んで水準アイコンへ", 19, box=True)
+    label(d, (60, 236), "“高さの目印” をつくる", 28)
+    return tag(im, "78.4–80.4")
+
+def ov_title7(im):
+    band = Image.new("RGBA", (272, 120), (20, 32, 46, 150)); im.paste(band, (0, 8), band)   # x 1000 より左だけ（批評 編7）
+    d = ImageDraw.Draw(im)
+    label(d, (16, 16), "水準測量", 44, fill="white"); label(d, (18, 72), "“高さの目印”をつくる", 22, fill="white")
+    return im
+
+def sk_trace7():
+    im = frame("K", 7.82, KW132, MK_ALL)
+    d = ImageDraw.Draw(im); s = TW / 1455
+    P = lambda x, y: ((x - 465) * s, (y - 60) * s)
+    d.line([P(735, 630), P(1013, 878)], fill="white", width=4)
+    for fx, fy in ((720, 830), (1075, 878), (1150, 878)): d.line([P(1085, 400), P(fx, fy)], fill="white", width=3)
+    d.rectangle([*P(665, 405), *P(748, 685)], outline="white", width=3)
+    d.rectangle([*P(1090, 278), *P(1430, 878)], outline="white", width=3)
+    label(d, (14, 14), "なぞる：外形の線だけ（顔は描かない）", 19, box=True)
+    return tag(im, "18.96 止め → 20.2 なぞる")
+
+K115 = (125, 70, 1670, 939)
+ROWS_V7 = [
+    ("B1 章扉", "1小節　0.0–2.5", [lambda: tag(sk_door(), "1.26 灯る")],
+     "N1a 0.30「測量部門の仕事のひとつ、」", "章扉（共通）。3拍目で水準のアイコン（標尺）だけ灯る", "章扉の灯り（共通）", "部門の中の1作業"),
+    ("B2 据える", "2–3小節　2.5–7.6", [lambda: tag(frame("S", 49.6, (70, 82, 707, 398), M1), "S 48.58– 実時間"), lambda: tag(ov_title7(frame("S", 53.3, (70, 82, 707, 398), M1)), "6.95 載る＝題")],
+     "N1b 6.65「水準測量です。」", "早回しなしの1本：ケースを開ける → 持ち上げる → 6.95 に載る。題とサブ「“高さの目印”をつくる」は三脚の左の空だけ（帯は x 1000 より左）", "前奏。載る音（実音）。曲 −12 dB", "人の手が仕事を始める所から（v5 の早回しと違う手ざわり）"),
+    ("B3 水平に", "4–5小節　7.6–12.6", [lambda: tag(frame("S", 66.0, (170, 40, 678, 381), M1), "S 56–74 4.75倍（早回しはここだけ）"), lambda: tag(frame("N", 2.6, (600, 180, 1200, 675)), "N 2.0–3.3")],
+     "N2 8.39「地面の高さを、はかります。まず、機械を水平に。」", "整準（頭を下げて気泡を見る）→ 目を当てる寄り。ラベル「レベル」", "道の環境音", "「高さ」を声で最初に言う。水平が線の前提"),
+    ("B4 ふたり", "6–8小節　12.6–20.2", [lambda: tag(frame("K", 3.0, None, MK + [TRUCK[3.0]]), "K 1.5 全画面から"), lambda: tag(ov_label(frame("K", 7.82, KW132, MK_ALL), (40, 30), "標尺", (93, 120)), "1.32倍 → K 7.82 で止める")],
+     "N3 13.04「のぞく先には、仲間がひとり。長いものさしを、ゆらさずに立てています。」（〜19.31）", "歩いて来てかがむ。15.17 にラベル「標尺」。18.96（K 7.82）で止まる＝1.26 秒の止め絵", "K の実音。17.70 に曲が止まる → 声の終わりを止め絵の上で聞き、0.9 秒は現場の音だけ", "二人目の人と、その仕事（ゆらさずに立てる）"),
+    ("B5 看板 1/2", "9–10小節　20.2–25.3", [sk_trace7, lambda: tag(sk_stage1(), "21.3–22.3")],
+     "N4 20.62「のぞく目は、まっすぐ水平な、一本の線。」", "一番強い頭でなぞる → 溶ける（21.02–21.65）と重ねて ① 標尺手だけが観測者と同じ大きさに（21.33–22.27）→ ② 地面が先に水平になり、人と機械が着地（22.27–22.99）", "曲で一番強い頭", "1本目の「倒れる」と対：たたんで真横に"),
+    ("B5 看板 2/2", "10–12小節　22.8–30.3", [sk7_side2, sk7_fold3],
+     "N5 24.44「うしろと、まえ。」　N6 26.60「まえが長ければ、そのぶん、地面は低い。」", "目からの点線がまえの標尺に届く 23.60（音なし）→ まえの標尺の線から下が灯る → ③ 観測者は機械の左へ回り、右にうしろのものさしと紺の□があらわれる（24.44）→ 線から下が灯る → 28.44 段差が光る", "鉄琴は段差の所だけ（C6、28.44）", "しくみ：水平な線で、となりとの高さの差"),
+    ("B6 こえる", "13–14小節　30.3–35.4", [lambda: tag(frame("S", 168.8, None, M2), "S 165.67–170.73 全画面・実時間")],
+     "N7 30.74「読んだら、うしろのものさしが、機械をこえて前へ。」（「こえて」≈33.6）", "観測者が機械をのぞく → 32.87 に標尺手が右手前からあらわれ、機械の横を通って前へ（33.9）", "足音・道の音（実音）", "実写の「うしろのものさしが前へ」"),
+    ("B7 運ぶ", "15–17小節　35.4–43.0", [sk7_relay],
+     "N8 35.79「となりへ、となりへ、高さを運びます。」　N9 39.42「たどり着いた所に、新しい、高さの目印。」", "紺の□（右）から左へ、尺取り3回。印が渡る 37.92／39.18／39.97 → 42.34 にオレンジの□が灯る。注記「高さを大きくした図です」", "鉄琴：渡るたびに1音（D・G・A）、灯る所で和音", "なるほど：高さを、となりへ運ぶ"),
+    ("B8 書く", "18–19小節　43.0–48.0", [lambda: tag(frame("K", 17.0, (720, 0, 1200, 675), MK + [TRUCK[17.0], SHOP_17, HELMET_17]), "K 16.2–21.26 1.6倍")],
+     "N10 43.38「読んだ長さは、その場で手帳に。」", "立って黄色い手帳に書く手。社名・看板・ヘルメットの印刷はぼかす", "ペンの音（ごく小）", "読んだ数字は人の手で残る"),
+    ("B9 確かめる", "20–21小節　48.0–53.1", [sk7_return],
+     "N11 48.43「帰りもはかって、ぴったり合えば、できあがり。」", "曲のつなぎ目で帰り：紺の印が左から右へ（2倍の速さ）→ 51.19（「合えば」）に紺の□で重なる → 51.82 に左の□がオレンジ→紺。ラベル「高さの目印」", "帰りの鉄琴は逆の順（G・D・C）、重なって E", "ていねいさ：新しい目印が「わかっている高さ」に"),
+    ("B10 使われる", "22–23小節　53.1–58.1", [sk7_road],
+     "N12 53.49「この目印の高さをもとに、道の高さが決まります。」", "□から引くと道の横顔、□から点線が新しい道の線へ → 56.88 に描き終わる。「道の高さ」", "鉛筆の音（ごく小）", "なぜ大事か：この目印から道の高さが決まる"),
+    ("B11 人", "24–28小節　58.1–70.8", [lambda: tag(frame("N", 6.0, (600, 196, 1200, 675)), "N 3.3–10.25"), lambda: tag(frame("S", 85.0, (170, 40, 678, 381), M1 + [(565, 285, 610, 315)]), "S 172–175.2 → S 81–91 4倍")],
+     "（2.5秒は声なし）N13 60.60「小さな違いも、見のがさないように。」　N14 65.50「ふたりで息を合わせて、道にそって進みます。」", "ピントのつまみを回す寄り → 遠くに着いた標尺手（全画面）→ 人のいない機械と、奥を流れる車（4倍）", "N・S の実音を少し前に", "集中と、まちのすぐ横の仕事"),
+    ("B12 締め", "29–32小節　70.8–80.9", [lambda: tag(frame("K", 12.0, K115, MK + [HELMET_85]), "K 8.53–16.12 等速、1.15→1.00 に引く"), sk7_end],
+     "N15 71.18「ほかの測量や工事が使う、“高さの目印”をつくる。それが、水準測量です。」", "最後の一打で二人の引き。B4 の逆に、寄りから全画面へ引いて閉じる（実写の上に線なし）→ 78.37 から紺の□ → アイコン → 黒", "最後の和音のばし。アイコンで鉄琴（小）", "誇りと余韻。1本目と同じ形で閉じる"),
+]
+
+def diff_v5(v5src):
+    """ゲート報告用：v5 の絵コンテの絵（左）と v7（右）を3行で並べる。"""
+    ns = {"__file__": str(ROOT / "scripts/51_plan_storyboard.py"), "__name__": "v5"}
+    src = pathlib.Path(v5src).read_text().split("ROWS = [")[0]
+    sys_argv = sys.argv; sys.argv = [sys.argv[0], str(OUT)]
+    exec(src, ns); sys.argv = sys_argv
+    rows = [("1 看板のしくみ", ns["section"]("water"), sk7_fold3(False),
+             "v5：水がわいて「見えない水の面」。", "v7：うしろのものさしと□があらわれ、二本の読みの段差が光る。水・たとえなし。"),
+            ("2 なるほど", ns["section"]("quiz"), sk7_relay(),
+             "v5：数字のクイズ（1.234／1.834）。", "v7：数字なし。オレンジの印がとなりへ渡り、新しい高さの目印が灯る。"),
+            ("3 確かめる", ns["overlay_check"](frame("K", 19.0, (720, 0, 1200, 675), MK + [TRUCK[17.0], SHOP_17, HELMET_17]).resize((480, 270))), sk7_return(),
+             "v5：行き・帰り・差 3 mm（例）の数字。", "v7：帰りの印が重なり、□がオレンジ→紺（わかっている高さになる）。")]
+    f = font(26); H = 110 + len(rows) * (52 + TH + 96)
+    im = Image.new("RGB", (W, H), "white"); d = ImageDraw.Draw(im)
+    d.text((PAD, 16), "v5 と何が違うか（左＝前に見せた v5、右＝v7）", font=font(34), fill=INK)
+    d.text((PAD, 64), "芯は「高さの目印をつくる」。水・クイズ・数字・下水を使わない。", font=font(24), fill="#555")
+    y = 110
+    for name, a, b, t5, t7 in rows:
+        d.rectangle([0, y, W, y + 44], fill=NAVY); d.text((PAD, y + 7), name, font=font(28), fill="white")
+        a = a.resize((TW, TH)).convert("L").convert("RGB")
+        im.paste(a, (PAD // 2, y + 52)); im.paste(b, (PAD // 2 + TW + PAD, y + 52))
+        label(d, (PAD // 2 + 8, y + 60), "v5", 22, box=True, bg="#666666"); label(d, (PAD // 2 + TW + PAD + TW - 50, y + 60), "v7", 22, box=True, bg=ORANGE)
+        d.text((PAD, y + 52 + TH + 10), t5, font=f, fill="#666"); d.text((PAD, y + 52 + TH + 48), t7, font=f, fill=INK)
+        y += 52 + TH + 96
+    return im
+
+VER = sys.argv[2] if len(sys.argv) > 2 else "v7"
+if VER == "v6":
+    TITLE, rows_all = "v6.1", ROWS
+    groups = [ROWS[0:4], ROWS[4:8], ROWS[8:12]]
+else:
+    GRID_ON = False
+    TITLE = "v7「高さの目印をつくる」"
+    groups = [ROWS_V7[0:5], ROWS_V7[5:9], ROWS_V7[9:13]]
 for n, rows in enumerate(groups, 1):
-    p = OUT / f"storyboard_v6_p{n}.jpg"
+    p = OUT / f"storyboard_{VER}_p{n}.jpg"
     page(rows, n, len(groups)).save(p, quality=88)
     print(p)
+if VER == "v7" and len(sys.argv) > 3:
+    p = OUT / "diff_v5.jpg"; diff_v5(sys.argv[3]).save(p, quality=88); print(p)

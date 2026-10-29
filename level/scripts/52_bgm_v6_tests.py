@@ -141,6 +141,24 @@ def glock_v72_b():   # 批評 v7.2 P1 の (b)：着地は3回目の A6 だけ、
     return [g for g in glock_v72() if g[0] not in (T(15, 3), T(16, 1), T(17, 4))] + [(T(17, 4), [C6], 0.24, "B7 新しい□が実線に（単音）")]
 VARIANTS.append(dict(VARIANTS[-2], id="V72d_32_stop8_b", title="V72d (b) 32小節・鉄琴は着地3の A6 と□の単音 C6 だけ（批評 v7.2 P1）", glock=glock_v72_b()))
 
+# ---- v8「海からの高さ」（editing_v8.md §2）。曲は V6d と同じ。鉄琴は 4 回だけ ----
+B8G = {"B1": 1, "B2": 2, "B3": 4, "B4": 6, "B5": 9, "B6": 14, "B7": 16, "B8": 18, "B9": 20, "B10": 22, "B11": 25, "B12": 29, "end": 33}
+def glock_v8():
+    return [(T(10, 3), [C6], 0.28, "B5 東京湾に「0」が灯る（「海」）"),
+            (T(13, 4), [E6], 0.22, "B5 現場にオレンジの□"),
+            (T(22, 4), [C6, E6, G6], 0.26, "B10 □がオレンジ→紺（「新しい」）"),
+            (T(32, 4), [G6], 0.14, "終わりの画の□がアイコンに戻りきる")]
+SYNC_V8 = [(1.264, "章扉の□"), (6.952, "機械が載る＝題"), (17.18, "問いを言い終わる"), (T(8), "止め（8小節の和音）"), (18.96, "K 7.82 で止まる"),
+           (T(9), "引き1：写真→町"), (T(9, 3), "引き2：町→地方"), (T(10), "引き3：地方→日本"), (T(10, 3), "「海」0 が灯る"),
+           (T(12), "□ が点々"), (T(13), "町へ戻る"), (31.6, "現場へ線"), (T(14), "実写 S 166.56"), (35.5, "「つないで」標尺手が機械の横を通る"),
+           (T(16), "N の顔"), (T(17), "接眼の円"), (T(17, 3), "「読んで」十字線が目盛りに合う"), (T(18), "K 書く手"),
+           (T(20), "曲のつなぎ目＝遠くの標尺手"), (T(21), "S 177 のぞく"), (T(22), "地図に戻る"), (T(22, 4), "「新しい」□ が紺"),
+           (T(23, 3), "アイコン1"), (T(23, 4), "アイコン2"), (T(24), "アイコン3"), (T(25), "N の顔"), (T(26, 3), "「ふたりで」K"),
+           (T(29), "最後の一打＝K 8.53"), (T(32), "終わりの画")]
+VARIANTS.append({"id": "V8d_32", "title": "V8d 32小節・8小節で止め（曲は V6d と同じ。v8「海からの高さ」の同期点と鉄琴 4 回）",
+     "plan": [("bars", 1, 7), ("stop", 1, 8), ("bars", 9, 19), ("bars", 24, 36)], "hold": HOLD32, "nbars": 32, "B": B8G, "sync": SYNC_V8,
+     "glock": glock_v8(), "duck": DUCK_LAND, "bedup": [(5.9, 7.7, 8.0), (T(8), T(9), 8.0)]})
+
 _cache = {}
 def load(song):
     if song["file"] not in _cache:
@@ -270,4 +288,5 @@ for v in VARIANTS:
     md += [f"| {eb} | {T(eb):.2f} | {what} |" for eb, what in table]
     md.append("")
     print(v["id"], f"{len(y) / SR:.2f}s joins {joins}")
-(OUT / ("bgm_v7_tests.md" if ONLY and all(i.startswith("V7") for i in ONLY) else "bgm_v6_tests.md")).write_text("\n".join(md) + "\n")
+_pre = {p_[:2] for p_ in ONLY} if ONLY else set()
+(OUT / (f"bgm_{_pre.pop().lower()}_tests.md" if len(_pre) == 1 and next(iter(ONLY))[:2] in ("V7", "V8") else "bgm_v6_tests.md")).write_text("\n".join(md) + "\n")

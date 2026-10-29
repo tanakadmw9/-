@@ -1,6 +1,6 @@
 """編集計画 v4 用：曲の小節の地図と、つなぎ目の候補の「音色の近さ」を測る（41_bgm_structure.py の拡張。曲そのものは書き出さない）。
 使い方:
-  python3 scripts/47_bgm_v4_map.py <曲.mp3> <出力フォルダ> [beat0 秒] [拍の周期 秒] [拍子 既定4]
+  python3 scripts/47_bgm_v4_map.py <曲.mp3> <出力フォルダ> [beat0 秒] [拍の周期 秒] [拍子 既定4] [つなぎ目 "13:33,12:32"]
 出力: <出力フォルダ>/map_<曲名>.md（小節ごとの音量・明るさ・密度・低音・8小節前との類似、拍の揺れ、つなぎ目の表）
 つなぎ目の点数：「つなぐ前の小節の終わり 0.6 秒」と「つなぐ先の本来の直前の小節の終わり 0.6 秒」、
   「本来の次の小節の頭 0.6 秒」と「つなぐ先の小節の頭 0.6 秒」のメルスペクトル（dB）の距離の和。小さいほど自然（基準点の 12→25 は 69）。
@@ -76,5 +76,15 @@ L += ["", "## つなぎ目の候補（小さいほど自然。基準点 v4.10 �
 for a, b in cands:
     if max(a + 1, b) <= nb:
         s, s2 = splice(a, b); L.append(f"| {a} → {b} | {s:.0f} | {s2:.0f} |")
+# 前／後を分けて出す（編集計画 v5.1 §2.3・§8.1）：7 番目の引数に "13:33,12:32" のように
+if len(sys.argv) > 6:
+    L += ["", "## 指定したつなぎ目（前＝つなぐ前の終わり 0.6 秒、後＝つなぐ先の頭 0.6 秒の音色の距離）", "",
+          "| つなぎ | 前 | 後 | 和音込みの合計 |", "|---|---|---|---|"]
+    for pr in sys.argv[6].split(","):
+        a, b = map(int, pr.split(":"))
+        ta = bar_t(a + 1); tb = bar_t(b)
+        pre = np.linalg.norm(win(ta - 0.6, ta, mel) - win(tb - 0.6, tb, mel))
+        post = np.linalg.norm(win(ta, ta + 0.6, mel) - win(tb, tb + 0.6, mel))
+        L.append(f"| {a} → {b} | {pre:.0f} | {post:.0f} | {splice(a, b)[1]:.0f} |")
 (out / f"map_{src.stem}.md").write_text("\n".join(L) + "\n")
 print("\n".join(L))

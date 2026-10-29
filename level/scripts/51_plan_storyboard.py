@@ -1,10 +1,10 @@
 """計画段階の絵コンテ（ゲート1 用）を、元の素材のコマと簡単な図のスケッチから作る。
-秒・切り出し窓・文は plan/editing_v5.md §3.3・§9・§13 と plan/content_v5.md の写し（v4 の絵コンテは git の履歴にある版で作った）。
+秒・切り出し窓・文は plan/editing_v5.md（v5.1）§3.2・§3.3・§9 と plan/content_v5.md の写し（v4 の絵コンテは git の履歴にある版で作った）。
 使い方：python3 scripts/51_plan_storyboard.py /mnt/project-files/level/storyboard_v5/
 出力：storyboard_v5_p1.jpg・p2.jpg（素材から作った画像なので、リポジトリには入れない）
 """
 import pathlib, subprocess, sys, io
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = pathlib.Path(sys.argv[1]); OUT.mkdir(parents=True, exist_ok=True)
@@ -16,12 +16,17 @@ TW, TH = 480, 270
 def font(px):
     return ImageFont.truetype(FONT, px)
 
-def frame(src, t, crop=None):
+def frame(src, t, crop=None, masks=()):
     vf = (f"crop={crop[2]}:{crop[3]}:{crop[0]}:{crop[1]}," if crop else "") + f"scale={TW}:{TH}"
     jpg = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-ss", f"{t:.3f}", "-i", str(SRC[src]),
                           "-frames:v", "1", "-vf", vf, "-q:v", "3", "-f", "image2", "-c:v", "mjpeg", "-"],
                          capture_output=True, check=True).stdout
-    return Image.open(io.BytesIO(jpg)).convert("RGB")
+    im = Image.open(io.BytesIO(jpg)).convert("RGB")
+    k = TW / 848   # マスクは S（848×480）の元の画素。全画面のときだけ
+    for x1, y1, x2, y2 in masks:
+        box = (int(x1 * k), int(y1 * TH / 480), int(x2 * k), int(y2 * TH / 480))
+        im.paste(im.crop(box).filter(ImageFilter.GaussianBlur(4)), box[:2])
+    return im
 
 def grid(frames):   # 2×2 の小さなコマ
     im = Image.new("RGB", (TW, TH), "white")
@@ -75,17 +80,23 @@ def section(mode):
             x = 160 + i * 60; y = a[1] + (b[1] - a[1]) * x / TW + 7
             d.ellipse([x - 4, y - 4, x + 4, y + 4], fill=NAVY)
         if mode == "ask40":
-            label(d, (360, 10), "縦に40倍", 18, box=True); label(d, (16, 228), "1 m で 3 mm", 26)
+            label(d, (330, 10), "縦に40倍", 22, box=True); label(d, (16, 228), "1 m で 3 mm（例）", 24)
+            d.line([(462, 60), (462, 250)], fill=NAVY, width=2); d.polygon([(456, 68), (468, 68), (462, 56)], fill=NAVY); d.polygon([(456, 242), (468, 242), (462, 254)], fill=NAVY)
         else:
             label(d, (16, 228), "（管はまっすぐに見える）", 18)
     elif mode == "answer":
         drop = 48
+        d.rectangle([0, 0, TW, TH], fill=PAPER)
+        for x in range(0, TW, 24): d.line([(x, 0), (x, TH)], fill=GRID, width=1)
+        import math
+        gyx = lambda x: 112 + 14 * x / TW + 7 * math.sin(x / 37)   # 右へゆるく下がり、小さく波打つ
+        d.line([(x, gyx(x)) for x in range(0, TW + 1, 4)], fill=NAVY, width=3)
         for i in range(5):
             x = 60 + i * 90; y = 190 - drop / 2 + drop * x / TW
-            d.ellipse([x - 6, gy - 6, x + 6, gy + 6], fill=ORANGE); d.line([(x, gy + 6), (x, y)], fill=NAVY, width=1)
+            g = gyx(x); d.ellipse([x - 6, g - 6, x + 6, g + 6], fill=ORANGE); d.line([(x, g + 6), (x, y)], fill=NAVY, width=1)
         a, b = (0, 190 - drop / 2 + 2), (TW, 190 + drop / 2 + 2)
         d.line([a, b], fill=NAVY, width=3); d.line([(a[0], a[1] + 14), (b[0], b[1] + 14)], fill=NAVY, width=3)
-        label(d, (360, 10), "縦に40倍", 18, box=True); label(d, (16, 236), "はかった点 → 管を傾けて引く → 実写へ戻る", 17)
+        label(d, (330, 10), "縦に40倍", 22, box=True); label(d, (16, 236), "はかった点（深さはばらばら）→ 管 → 実写へ", 17)
     elif mode == "sea":
         d.rectangle([0, 0, TW, TH], fill=PAPER)
         d.line([(0, 200), (120, 200)], fill=NAVY, width=3)                # 海
@@ -109,22 +120,23 @@ def section(mode):
         d.line([(80, 200), (225, 200)], fill=NAVY, width=2); d.line([(255, 200), (400, 200)], fill=NAVY, width=2)
         label(d, (190, 205), "まんなかに置く", 15)
         if mode != "quiz_ans":
-            scope(d, (90, 60), 28, "1.2"); scope(d, (390, 60), 28, "1.8")
+            scope(d, (90, lv[1]), 28, "1.234"); scope(d, (390, lv[1]), 28, "1.834")
             label(d, (20, 226), "水準点 10.000 m", 15, box=True); label(d, (400, 226), "となり", 15, box=True)
-            label(d, (110, 14), "地面が低いのは、どっち？", 22)
-            if mode == "quiz_wait": label(d, (16, 150), "（声なし 2.5秒・曲が止まる）", 14, fill=INK)
+            label(d, (110, 30), "地面が低いのは、どっち？", 22)
+            if mode == "quiz_wait": label(d, (16, 178), "（声なし 2.5秒・曲が止まる）", 14, fill=INK)
         else:
             g1, g2 = lv[1] + 80, lv[1] + 120   # 1.2：1.8＝2：3
             d.rectangle([0, lv[1], TW, g1], fill="#D3D8DF"); d.rectangle([240, g1, TW, g2], fill="#D3D8DF")
             d.line([(0, g1), (240, g1)], fill=NAVY, width=3); d.line([(240, g1), (240, g2)], fill=NAVY, width=3)
             d.line([(240, g2), (TW, g2)], fill=NAVY, width=3)
             d.line([(60, lv[1]), (60, g1)], fill=ORANGE, width=6); d.line([(420, lv[1]), (420, g2)], fill=ORANGE, width=6)
-            label(d, (40, 20), "深いほうが、低い", 30); label(d, (300, 70), "9.400 m（例）", 22)
+            d.line([(424, g1), (424, g2)], fill="#FFB27A", width=8); d.line([(236, g1), (236, g2)], fill="#FFB27A", width=6)   # 0.600 が段差へ移る
+            label(d, (40, 20), "深いほうが、低い", 30); label(d, (300, g2 + 4), "9.400 m（例）", 18); label(d, (20, g1 + 4), "10.000 m", 15)
     elif mode == "bench":
         d.rectangle([0, gy + 2, TW, TH], fill="#ECE7DC")
         d.rectangle([228, 112, 252, 170], outline=NAVY, width=2); d.ellipse([232, 104, 248, 120], fill=NAVY)
         label(d, (270, 60), "水準点", 26); label(d, (270, 92), "高さの目印", 16)
-        label(d, (150, 180), "10.000 m（例）", 28); label(d, (150, 222), "（海の面からの高さ）", 16)
+        label(d, (150, 180), "10.000 m（例）", 28); label(d, (150, 222), "（海抜）", 16)
     elif mode in ("unfold", "water"):
         d.rectangle([0, 0, TW, TH], fill=PAPER)
         g2 = 200
@@ -140,10 +152,11 @@ def section(mode):
         else:
             d.rectangle([0, lv[1], TW, g2 - 2], fill="#D3D8DF")
             d.line([(0, lv[1]), (TW, lv[1])], fill=NAVY, width=2)
-            dotted(d, (0, lv[1] - 1), (TW, lv[1] - 1))
+            dotted(d, (lv[0] - 22, lv[1] - 1), (sx + 9, lv[1] - 1))
             for k in range(1, 9): d.rectangle([sx - 6, lv[1] + k * 10 - 2, sx + (2 if k % 2 else 6), lv[1] + k * 10 + 2], fill=NAVY)
             d.line([(sx + 16, lv[1]), (sx + 16, g2)], fill=NAVY, width=2)
-            label(d, (sx + 22, 140), "深さ 1.2", 22); label(d, (360, 72), "水の面", 22)
+            label(d, (sx + 22, 140), "深さ 1.2", 22); label(d, (sx + 112, 146), "34", 14, fill="#7a8aa0")
+            label(d, (360, 66), "水の面", 22); label(d, (352, 92), "（見えない水）", 13)
             label(d, (12, 236), "水がわいて目線で止まる → 引いて線だけ残る", 17, box=True)
     elif mode == "door":
         for i in range(5):
@@ -162,7 +175,7 @@ def overlay_title(im):
     d = ImageDraw.Draw(im); x, y = 318, 127   # N 0.30 の対物レンズ（1318,497）を窓 520,180,1200,675 に換算
     d.ellipse([x - 22, y - 22, x + 22, y + 22], outline=ORANGE, width=3)
     d.line([(x - 32, y), (x + 32, y)], fill=ORANGE, width=2); d.line([(x, y - 32), (x, y + 32)], fill=ORANGE, width=2)
-    label(d, (20, 196), "水準測量", 40, fill="white"); label(d, (22, 242), "“高さ”をはかる", 18, fill="white")
+    label(d, (20, 196), "水準測量", 40, fill="white"); label(d, (22, 242), "“高さ”の目印をつなぐ", 18, fill="white")
     return im
 
 def overlay_lines(im):   # 実写の上を紺の線がなぞる
@@ -178,13 +191,13 @@ def overlay_k_sight(im):
 
 def overlay_scope(im):
     d = ImageDraw.Draw(im); dotted(d, (300, 140), (318, 135), NAVY, 2)
-    scope(d, (385, 125), 72, "1.2 → 1.234 m"); label(d, (330, 6), "イメージ・数字は例", 13, box=True)
+    scope(d, (385, 125), 72, "1.23 → 1.234"); label(d, (330, 6), "イメージ・数字は例", 13, box=True)
     return im
 
 def overlay_check(im):
     d = ImageDraw.Draw(im)
     d.rectangle([130, 14, 330, 104], fill=NAVY)
-    for i, s in enumerate(["行き →", "← 帰り", "差 3 mm ✓（例）"]):
+    for i, s in enumerate(["行き →", "← 帰り", "差 3 mm（例）✓"]):
         d.text((140, 20 + i * 28), s, font=font(20), fill="white" if i < 2 else "#FFD3B0")
     return im
 
@@ -195,28 +208,29 @@ def side(a, b):
     return im
 
 KW = (470, 100, 1200, 675)
-S1, S2 = (70, 82, 707, 398), (24, 22, 800, 450)   # S の1か所目・2か所目の窓（案内標識を外す）
+M1 = [(394, 30, 486, 72), (0, 232, 150, 292), (455, 262, 500, 282)]                         # S の1か所目のぼかし（editing §3.2）
+M2 = [(535, 0, 648, 22), (0, 172, 70, 206), (100, 200, 312, 262), (605, 208, 685, 228)]      # 2か所目
 ROWS = [
     ("B0 0.0–2.5", lambda: section("door"), "N1a 測量部門の仕事のひとつ、", "章扉。水準のアイコンが灯る→照準へ", "曲1小節、灯る音", "部門の中の1作業（シリーズの型）"),
-    ("B1 2.5–7.6", lambda: overlay_title(frame("N", 0.30, (520, 180, 1200, 675))), "N1b 水準測量です。", "照準が対物レンズに合う。水準測量／“高さ”をはかる", "ピッ。曲を −18 dB、道の音が前", "主役の機械と名前"),
-    ("B2 7.6–15.2", lambda: grid([frame("S", 2.6, S1), frame("S", 15.0, S1), frame("S", 53.2, S1), frame("S", 66.0, S1)]),
-     "（声なし。14.2 から N2 が J で入る）", "三脚を拾う（実時間）→脚をのばす12倍→機械が載る（実時間）→整準9.5倍。右下に気泡", "金具の音・載る音が主役", "人の仕事の手触り。人を早く出す"),
-    ("B3a 15.2–17.7", lambda: overlay_lines(frame("S", 88.0, S1)), "N2 トイレやおふろの水は、ひとりでに流れていきます。", "S 機械だけ・車が流れる3.6倍 → 止め → 線 → 写真が紙に", "道の音 → 地面の下へ沈む", "暮らしの水"),
-    ("B3b 17.7–22.8", lambda: section("ask40"), "N3 道の下の管に、目に見えない坂があるからです。", "地面が開き、家のトイレから道の下の管へ。息つぎで縦に40倍、管が傾く", "曲の息つぎ", "なぜ高さが要るか"),
-    ("B4a 22.8–26.5", lambda: frame("S", 165.5, S2), "N4 その坂をつくる前に、まず、まちの高さを、ミリまではかります。", "一番強い一打で S 2か所目：観測者が機械に向かう", "一打、同期音", "はかる人"),
-    ("B4b 26.5–35.4", lambda: section("bench"), "N5 高さの目印「水準点」。ここの高さは、もうわかっています。", "水準点にゆっくり寄る。10.000 m（例）が数え上がる", "地の音を下げる", "用語1つ、はじまりの高さ"),
-    ("B5a 35.4–38.1", lambda: overlay_k_sight(frame("K", 5.5, KW)), "N6 この機械は、", "K（1.6倍の窓）のぞく人と遠くの標尺の人 → 5.97 で止め → 線がなぞる（人の上は通らない）→ 写真が紙に", "K の同期音を残す（L）", "二人と道具"),
-    ("B5b 37.5–38.5", lambda: section("unfold"), "（N6 つづき）水の面のように", "なぞった絵を横から見た形にほどく（基準点の「写真が倒れる」と対）", "現場の音が水にもぐる", "しくみを正しい形で見せる"),
-    ("B5c 38.5–45.5", lambda: section("water"), "N6 …平らな線を、まっすぐ引きます。 N7 ものさしで読むのは、その線までの“深さ”。", "水がわいて目線で止まり一度ゆれる → 目線が左右の端まで → 深さ 1.2 → 水が引く", "こもった音、43.0 から曲が静かな C", "看板：見えない水の面"),
-    ("B5d 45.5–50.6", lambda: overlay_scope(frame("N", 4.5, (600, 190, 1200, 675))), "N8 目盛りのあいだを目で見わけて、ミリまで。", "小窓：つまみに合わせてピント → センチの帯のあいだ4割 → 10等分の目安 → 1.234", "読む音", "ミリまで読む技"),
-    ("B6a 50.6–58.1", lambda: section("quiz"), "N9 水準点の上は1.2、となりは1.8。 N10 地面が低いのは、どっち？", "左は水準点の上、右はとなり。地面は霧で隠す。同じ長さの矢印", "読む音×2、曲C", "問い"),
-    ("B6b 58.1–60.7", lambda: section("quiz_wait"), "（声なし 2.5秒）", "何も動かさない（意図した静止）", "曲が止まる。現場の音だけ", "観客が自分で考える"),
-    ("B6c 60.7–63.2", lambda: section("quiz_ans"), "N11 深いほうが、低い。", "一打で同じ1枚の水がわく。右が深い。9.400 m（例）", "一番強い一打", "なるほど。水準点＋差＝となりの高さ"),
-    ("B7a 63.2–68.9", lambda: side(frame("K", 16.5, KW), frame("S", 169.5, S2)), "N12 書きとめたら、となりへ、となりへ。", "K 野帳に書く（9.400 が野帳の横へ）→ S 標尺の人が先へ", "足音・ペンの音", "書きとめて、となりへ"),
-    ("B7b 68.9–73.3", lambda: overlay_check(frame("K", 21.0, (480, 100, 1200, 675))), "N13 最後は来た道を戻って、行きと帰りが、ほとんど同じか、確かめます。", "野帳の手元に 行き→ ←帰り 差 3 mm ✓（例）", "確かめの音、次の道の車の音（J）", "戻って確かめる丁寧さ（敬意）"),
-    ("B8 73.3–80.9", lambda: section("answer"), "N14 はかった高さをもとに、水の流れる坂が、まちの下につくられます。", "同じ道→止め→地面の上に点5つ→管を傾けて引く→実写に戻り管の線が残って消える", "沈む音 → 戻る", "問いの答え"),
+    ("B1 2.5–7.6", lambda: overlay_title(frame("N", 0.30, (520, 180, 1200, 675))), "N1b 水準測量です。", "照準が対物レンズに合う。水準測量／“高さ”の目印をつなぐ", "ピッ。曲 −18 dB、道の音が前", "主役の機械と名前"),
+    ("B2 7.6–15.2", lambda: grid([frame("S", 2.6, None, M1), frame("S", 20.0, None, M1), frame("S", 53.2, None, M1), frame("S", 66.0, None, M1)]),
+     "（声なし。14.2 から N2 が J で入る）", "S 全画面・1本のスピードランプ：三脚を拾う（実時間）→約25倍→機械が載る（実時間）→約10倍で整準。右下に気泡。看板は固定のぼかし", "金具の音・載る音が主役", "人の仕事の手触り。人を早く出す"),
+    ("B3a 15.2–17.7", lambda: overlay_lines(frame("S", 85.0, None, M1)), "N2 トイレやおふろの水は、ひとりでに流れていきます。", "観測者が出ていき機械だけの道に車 → 止め → 線 → 写真が紙に", "道の音 → 地面の下へ沈む", "暮らしの水"),
+    ("B3b 17.7–22.8", lambda: section("ask40"), "N3 道の下の管に、目に見えない坂があるからです。", "地面が開き、家のトイレから道の下の管へ。息つぎで縦に40倍：管が傾き、方眼も縦に広がり、右に縦の両矢印", "曲の息つぎ", "なぜ高さが要るか"),
+    ("B4a 22.8–26.5", lambda: frame("S", 165.5, None, M2), "N4 その坂をつくる前に、まず、まちの高さを、ミリまではかります。", "一番強い一打で S 2か所目（全画面）：観測者が機械を合わせてのぞく", "一打、同期音", "はかる人"),
+    ("B4b 26.5–32.9", lambda: section("bench"), "N5 高さの目印「水準点」。ここの高さは、", "水準点にゆっくり寄る。10.000 m（例）が数え上がる。（海抜）", "地の音を下げる", "用語1つ、はじまりの高さ"),
+    ("B5a 32.9–36.5", lambda: overlay_k_sight(frame("K", 4.0, KW)), "N5 …もうわかっています。 N6 この機械は、", "K（1.6倍の窓）観測者が三脚に着き、かがみ、のぞく。遠くに標尺の人", "K の同期音（足音・カチッ）", "二人と道具（1080p の観測）"),
+    ("B5b 36.5–38.3", lambda: section("unfold"), "（声なし）", "5.97 で止め → 線（人の上は通らない）→ 写真が紙に → 3D で真横へ回る 0.9 秒（基準点の「倒れる」と対）", "現場の音が残る → 静か", "横から見る"),
+    ("B5c 38.3–46.1", lambda: section("water"), "N6 …プールの水の面のように、平らな線を引きます。 N7 読むのは、線から下の“深さ”。", "目線は標尺の手前まで → 水がわいて止まり一度ゆれる → 深さ 1.2(34) → 水が引く → 目線も消える", "こもった音、43.0 から曲が静かな C", "看板：見えない水の面"),
+    ("B5d 46.1–50.6", lambda: overlay_scope(frame("N", 4.5, (600, 190, 1200, 675))), "N8 目盛りのあいだを目で見わけて、ミリまで。", "小窓：N の対物レンズから点線 → ピント → センチの帯のあいだ4割 → 10等分の目安 → 1.234", "読む音", "ミリまで読む技"),
+    ("B6a 50.6–58.1", lambda: section("quiz"), "N9 水準点の上は1.2、となりは1.8。 N10 地面が低いのは、どっち？", "左は水準点の上、右はとなり。地面は霧。小窓は目線の高さ。読み 1.234／1.834", "読む音×2、曲C", "問い"),
+    ("B6b 58.1–60.7", lambda: section("quiz_wait"), "（声なし 2.5秒）", "何も動かさない（意図した静止）", "曲が止まる（M1d：8小節目の和音）。現場の音だけ", "観客が自分で考える"),
+    ("B6c 60.7–63.2", lambda: section("quiz_ans"), "N11 深いほうが、低い。", "一打で同じ1枚の水がわく。右の棒の長い分 0.600 が段差へ移る → 10.000 から 9.400 m（例）", "一番強い一打", "なるほど。水準点＋差＝となりの高さ"),
+    ("B7a 63.2–69.5", lambda: side(frame("K", 16.5, KW), frame("S", 169.5, None, M2)), "N12 わかった高さを書きとめて、となりへ、となりへ。 N13 来た道を戻って、", "K 野帳に書く（9.400 が野帳の横へ）→ S 標尺の人が先へ", "ペンの音・足音", "書きとめて、となりへ"),
+    ("B7b 69.5–73.3", lambda: overlay_check(frame("K", 21.0, (480, 100, 1200, 675))), "N13 …行きと帰りが、ほとんど同じか、確かめます。", "野帳の手元に 行き→ ←帰り 差 3 mm（例）✓", "確かめの音、次の道の車の音（J）", "戻って確かめる丁寧さ（敬意）"),
+    ("B8 73.3–80.9", lambda: section("answer"), "N14 はかった高さをもとに、水の流れる坂が、まちの下につくられます。", "同じ道→止め→波打って下がる地面に点5つ→深さはばらばら→まっすぐな管→実写に戻り管の線が残って消える", "沈む音 → 戻る", "問いの答え。はかったから深さが決まる"),
     ("B9a 80.9–84.7", lambda: frame("N", 8.0, (600, 200, 1200, 675)), "N15 見えない水の面で、まちの高さを、", "最後の一打で N の顔の寄り（1080p）", "最後の一打、のびる和音", "人で終える"),
-    ("B9b 84.7–88.5", lambda: frame("S", 178.0, S2), "N15 つないでいく。それが、水準測量です。", "S 二人の引き（寄らない）。自転車の後、目線と薄い水の面が一瞬", "和音、一瞬こもる", "看板の絵で閉じる"),
+    ("B9b 84.7–88.5", lambda: frame("S", 178.0, None, M2), "N15 つないでいく。それが、水準測量です。", "S 二人の引き（全画面、寄らない）→ 87.6 写真が紙に → 紙の上で目線と薄い水の面が一瞬", "和音、一瞬こもる", "看板の絵で閉じる"),
     ("B9c 88.5–91.0", lambda: section("end"), "—", "紙→章扉→照準が水準のアイコンへ→黒。締めの文字", "ピッ（小）、和音が消える", "シリーズの型で閉じる"),
 ]
 
@@ -236,7 +250,7 @@ def wrap(s, f, width, d):
 def page(rows, n, of):
     H = 110 + RH * len(rows) + 20
     im = Image.new("RGB", (W, H), "white"); d = ImageDraw.Draw(im)
-    d.text((10, 10), f"水準測量パート 絵コンテ v5（計画・ゲート1用） {n}/{of}　約91秒・36小節・曲 M1b の場合", font=font(30), fill=INK)
+    d.text((10, 10), f"水準測量パート 絵コンテ v5.1（計画・ゲート1用） {n}/{of}　約91秒・36小節・曲 M1d の場合", font=font(30), fill=INK)
     d.text((10, 50), "コマは元の素材（切り出し窓は計画の値）、図は手描きのスケッチ。数字はすべて例。社外に出さない。", font=font(18), fill="#555")
     x = 10
     for name, w in COLS:

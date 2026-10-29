@@ -1,12 +1,12 @@
-"""編集計画 v5（plan/editing_v5.md §2）の曲の案 M1a〜M1c を、聞き比べ用の mp3 にする（本番の 34_prep_bgm.py とは別。ナレは入れない）。
+"""編集計画 v5.1（plan/editing_v5.md §2・§8.1）の曲の案 M1a〜M1d と 83.4 秒版 S83 を、聞き比べ用の mp3 にする（本番の 34_prep_bgm.py とは別。ナレは入れない）。
 使い方:
   source .venv/bin/activate
-  python3 scripts/48_bgm_v4_tests.py <曲のフォルダ> <出力フォルダ> [S の元映像（現場音の下地用。省略可）]
+  python3 scripts/49_bgm_v5_tests.py <曲のフォルダ> <出力フォルダ> [S の元映像（現場音の下地用。省略可）]
   例: python3 scripts/49_bgm_v5_tests.py /mnt/project-files/dova/ /mnt/project-files/level/audio_tests_v5/ source/S_sueru.mp4
 出力（出力フォルダに。リポジトリには入れない＝曲の再配布にあたるため）
   <案>.mp3        曲の編集だけ
   <案>_guide.mp3  曲＋拍 B の切れ目の印の音（高い「ピッ」＝拍の切れ目、低い「ポン」2回＝見せ場の同期点）＋ごく薄い現場の音（S 42–82 秒）
-  bgm_v4_tests.md 案ごとの小節の対応表・つなぎ目の時刻・印の時刻
+  bgm_v5_tests.md 案ごとの小節の対応表・つなぎ目の時刻・印の時刻
 決まり（基準点の 34_prep_bgm.py と同じ）：小節の頭でだけ切ってつなぐ、つなぎ目は 60ms の等パワー、最後は曲本来の終止。
 「止め（stop）」＝前の小節の本来の続き（指定した小節）の頭の和音を 1 拍だけ鳴らして減衰させ、残りは無音（現場の音だけ）。次の小節で曲が戻る。
 """
@@ -18,17 +18,20 @@ from lib_audio import integrated
 
 SR = 48000
 SONGS, OUT = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
-S_SRC = pathlib.Path(sys.argv[3]) if len(sys.argv) > 3 else None
+S_SRC = pathlib.Path(sys.argv[3]) if len(sys.argv) > 3 and sys.argv[3] else None
 OUT.mkdir(parents=True, exist_ok=True)
 
 ND = {"file": "01_new_departure.mp3", "b0": 1.9567, "bp": 0.63199, "last": 36}
 KO = {"file": "03_komorebi.mp3", "b0": 0.332, "bp": 0.68180, "last": 37}
 
 # 拍 B の切れ目（編集後の小節、1 始まり）と見せ場
-B_V5 = {"B0": 1, "B1": 2, "B2": 4, "B3": 7, "B4": 10, "B5": 15, "B6": 21, "B7": 26, "B8": 30, "B9": 33, "end": 37}
+B_V5 = {"B0": 1, "B1": 2, "B2": 4, "B3": 7, "B4": 10, "B5": 14, "B6": 21, "B7": 26, "B8": 30, "B9": 33, "end": 37}
 SYNC_V5 = {4: "曲が戻る：人が来て据える（声なし）", 9: "息つぎ：縦40倍で坂が立ち上がる", 10: "一番強い一打：「その坂をつくる前に」",
-           18: "曲が C へ（水の面：「ものさしで読むのは」）", 19: "N の顔の寄り＋小窓", 24: "クイズの間（息つぎ／止め）",
+           14: "K の実写：三脚に着いてのぞく", 18: "曲が C へ（水の面：「読むのは、線から下の深さ」）", 24: "クイズの間（息つぎ／止め）",
            25: "一打：「深いほうが、低い」", 33: "最後の一打：N の顔の寄り"}
+# 83.4 秒版（B8 を抜く。編集計画 §8.1）：B9 が E30 から
+B_S83 = {"B0": 1, "B1": 2, "B2": 4, "B3": 7, "B4": 10, "B5": 14, "B6": 21, "B7": 26, "B9": 30, "end": 34}
+SYNC_S83 = {k: v for k, v in SYNC_V5.items() if k < 30}; SYNC_S83[30] = "最後の一打：N の顔の寄り（13→33 のつなぎ目）"
 DUCK_TITLE = [(2.40, 7.58, -18.0, 0.5, 0.8)]      # 題（E2–3）は曲を下げ、道の音を前に（E4 で戻す）
 BED_UP = [(2.40, 15.17, 10.0)]                      # guide：題と B2（声なし・同期音が主役）は現場の音を +10 dB
 HOLD = {"at_bar": 33, "after": 4.44, "len": 3.0, "xfade": 0.4}
@@ -36,13 +39,20 @@ VARIANTS = [
     {"id": "M1a_ND_hush", "song": ND, "title": "M1a New Departure・クイズは息つぎ（題で曲を下げる）",
      "plan": [("bars", 1, 3), ("bars", 3, 16), ("bars", 25, 30), ("bars", 8, 16), ("bars", 33, 36)],
      "hold": HOLD, "nbars": 36, "B": B_V5, "sync": SYNC_V5, "duck": DUCK_TITLE},
-    {"id": "M1b_ND_stop", "song": ND, "title": "M1b New Departure・クイズは止め（題で曲を下げる）（おすすめ）",
+    {"id": "M1b_ND_stop", "song": ND, "title": "M1b New Departure・クイズは止め・31小節目の頭の和音（題で曲を下げる）",
      "plan": [("bars", 1, 3), ("bars", 3, 16), ("bars", 25, 30), ("stop", 1, 31), ("bars", 9, 16), ("bars", 33, 36)],
      "hold": HOLD, "nbars": 36, "B": B_V5, "sync": SYNC_V5, "duck": DUCK_TITLE},
     {"id": "M1c_ND_stop_noduck", "song": ND, "title": "M1c M1b と同じで、題で曲を下げない（比較用）",
      "plan": [("bars", 1, 3), ("bars", 3, 16), ("bars", 25, 30), ("stop", 1, 31), ("bars", 9, 16), ("bars", 33, 36)],
      "hold": HOLD, "nbars": 36, "B": B_V5, "sync": SYNC_V5, "duck": []},
+    {"id": "M1d_ND_stop8", "song": ND, "title": "M1d クイズは止め・止める和音を元の8小節目の頭に（題で曲を下げる）（おすすめ。試聴で決める）",
+     "plan": [("bars", 1, 3), ("bars", 3, 16), ("bars", 25, 30), ("stop", 1, 8), ("bars", 9, 16), ("bars", 33, 36)],
+     "hold": HOLD, "nbars": 36, "B": B_V5, "sync": SYNC_V5, "duck": DUCK_TITLE},
+    {"id": "S83_ND_stop", "song": ND, "title": "S83 83.4 秒版（B8 を抜く、M1d の止め、13→33）",
+     "plan": [("bars", 1, 3), ("bars", 3, 16), ("bars", 25, 30), ("stop", 1, 8), ("bars", 9, 13), ("bars", 33, 36)],
+     "hold": dict(HOLD, at_bar=30), "nbars": 33, "B": B_S83, "sync": SYNC_S83, "duck": DUCK_TITLE},
 ]
+ONLY = set(sys.argv[4].split(",")) if len(sys.argv) > 4 else None
 
 _cache = {}
 def load(song):
@@ -130,12 +140,13 @@ def write_mp3(y, path):
         w = pathlib.Path(td) / "o.wav"; sf.write(w, y, SR)
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(w), "-b:a", "192k", str(path)], check=True)
 
-md = ["# 曲の案 M1a〜M1c の聞き比べ（編集計画 v5 §2）", "",
+md = ["# 曲の案 M1a〜M1d と 83.4 秒版 S83 の聞き比べ（編集計画 v5.1 §2・§8.1）", "",
       "作り方：`python3 scripts/49_bgm_v5_tests.py /mnt/project-files/dova/ /mnt/project-files/level/audio_tests_v5/ source/S_sueru.mp4`", "",
       "- `<案>.mp3`：曲の編集だけ。`<案>_guide.mp3`：＋拍 B の切れ目に高い「ピッ」、見せ場の同期点に低い「ポン」、ごく薄い現場の音（S 42–82 秒）。",
-      "- guide では題と B2（7.6–15.2 秒）の現場の音を +10 dB（声なし・同期音が主役の区間の聞こえ方の見本）。",
+      "- guide では題と B2（2.4–15.2 秒）の現場の音を +10 dB（声なし・同期音が主役の区間の聞こえ方の見本）。",
       "- 音量は聞き比べのため、どれも曲の統合ラウドネス −20 LUFS にそろえた（本番のミックスは −24 LUFS、ナレの下でさらに下げる）。", ""]
 for v in VARIANTS:
+    if ONLY and v["id"] not in ONLY: continue
     y, BAR, joins, table = build(v)
     g = 10 ** ((-20 - integrated(y)) / 20); y = y * g
     pk = np.abs(y).max()

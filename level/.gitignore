@@ -38,3 +38,6 @@ reference/renders/
 .venv/
 # 担当レビューの作業場所（prompts/20）
 work/
+
+# 素材の棚卸し（場所のわかる看板・時刻を含むので公開リポジトリに入れない。正本は /mnt/project-files/level/footage_inventory.md）
+analysis/footage_inventory.md

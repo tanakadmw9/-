@@ -1,5 +1,5 @@
-"""計画段階の絵コンテ v8.4「海からの高さ」（設計のための測量。ゲート1 用。28小節が正本）。元の素材のコマ（ぼかし済み）と、真上の地図・接眼の円のスケッチで作る。
-秒は plan/editing_v8.md（v8.4）の写し。v5〜v7 の真横の図は使わない。
+"""計画段階の絵コンテ v8.5「海からの高さ」（設計のための測量。ゲート1 用。28小節が正本）。元の素材のコマ（ぼかし済み）と、真上の地図・接眼の円のスケッチで作る。
+秒は plan/editing_v8.md（v8.5）の写し。v5〜v7 の真横の図は使わない。
 使い方：source .venv/bin/activate && python3 scripts/53_plan_storyboard_v8.py /mnt/project-files/level/storyboard_v8/
 出力：storyboard_v8_p1〜p3.jpg と compare_v7.jpg（v7 との対応表）（素材から作った画像なので、リポジトリには入れない）。幅 1080 の縦長＝スマホで縦に読む。
 日本の形は、主な岬・湾の公知の経緯度から手で打った仮の折れ線（地図の画像はなぞっていない）。本番は editing_v8.md §3.2。
@@ -52,7 +52,9 @@ CYC = (330, 205, 400, 300)
 MK = [(1015, 0, 1245, 100), (0, 465, 490, 575), (1680, 568, 1756, 614)]
 HELMET_85 = (1090, 290, 1160, 350); TRUCK17 = (1125, 555, 1200, 625); SHOP_17 = (1150, 478, 1275, 515); HELMET_17 = (1245, 60, 1385, 118)
 KW132 = (465, 60, 1455, 818); K115 = (125, 70, 1670, 939)
-NV = [(1150, 215, 1360, 310)]   # N：奥の白い車のナンバー（窓の上の端）
+NV = [(1150, 215, 1360, 310)]
+BRAND7 = [(1030, 515, 1140, 565)]       # N：機械のメーカー名（B7 の窓）
+BRAND11 = [(1000, 400, 1160, 470)]      # N：機械のメーカー名（B11 の窓、仮）   # N：奥の白い車のナンバー（窓の上の端）
 
 # ---- 架空の町（自作。地名・方位・縮尺なし。K・S の道の形には似せない） ----
 SITE = (318, 150)
@@ -159,45 +161,74 @@ def sk_pull2():
     label(d, (14, 14), "白い紙 → 日本の形 → 東京湾に紺の点", 18, box=True)
     label(d, (250, 232), "東京湾の平均の海面", 18, box=True)
     label(d, (110, 262), "点は左へすべって 0 の線になる", 15, fill=INK)
-    return tag(im, "21.49–24.02")
+    return tag(im, "21.49–24.65")
 
-ZY = 238                                  # 0 の線の高さ（スケッチ）
-def align_fig(d, col=NAVY, x0=40, x1=500, s=1.0, wob=None):
+ZY = 214                                  # 基準の線の高さ（2つの絵で同じ。1080 の画面で y 790）
+LW, BW = 3, 5                             # 線の太さ・棒の幅（2つの絵で同じ）
+def framek(src, t, crop, masks, W, H):
+    im = frame(src, t, crop, masks)
+    return im if (W, H) == (TW, TH) else frame_big(src, t, crop, masks, W, H)
+
+def frame_big(src, t, crop, masks, W, H):
+    vf = f"crop={crop[2]}:{crop[3]}:{crop[0]}:{crop[1]},"
+    png = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-ss", f"{t:.3f}", "-i", str(SRC[src]),
+                          "-frames:v", "1", "-vf", vf + "null", "-f", "image2", "-c:v", "png", "-"], capture_output=True, check=True).stdout
+    im = Image.open(io.BytesIO(png)).convert("RGB")
+    for x1, y1, x2, y2 in masks:
+        box = (max(0, x1 - crop[0]), max(0, y1 - crop[1]), min(im.width, x2 - crop[0]), min(im.height, y2 - crop[1]))
+        if box[2] > box[0] and box[3] > box[1]: im.paste(im.crop(box).filter(ImageFilter.GaussianBlur(10)), box[:2])
+    return im.resize((W, H), Image.LANCZOS)
+
+def draw_align(d, k=1.0, wob=None):
+    S = lambda v: v * k
     L = (lambda pts, c, w: d.line(pts, fill=c, width=w)) if wob is None else wob
-    L([(x0, ZY), (x1, ZY)], col, 4)
-    gy = ZY - 18
-    d.line([(x0 + 40, gy), (x1, gy)], fill="#C9CED6", width=2)
-    d.polygon([(x0 + 70, gy), (x0 + 150, gy - 120), (x0 + 230, gy)], fill="#E1E5EA")   # 山
-    d.rectangle([x0 + 270, gy - 80, x0 + 320, gy], fill="#E1E5EA")                      # 建物
-    d.polygon([(x0 + 360, gy), (x0 + 360, gy - 30), (x0 + 385, gy - 48), (x0 + 410, gy - 30), (x0 + 410, gy)], fill="#E1E5EA")  # 家
-    for bx, top in ((x0 + 150, gy - 120), (x0 + 295, gy - 80), (x0 + 385, gy - 48)):
-        d.rectangle([bx - 4, top, bx + 4, ZY], fill=col)
+    objs = [("m", 120, 260, 104), ("b", 300, 350, 139), ("h", 390, 440, 169)]   # 0 の線にじかに立つ
+    d.polygon([(S(120), S(ZY)), (S(190), S(104)), (S(260), S(ZY))], fill="#E1E5EA")
+    d.rectangle([S(300), S(139), S(350), S(ZY)], fill="#E1E5EA")
+    d.polygon([(S(390), S(ZY)), (S(390), S(187)), (S(415), S(169)), (S(440), S(187)), (S(440), S(ZY))], fill="#E1E5EA")
+    L([(S(40), S(ZY)), (S(500), S(ZY))], NAVY, max(2, int(LW * k)))
+    for bx, top in ((190, 104), (325, 139), (415, 169)):
+        d.rectangle([S(bx - BW / 2), S(top), S(bx + BW / 2), S(ZY)], fill=NAVY)
+    zero(d, S(40), S(ZY), S(16), int(S(22)))
 
-def sk_align():
-    im, d = paper(); align_fig(d)
-    zero(d, 40, ZY, 16, 22)
-    label(d, (14, 14), "「0」で横一本の 0 の線 →「そろえています」で棒", 18, box=True)
-    label(d, (14, 262), "影と棒だけ。数字・水面・機械は描かない", 15, fill=INK)
-    return tag(im, "24.02–27.18")
+SITE_LINE = (298, 440, 222)               # □ の x（線の左の端＝標尺手の足もと）、線の右の端、y（K 18.9– 窓 0,200,1200,675 の 520 幅で）
+OCC = [(349, 366)]                        # 線を三脚の脚の後ろに通す x の範囲
+SITE_BARS = ((335, 30), (395, 38), (425, 34))
+def draw_site(d, k=1.0):
+    S = lambda v: v * k
+    xs, x1, y = SITE_LINE
+    segs, cur = [], xs + 9
+    for a_, b_ in OCC: segs.append((cur, a_)); cur = b_
+    segs.append((cur, x1))
+    for a_, b_ in segs: d.line([(S(a_), S(y)), (S(b_), S(y))], fill=ORANGE, width=max(2, int(LW * k)))
+    for bx, h in SITE_BARS:
+        d.rectangle([S(bx - BW / 2), S(y - h), S(bx + BW / 2), S(y)], fill=ORANGE)
+    d.rectangle([S(xs - 9), S(y - 9), S(xs + 9), S(y + 9)], outline=ORANGE, width=max(2, int(LW * k)))
+    f = font(int(S(18))); w = d.textlength("高さの目印", font=f)
+    label(d, (S(xs - 14) - w, S(y - 52)), "高さの目印", int(S(18)), box=True, bg=ORANGE)
+
+def sk_align(W=TW, H=TH, cap=True):
+    im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im); draw_align(d, W / TW)
+    if cap:
+        label(d, (14, 14), "「0」で 0 の線 → 物がじかに立つ →「はかります」で3本の棒", 17, box=True)
+        label(d, (14, 262), "背くらべの形。地面の線・目盛り・数字は描かない", 15, fill=INK)
+        return tag(im, "24.65–27.18")
+    return im
 
 def sk_whitecut():
     im, d = paper()
     label(d, (14, 14), "27.18 白い紙で切る（0.32秒）", 18, box=True)
     label(d, (40, 110), "「道路を設計するときも」", 22, fill=INK)
     label(d, (40, 146), "海と現場は線・寄りでつながない", 18, fill=INK)
-    label(d, (14, 262), "つなぐのは「考え方は同じ」の一言と、同じ形の絵", 15, fill=INK)
+    label(d, (14, 262), "つなぐのは「も」「ひとつの基準」と、同じ形の絵", 15, fill=INK)
     return tag(im, "27.18–27.49")
 
-def sk_siteform():
-    im = frame("K", 21.0, (0, 200, 1200, 675), MK + [TRUCK17]); d = ImageDraw.Draw(im)
-    ly = 216
-    for x in range(110, 330, 12): d.line([(x, ly), (x + 7, ly)], fill=ORANGE, width=3)
-    osq(d, 342, ly, 9)
-    for bx, top in ((150, ly - 24), (205, ly - 32)):
-        d.rectangle([bx - 3, top, bx + 3, ly], fill=ORANGE)
-    label(d, (96, 236), "高さの目印", 18, box=True, bg=ORANGE)
-    label(d, (14, 14), "同じ形：□ の線から短い棒（「考え方は同じです」）", 18, box=True)
-    return tag(im, "K 18.9– 窓 27.49–32.86")
+def sk_siteform(W=TW, H=TH, cap=True):
+    im = framek("K", 21.0, (0, 200, 1200, 675), MK + [TRUCK17, SHOP_17], W, H); d = ImageDraw.Draw(im); draw_site(d, W / TW)
+    if cap:
+        label(d, (14, 14), "「ひとつの基準」で □ → 実線 →「はかります」で3本の棒", 17, box=True)
+        return tag(im, "K 18.9– 窓 27.49–32.86")
+    return im
 
 def sk_eyepiece():
     im = Image.new("RGB", (TW, TH), DARK); d = ImageDraw.Draw(im)
@@ -227,31 +258,45 @@ def grid(d):
     for gy in range(0, TH, 20): d.line([(0, gy), (TW, gy)], fill="#D6E2EE", width=1)
 def tri(d, x, y, s=10):
     d.polygon([(x, y - s), (x - s, y + s * 0.8), (x + s, y + s * 0.8)], outline=NAVY, fill="#EAF1F8"); d.line([(x, y - s), (x - s, y + s * 0.8), (x + s, y + s * 0.8), (x, y - s)], fill=NAVY, width=3)
-def sk_design1():
-    im, d = paper(); grid(d)
-    for x, y in PTS: d.ellipse([x - 6, y - 6, x + 6, y + 6], fill=ORANGE)
-    sheet = Image.new("RGBA", (300, 200), (255, 255, 255, 110)); im.paste(sheet, (200, 70), sheet); d = ImageDraw.Draw(im)
-    for x, y in TRI: tri(d, x, y)
-    d.line([(150, 245), (210, 245)], fill=NAVY, width=2); d.polygon([(210, 239), (210, 251), (222, 245)], fill=NAVY)
-    label(d, (14, 14), "高さの層（オレンジの点）＋位置の層（紺の △）", 18, box=True)
-    label(d, (14, 262), "△ は1本目の基準点の印。文字は出さない", 15, fill=INK)
-    return tag(im, "51.19–53.72")
+def draw_design(d, k=1.0, stage=2):
+    S = lambda v: v * k
+    d.rectangle([0, 0, S(TW), S(TH)], fill="#EAF1F8")
+    for gx in range(0, TW, 20): d.line([(S(gx), 0), (S(gx), S(TH))], fill="#D6E2EE", width=1)
+    for gy in range(0, TH, 20): d.line([(0, S(gy)), (S(TW), S(gy))], fill="#D6E2EE", width=1)
+    for x, y in PTS: d.ellipse([S(x - 6), S(y - 6), S(x + 6), S(y + 6)], fill=ORANGE)
+    for x, y in TRI:
+        sz = 10
+        pts = [(S(x), S(y - sz)), (S(x - sz), S(y + sz * 0.8)), (S(x + sz), S(y + sz * 0.8))]
+        d.polygon(pts, fill="#EAF1F8"); d.line(pts + [pts[0]], fill=NAVY, width=max(2, int(3 * k)))
+    if stage >= 2:
+        road = [(40, 175), (150, 152), (260, 132), (380, 120), (500, 114)]
+        for off in (-13, 13):
+            q = [(x, y + off) for x, y in road]
+            for (x1, y1), (x2, y2) in zip(q, q[1:]):
+                L = math.dist((x1, y1), (x2, y2)); t = 0
+                while t < L:
+                    t2 = min(L, t + 9)
+                    d.line([(S(x1 + (x2 - x1) * t / L), S(y1 + (y2 - y1) * t / L)), (S(x1 + (x2 - x1) * t2 / L), S(y1 + (y2 - y1) * t2 / L))], fill=NAVY, width=max(2, int(2 * k)))
+                    t += 15
 
-def sk_design2():
-    im, d = paper(); grid(d)
-    for x, y in PTS: d.ellipse([x - 6, y - 6, x + 6, y + 6], fill=ORANGE)
-    for x, y in TRI: tri(d, x, y)
-    road = [(40, 175), (150, 150), (260, 128), (380, 118), (500, 112)]
-    for off in (-12, 12): d.line([(x, y + off) for x, y in road], fill=NAVY, width=2)
-    for (x1, y1), (x2, y2) in zip(road, road[1:]):
-        L = math.dist((x1, y1), (x2, y2)); t = 0
-        while t < L:
-            t2 = min(L, t + 10); d.line([(x1 + (x2 - x1) * t / L, y1 + (y2 - y1) * t / L), (x1 + (x2 - x1) * t2 / L, y1 + (y2 - y1) * t2 / L)], fill=NAVY, width=1); t += 16
-    d.rectangle([40, 205, 500, 250], fill=PAPER, outline="#9FB3CC", width=1)
-    d.line([(50, 242), (490, 214)], fill=NAVY, width=3)
-    label(d, (14, 14), "重なる →「設計の手がかり」で道の線 → 坂の線", 18, box=True)
-    label(d, (14, 262), "高さだけでは道の線は出ない（重なってから）", 15, fill=INK)
-    return tag(im, "53.72–55.62")
+PTS = [(70, 150), (110, 146), (150, 140), (190, 136), (230, 134), (270, 130), (310, 128), (350, 124)]
+TRI = [(120, 200), (260, 96), (420, 170)]
+def sk_design1(W=TW, H=TH, cap=True):
+    im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im); draw_design(d, W / TW, stage=1)
+    if cap:
+        d.line([(150, 255), (210, 255)], fill=NAVY, width=2); d.polygon([(210, 249), (210, 261), (222, 255)], fill=NAVY)
+        label(d, (14, 14), "高さの点（行き→帰り）→「位置」で △ →「あわせて」重なる", 17, box=True)
+        label(d, (14, 262), "△ は1本目の基準点の印", 15, fill=INK)
+        return tag(im, "51.19–53.09")
+    return im
+
+def sk_design2(W=TW, H=TH, cap=True):
+    im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im); draw_design(d, W / TW, stage=2)
+    if cap:
+        label(d, (14, 14), "「道路の設計に」で道路の点線の下書き", 17, box=True)
+        label(d, (14, 262), "下書き（これから決める線）。坂の線・文字なし", 15, fill=INK)
+        return tag(im, "53.09–55.62")
+    return im
 
 def stick(d, x, y, col=INK, staff=False):
     d.ellipse([x - 5, y - 26, x + 5, y - 16], outline=col, width=2); d.line([(x, y - 16), (x, y)], fill=col, width=2)
@@ -260,18 +305,18 @@ def stick(d, x, y, col=INK, staff=False):
 
 def sk_child():
     im, d = paper()
-    gy, zy = 150, 168
-    d.line([(20, zy), (220, zy)], fill=NAVY, width=4); zero(d, 20, zy, 9, 13)
-    d.polygon([(40, gy), (85, gy - 70), (130, gy)], outline=INK, width=3); d.rectangle([150, gy - 45, 185, gy], outline=INK, width=3)
-    for bx, top in ((85, gy - 70), (167, gy - 45)): d.rectangle([bx - 3, top, bx + 3, zy], fill=NAVY)
-    d.line([(300, 160), (400, 150), (505, 140)], fill="#9AA5B4", width=6)
-    osq(d, 330, 142, 10)
-    for x in range(342, 400, 10): d.line([(x, 142), (x + 5, 142)], fill=ORANGE, width=3)
-    d.rectangle([382, 124, 388, 142], fill=ORANGE)
-    stick(d, 420, 130, staff=True)
-    stick(d, 480, 118); d.line([(472, 100), (486, 100)], fill=INK, width=3)
+    zy = 168
+    d.line([(20, zy), (230, zy)], fill=NAVY, width=4); zero(d, 20, zy, 9, 13)
+    d.polygon([(45, zy), (90, zy - 72), (135, zy)], outline=INK, width=3); d.rectangle([155, zy - 48, 190, zy], outline=INK, width=3)
+    for bx, top in ((90, zy - 72), (172, zy - 48)): d.rectangle([bx - 3, top, bx + 3, zy], fill=NAVY)
+    d.line([(300, 172), (400, 160), (505, 150)], fill="#9AA5B4", width=6)
+    osq(d, 330, 150, 10)
+    d.line([(342, 150), (412, 150)], fill=ORANGE, width=4)
+    for bx, h in ((360, 18), (385, 24)): d.rectangle([bx - 3, 150 - h, bx + 3, 150], fill=ORANGE)
+    stick(d, 430, 138, staff=True)
+    stick(d, 485, 126); d.line([(477, 108), (491, 108)], fill=INK, width=3)
     label(d, (14, 14), "終わりの画：子どもが描く絵（0.6秒で並ぶ）", 18, box=True)
-    label(d, (250, 184), "左右に離す・線でつながない（同じ形）", 14, fill=INK)
+    label(d, (250, 188), "左右に離す・線でつながない（同じ形）", 14, fill=INK)
     label(d, (60, 222), "“高さの土台” をはかる", 26)
     return tag(im, "68.26–70.78")
 
@@ -283,28 +328,28 @@ ROWS = [
     ("B1 章扉", "1小節　0.0–2.5", [sk_door8], "N1a 0.30「測量部門の仕事のひとつ、」", "章扉（共通）。水準のアイコン（□）だけ灯る", "章扉の灯り", "部門の中の1作業"),
     ("B2 据える", "2–3小節　2.5–7.6", [lambda: tag(frame("S", 49.6, (70, 82, 707, 398), M1), "S 48.58– 実時間"), lambda: tag(ov_title8(frame("S", 53.3, (70, 82, 707, 398), M1)), "6.95 載る＝題")],
      "N1b 7.25「水準測量です。」", "ケースを開ける → 持ち上げる → 6.95 に載る。題とサブ「“高さの土台” をはかる」", "載る音（実音）", "人の手で始まる"),
-    ("B3 はかる", "4–5小節　7.6–12.6", [lambda: tag(frame("S", 66.0, (170, 40, 678, 381), M1), "S 56–74 4.75倍"), lambda: tag(frame("N", 2.6, (600, 180, 1200, 675), NV), "N 2.0–3.3")],
-     "N2 8.99「道ばたで、高さを、ミリまではかります。」（〜12.41）", "整準（気泡をのぞく）→ 目を当てる寄り。文字なし（「レベル」は B11 へ）", "道の環境音", "何をしているか"),
+    ("B3 はかる", "4–5小節　7.6–12.6", [lambda: tag(frame("S", 66.0, (170, 40, 678, 381), M1), "S 56–74 4.75倍"), lambda: tag(frame("N", 2.6, (600, 0, 1320, 742), [(1060, 200, 1200, 280)] + NV), "N 2.0–3.26 窓 1.45倍")],
+     "N2 8.99「道ばたで、高さを、ミリまではかります。」（〜12.41）", "整準（気泡をのぞく）→ 機械と顔の全体（1.45倍）。文字なし", "道の環境音", "何をしているか"),
     ("B4 問い", "6–8小節　12.6–20.2", [lambda: tag(frame("K", 3.0, None, MK), "K 1.5 全画面から"), lambda: tag(ov_q(ov_lab(frame("K", 7.82, KW132, MK + [HELMET_85]), (40, 50), "標尺", (93, 120))), "K 7.82 で止める")],
      "N3 13.38「でも、高さって、どこからはかるのでしょう。」（〜17.18）", "歩いて来てかがむ。「標尺」14.50–16.50（「どこから」の前）。18.96 に止まる", "17.70 に曲が止まる → 3 秒、現場の音だけ（考える間）", "問いを置く"),
-    ("B5 そろえる 1/3", "9–10小節　20.2–24.0", [sk_pull1, sk_pull2],
-     "N4 20.98「日本の高さは、東京湾の海の高さを0にして、そろえています。」（「東京湾」22.31）", "一番強い頭で写真が縮む → 白い紙 → 小さな日本の形 → 22.75 東京湾に紺の点 → 点が左へすべる。補足「東京湾の平均の海面」22.01–25.30", "曲のみ", "日本の高さの基準を一つ見せる"),
-    ("B5 そろえる 2/3", "10–11小節　24.0–27.5", [sk_align, sk_whitecut],
-     "N4 の続き：「0」24.02、「そろえています」25.15　N5 26.88「道路を設計するときも、…」", "24.02 横一本の 0 の線（C6）→ 25.28 山・建物・家に 0 の線から棒が立つ → 27.18 白い紙 0.32秒", "0 の線で C6（−3 dB）", "なるほど：同じ基準からはかるから、高さがそろう"),
-    ("B5 そろえる 3/3", "12–13小節　27.5–32.9", [sk_siteform],
-     "N5「…考え方は同じです。」（28.97）　N6 30.89「近くに“高さの目印”を決めて、…」", "K 18.9– の実写（左の窓）→ 27.81 足もとにオレンジの □（C6）→ 28.44 横の線 → 29.07「同じです」で棒が2本 → 30.61「高さの目印」", "□ で C6（0 の線と同じ音）", "現場でも同じ考え方。近くの目印から"),
+    ("B5 ひとつの基準 1/3", "9–10小節　20.2–24.6", [sk_pull1, sk_pull2],
+     "N4 21.61「日本の高さは、東京湾の海の高さを0にして、はかります。」（「東京湾」22.94）", "一番強い頭で写真が縮む → 白い紙 → 小さな日本の形 → 23.0 東京湾に紺の点 → 点が左へすべる。補足「東京湾の平均の海面」22.64–25.90", "曲のみ", "日本の高さの基準を一つ見せる"),
+    ("B5 ひとつの基準 2/3", "10–11小節　24.6–27.5", [sk_align, sk_whitecut],
+     "N4 の続き：「0」24.65、「はかります」25.79　N5 27.14「道路を設計するときも、…」", "24.65 横一本の 0 の線（C6）→ 物が線にじかに立つ → 25.79 3本の棒 → 27.18 白い紙 0.32秒", "0 の線で C6（−3 dB）", "なるほど：高さはひとつの基準からはかる"),
+    ("B5 ひとつの基準 3/3", "12–13小節　27.5–32.9", [sk_siteform],
+     "N5「…ひとつの基準からはかります。」（「ひとつの基準」29.23、〜31.70）　N6 32.10「“高さの目印”を…」", "K 18.9– の実写（左の窓）を 1.7秒 → 29.23 □（C6）→ 29.70 実線 → 30.75 3本の棒（0 の絵と同じ太さ・数・高さ）→ 30.61「高さの目印」。0 の字は出さない", "□ で C6（0 の線と同じ音）", "現場も、ひとつの基準（近くの目印）から"),
     ("B6 つなぐ", "14–15小節　32.9–37.9", [lambda: tag(frame("S", 169.2, None, M2), "S 166.56–171.62 実時間")],
-     "N6「…そこから、高さをつないでいきます。」（〜36.40。「そこから」33.36）", "ものさしを持った人が右手前からあらわれ、35.5 に機械の横を通って次の点へ", "足音・道の音", "目印から高さをつなぐ"),
-    ("B7 読む", "16–17小節　37.9–43.0", [lambda: tag(frame("N", 4.5, (600, 180, 1200, 675), NV), "N 3.3–5.83"), sk_eyepiece],
-     "N7 39.25「遠くのものさしを、目で読んで、」", "のぞいて指でつまみを回す → 40.45（曲のつなぎ目）接眼の円 → 41.0–41.5 ピント → 41.71 横の線にうすい帯（標尺は動かさない、数字なし）", "N の実音 → 曲だけ", "目で読む仕事"),
+     "N6「…近くに決めて、そこから、高さをつないでいきます。」（〜37.61。「そこから」34.57）", "ものさしを持った人が右手前からあらわれ、35.5 に機械の横を通って次の点へ", "足音・道の音", "目印から高さをつなぐ"),
+    ("B7 読む", "16–17小節　37.9–43.0", [lambda: tag(frame("N", 4.5, (840, 200, 960, 540), BRAND7), "N 3.3–5.83 窓 2.0倍"), sk_eyepiece],
+     "N7 39.25「遠くのものさしを、目で読んで、」", "目とつまみの寄り（2.0倍）→ 40.45（曲のつなぎ目）接眼の円 → 41.0–41.5 ピント → 41.71 横の線にうすい帯（標尺は動かさない、数字なし）", "N の実音 → 曲だけ", "目で読む仕事"),
     ("B8 書く", "18小節　43.0–45.5", [lambda: tag(frame("K", 17.0, (720, 0, 1200, 675), MK + [TRUCK17, SHOP_17, HELMET_17]), "K 16.2–18.73 1.6倍")],
      "N8 43.37「手で書きとめる。」", "立って黄色い手帳に書く手（N7 からカットで続く）", "ペンの音", "読んだ数字は人の手で残る"),
     ("B9 確かめる", "19–20小節　45.5–50.6", [lambda: tag(frame("S", 173.5, None, M2 + [CYC]), "S 172.2–174.73 全画面"), lambda: tag(frame("S", 178.0, (170, 40, 678, 381), M2 + [CYC]), "S 177.0– 窓 1.25倍")],
      "N9 45.90「行きと帰りではかって、ずれがないか確かめます。」", "遠くに着いた標尺手 → 寄りの大きさで、観測者がのぞき 179.2 から歩き出す（実写だけ）", "S の実音", "ていねいさ"),
     ("B10 設計へ", "21–22小節　50.6–55.6", [sk_design1, sk_design2],
-     "N10 50.96「はかった高さは、位置の測量とあわせて、設計の手がかりになります。」（〜56.85。B11 に 1.23秒）", "設計の紙 → 51.19 高さの層（点の行きと帰り）→ 52.46「位置の測量」で △ の層 → 53.72「あわせて」重なる → 54.35 道の線 → 54.98 坂の線", "C・E・G（54.35、小）", "位置とあわせて、設計の土台になる"),
-    ("B11 人", "23–24小節　55.6–60.7", [lambda: tag(ov_level(frame("S", 81.6, (170, 40, 678, 381), M1 + [(500, 258, 552, 296)])), "S 81.0–83.53 窓"), lambda: tag(frame("N", 8.2, (600, 200, 1200, 675), NV), "N 5.9–8.43 顔")],
-     "N10 の終わり（〜56.85）、そのあと声なし（実音 +3 dB）", "人のいない機械と流れる車に「レベル」→ 58.14 のぞく寄りの顔で終える（K の引きは使わない）", "実音 +3 dB", "まちのすぐ横で。寄りの顔で終える"),
+     "N10 50.96「高さは、位置とあわせて、道路の設計に使われます。」（〜55.33、B10 の中）", "設計の紙 → 51.19 高さの点（行き→帰り）→ 51.82「位置」で △ → 52.46「あわせて」重なる → 53.09「道路」で点線の下書き → 55.62 まで保つ", "C・E・G（53.09、小）", "位置とあわせて、道路の設計に使われる"),
+    ("B11 人", "23–24小節　55.6–60.7", [lambda: tag(ov_level(frame("S", 81.6, (170, 40, 678, 381), M1 + [(500, 258, 552, 296)])), "S 81.0–83.53 窓"), lambda: tag(frame("N", 8.2, (600, 200, 1200, 675), NV + BRAND11), "N 5.9–8.43 顔 1.6倍")],
+     "声なし（実音 +3 dB）", "人のいない機械と流れる車に「レベル」→ 58.14 のぞく寄りの顔で終える（K の引きは使わない）", "実音 +3 dB", "まちのすぐ横で。寄りの顔で終える"),
     ("B12 締め", "25–28小節　60.7–70.8", [lambda: tag(frame("K", 12.0, K115, MK + [HELMET_85]), "K 8.53–16.12 等速、引く"), sk_child],
      "N12 61.07「設計が使う、“高さの土台”をはかる。それが、水準測量です。」（〜66.01）", "N の顔から、最後の一打で二人の引き。文字「“高さの土台” をはかる」61.91–。68.26 子どもの絵（同じ形を左右に離す）→ 70.15 オレンジの □ だけ縮んでアイコン → 黒", "最後の和音のばし。G6（小）", "誇りと余韻。中心の絵をもう一度"),
 ]
@@ -326,7 +371,7 @@ def card(row, d0):
     h = 52 + TH + 14 + sum(len(b) * LH + 10 for _, b in blocks) + 18
     im = Image.new("RGB", (W, h), "white"); d = ImageDraw.Draw(im)
     d.rectangle([0, 0, W, 46], fill="#2C4A3E")                       # v8 は深い緑の帯（v5〜v7 の紺の帯と分ける）
-    d.text((PAD, 8), row[0], font=font(30), fill="white"); d.text((330, 12), row[1], font=font(26), fill="white")
+    d.text((PAD, 8), row[0], font=font(30), fill="white"); d.text((390, 12), row[1], font=font(26), fill="white")
     imgs = [g() for g in row[2]]
     if len(imgs) == 1: im.paste(imgs[0], ((W - TW) // 2, 52))
     elif len(imgs) == 3:
@@ -346,7 +391,7 @@ def page(rows, n, of):
     cards = [card(r, tmp) for r in rows]
     H = 120 + sum(c.height for c in cards)
     im = Image.new("RGB", (W, H), "white"); d = ImageDraw.Draw(im)
-    d.text((PAD, 14), f"水準測量パート 絵コンテ v8.4「海からの高さ」　{n}/{of}", font=font(34), fill=INK)
+    d.text((PAD, 14), f"水準測量パート 絵コンテ v8.5「海からの高さ」　{n}/{of}", font=font(34), fill=INK)
     d.text((PAD, 62), "28小節・70.8秒・曲 V6b（8小節で止め）。コマは元の素材（ぼかし済み）、", font=font(22), fill="#555")
     d.text((PAD, 90), "図は 0 の線・接眼の円・設計の紙・子どもの絵のスケッチ。秒は完成尺。社外に出さない。", font=font(22), fill="#555")
     y = 120
@@ -360,13 +405,14 @@ for n, rows in enumerate(groups, 1):
 # ---- ゲートの1枚目：v7（v7.4）との対応表。変えた画を先に、同じ画はその理由と ----
 CMP = [
     ("変", "尺と曲", "32小節・80.9秒（V6d）", "28小節・70.8秒（V6b）。32小節は別案"),
-    ("変", "芯の考え", "高さのバトンを、となりへつなぐ", "設計のための測量。高さは同じ基準からはかるからそろう（日本は海の0、現場は近くの目印）"),
+    ("変", "芯の考え", "高さのバトンを、となりへつなぐ", "設計のための測量。高さはひとつの基準からはかる（日本は海の0、現場は近くの目印）"),
     ("変", "B4 ナレ", "仲間がひとり、ものさしを…", "問い「高さって、どこからはかるのでしょう」"),
-    ("変", "B5 看板", "真横の図：目線・のぼって・わたって・おりる", "0 の線から棒が立つ絵 → 白い紙 → 現場の実写で □ の線から棒（同じ形）"),
+    ("変", "B5 看板", "真横の図：目線・のぼって・わたって・おりる", "0 の線から3本の棒 → 白い紙 → 現場の実写で □ の線から3本の棒（同じ形）"),
     ("変", "B7", "真横の図「となりへ、となりへ」", "N の顔 → 描いた接眼の円（横の線を読む）"),
     ("変", "B9", "S 177 全画面 → 図（帰りの線）", "実写だけ：S 172 全画面 → S 177 を 1.25倍の窓"),
-    ("変", "B10", "真横の図「新しい道」", "設計の紙：高さの層と位置の層（△）が重なる → 道の線・坂の線"),
+    ("変", "B10", "真横の図「新しい道」", "設計の紙：高さの点と位置の △ が重なる → 道路の点線の下書き"),
     ("変", "B11", "N の顔（長い）→ S 172 → S 81", "声なし。S 81「レベル」→ N の顔で終える"),
+    ("変", "N の寄り", "同じ窓", "B3 機械と顔／B7 目とつまみ／B11 顔（窓を変えた）"),
     ("変", "終わりの画", "紺の □ が縮んでアイコン", "子どもが描く絵（同じ形を左右に離す）→ □ だけ縮む"),
     ("変", "締め", "“高さの目印” をつくる", "設計が使う “高さの土台” をはかる"),
     ("変", "「レベル」", "B6 の S の機械", "B11 の S 81 の機械（人のいない画）"),
@@ -388,7 +434,7 @@ def compare():
         rows.append((r, cells, max(len(c) for c in cells) * 32 + 14))
     H = 230 + 44 + sum(h for _, _, h in rows) + 30
     im = Image.new("RGB", (W, H), "white"); d = ImageDraw.Draw(im)
-    d.text((PAD, 16), "v7 との対応表（v7.4 → v8.4）", font=font(36), fill=INK)
+    d.text((PAD, 16), "v7 との対応表（v7.4 → v8.5）", font=font(36), fill=INK)
     d.text((PAD, 70), "変えた画を先に。同じ画が残るのは、素材が約40秒（S・K・N の3本）で、", font=font(22), fill="#555")
     d.text((PAD, 100), "人の仕事が映る所がそこしかないため。図・ナレ・終わりの画・B9〜B11 の並びは変えた。", font=font(22), fill="#555")
     n_ch = sum(1 for r in CMP if r[0] == "変")
@@ -396,7 +442,7 @@ def compare():
     d.text((PAD, 180), "絵コンテは p2（看板）から見てください。社外に出さない。", font=font(22), fill="#555")
     y = 230
     d.rectangle([0, y, W, y + 44], fill="#2C4A3E")
-    for (x, _), h in zip(cols, ("", "どこ", "v7.4", "v8.4")): d.text((x + 6, y + 8), h, font=fb, fill="white")
+    for (x, _), h in zip(cols, ("", "どこ", "v7.4", "v8.5")): d.text((x + 6, y + 8), h, font=fb, fill="white")
     y += 44
     for r, cells, h in rows:
         ch = r[0] == "変"
@@ -408,3 +454,20 @@ def compare():
         d.line([(0, y + h), (W, y + h)], fill="#DDDDDD", width=1); y += h
     p = OUT / "compare_v7.jpg"; im.save(p, quality=90); print(p)
 compare()
+
+# ---- 2コマの見本（editing_v8.md §8 の一番大事な所）：b5_pair.jpg（0 の絵と現場の絵）・b10.jpg ----
+def mock(pair, name, caps, title):
+    W2, H2 = 960, 540
+    ims = [f(W2, H2, cap=False) for f in pair]
+    out = Image.new("RGB", (W2 * len(ims) + 20 * (len(ims) - 1), H2 + 120), "white"); d = ImageDraw.Draw(out)
+    d.text((PAD, 14), title, font=font(32), fill=INK)
+    for i, (im, c) in enumerate(zip(ims, caps)):
+        x = i * (W2 + 20); out.paste(im, (x, 60)); d.text((x + 12, H2 + 70), c, font=font(24), fill="#333")
+    p = OUT / name; out.save(p, quality=90); print(p)
+mock([sk_align, sk_siteform], "b5_pair.jpg",
+     ["26.3 秒：日本の高さは、…0にして、はかります。", "31.3 秒：道路を設計するときも、ひとつの基準からはかります。"],
+     "B5 の2つの絵（同じ形・違う色。線・寄りでつながない）　v8.5")
+mock([sk_design1, sk_design2], "b10.jpg",
+     ["52.6 秒：「位置」で △、「あわせて」で重なる", "54.0 秒：「道路の設計に」で点線の下書き"],
+     "B10 設計へ（高さは位置とあわせて、道路の設計に使われる）　v8.5")
+

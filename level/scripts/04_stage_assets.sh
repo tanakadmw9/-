@@ -5,6 +5,6 @@ cd "$(dirname "$0")/.."
 G=${1:-Bplus}
 mkdir -p comp/assets/video comp/assets/audio/vo
 rm -f comp/assets/video/*
-cp intermediate/$G/L*.mp4 intermediate/$G/*.png comp/assets/video/
+cp intermediate/$G/*.mp4 intermediate/$G/*.png comp/assets/video/
 cp audio/vo_temp/*.wav comp/assets/audio/vo/ 2>/dev/null || true
 ls comp/assets/video

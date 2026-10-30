@@ -1,0 +1,65 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"sq\":1.69,\"dark\":1.69,\"line\":2.21,\"label\":3.785,\"bars\":5.404}"},{"id":"dur","type":"number","label":"dur","default":6.003},{"id":"track","type":"string","label":"カメラの流れ [[秒, dx, dy], ...]（36_track_site.py）","default":"[[0,0,0]]"}]'>
+<body>
+<template>
+  <style>
+    /* B5 後半 b5_site（editing_v8.md §3.1、29.388–35.391。K 18.75– の実写 窓 0,200,1200,675 の上）：
+       「ひとつの基準」でオレンジの □（64px、線 6px、点なし）と同時に写真を暗く（明るさ −25%。彩度 −40% は中間素材で同じ時刻に）
+       → 「基準」で □ から右へ一本の実線（y 842、三脚の手前の脚の前を通る）→ ラベル「高さの目印」（標尺手の脚から 40px 以上）
+       → 「から」で3本の棒（幅 10px、0.15 秒おき、各 0.4 秒）と棒のてっぺんのオレンジの点（直径 18px）。□・線・棒・点・ラベルの帯に白い縁 3px。
+       0 の字は出さない。人の体・コーンにかけない（位置は 53_plan_storyboard_v8.py の b5_pair.jpg で決めた値を 1920 に直したもの） */
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #b5k-dark { position: absolute; inset: 0; background: #000; opacity: 0; }
+    #b5k-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #b5k-label { position: absolute; right: 920px; top: 554px; padding: 10px 26px 12px 26px; border-radius: var(--plate-radius);
+      background: var(--orange); border: 3px solid var(--white); font-family: var(--font-ja); font-weight: 700; font-size: var(--fs-label);
+      line-height: 1.2; color: var(--white); font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="b5_site" data-width="1920" data-height="1080">
+    <div id="b5k-dark"></div>
+    <div id="b5k-move" style="position:absolute;inset:0">
+      <svg id="b5k-svg" viewBox="0 0 1920 1080">
+        <g id="b5k-bars">
+          <g id="b5k-bar0"><rect x="1225" y="728" width="16" height="114" fill="#fff"/><rect x="1228" y="731" width="10" height="111" fill="var(--orange)"/>
+            <circle cx="1233" cy="731" r="12" fill="#fff"/><circle cx="1233" cy="731" r="9" fill="var(--orange)"/></g>
+          <g id="b5k-bar1"><rect x="1476" y="699" width="16" height="143" fill="#fff"/><rect x="1479" y="702" width="10" height="140" fill="var(--orange)"/>
+            <circle cx="1484" cy="702" r="12" fill="#fff"/><circle cx="1484" cy="702" r="9" fill="var(--orange)"/></g>
+          <g id="b5k-bar2"><rect x="1587" y="721" width="16" height="121" fill="#fff"/><rect x="1590" y="724" width="10" height="118" fill="var(--orange)"/>
+            <circle cx="1595" cy="724" r="12" fill="#fff"/><circle cx="1595" cy="724" r="9" fill="var(--orange)"/></g>
+        </g>
+        <line id="b5k-line-w" x1="1140" y1="842" x2="1625" y2="842" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+        <line id="b5k-line" x1="1140" y1="842" x2="1625" y2="842" stroke="var(--orange)" stroke-width="6" stroke-linecap="round"/>
+        <g id="b5k-sq"><rect x="1076" y="810" width="64" height="64" fill="none" stroke="#fff" stroke-width="12"/>
+          <rect x="1076" y="810" width="64" height="64" fill="none" stroke="var(--orange)" stroke-width="6"/></g>
+      </svg>
+      <div id="b5k-label">高さの目印</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const tr = JSON.parse(v.track || "[[0,0,0]]");
+      const tl = gsap.timeline({ paused: true });
+      gsap.set(["#b5k-sq", "#b5k-line", "#b5k-line-w", "#b5k-bars"], { opacity: 0 });
+      // カメラの流れに合わせる（ほぼ固定。ずれは 36_track_site.py の値）
+      for (let i = 1; i < tr.length; i++)
+        tl.fromTo("#b5k-move", { x: tr[i - 1][1], y: tr[i - 1][2] }, { x: tr[i][1], y: tr[i][2], duration: tr[i][0] - tr[i - 1][0], ease: "none", immediateRender: false }, tr[i - 1][0]);
+      // 「ひとつの基準」：□（C6）と写真を暗く（0.3 秒）
+      tl.fromTo("#b5k-sq", { opacity: 0, scale: 1.25, svgOrigin: "1108 842" }, { opacity: 1, scale: 1, svgOrigin: "1108 842", duration: 0.3, ease: "power3.out" }, c.sq);
+      tl.fromTo("#b5k-dark", { opacity: 0 }, { opacity: 0.25, duration: 0.3, ease: "power1.inOut" }, c.dark);
+      // 「基準」：□ から右へ一本の実線（0.5 秒）
+      tl.set(["#b5k-line", "#b5k-line-w"], { opacity: 1 }, c.line);
+      tl.fromTo(["#b5k-line", "#b5k-line-w"], { attr: { x2: 1140 } }, { attr: { x2: 1625 }, duration: 0.5, ease: "power2.out" }, c.line);
+      // ラベル「高さの目印」
+      tl.fromTo("#b5k-label", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.label);
+      // 「から」：3本の棒と点（0 の絵と同じ速さ）
+      tl.set("#b5k-bars", { opacity: 1 }, c.bars);
+      [0, 1, 2].forEach((i) =>
+        tl.fromTo("#b5k-bar" + i, { scaleY: 0, transformOrigin: "50% 100%" }, { scaleY: 1, transformOrigin: "50% 100%", duration: 0.4, ease: "power2.out" }, c.bars + 0.15 * i));
+      tl.set({}, {}, v.dur || c.bars + 0.6);
+      window.__timelines["b5_site"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

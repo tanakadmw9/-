@@ -61,8 +61,17 @@ def telop_files():
         s = tpl.replace("telop_keyword", t["id"]).replace("kw-", f"{t['id']}-")
         (gen / f"{t['id']}.html").write_text(s)
 
+def template_files():
+    """template を持つ場面（水準 v8.6：label_pointer の「標尺」「レベル」）は、部品から id ごとにファイルを作る（host id と composition id を一致させる）。"""
+    gen = COMP / "compositions/gen"; gen.mkdir(exist_ok=True)
+    for sc in T["scenes"]:
+        if sc.get("template"):
+            tpl = (COMP / f"compositions/{sc['template']}.html").read_text()
+            (gen / f"{sc['id']}.html").write_text(tpl.replace(sc["template"], sc["id"]))
+
 def build_main():
     telop_files()
+    template_files()
     out = [HEAD, f'<div id="root" data-composition-id="main" data-start="0" data-duration="{T["duration"]}"'
                  f' data-width="1920" data-height="1080" data-fps="30000/1001">\n']
     z = 1
@@ -91,6 +100,7 @@ def build_main():
 
 def build_scene(sid):
     """1場面だけを 0 秒から再生する確認用プロジェクト。assets/styles/compositions は comp/ へのリンク。"""
+    template_files()
     sc = next(s for s in T["scenes"] if s["id"] == sid)
     d = ROOT / "dev" / sid; d.mkdir(parents=True, exist_ok=True)
     for name in ("assets", "styles", "compositions"):

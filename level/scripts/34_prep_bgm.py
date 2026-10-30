@@ -33,11 +33,55 @@ env = np.sqrt(np.convolve(x.mean(1) ** 2, np.ones(SR // 20) / (SR // 20), "same"
 end_s = (np.where(env > 10 ** (-70 / 20))[0][-1]) / SR
 over = end_s - NEED
 # 2 小節単位で、曲の終わりが映像の終わりの 0〜1.5 秒前に来る最小の数（できれば 4 の倍数＝フレーズ単位を優先）
-cands = [] if T["bgm"].get("bars") else [n for n in range(2, 40, 2) if 0 <= n * BAR - over <= 1.5]
-if not cands and not T["bgm"].get("bars"): raise SystemExit(f"no bar count fits: over {over:.2f}s, bar {BAR:.3f}s")
+cands = [] if (T["bgm"].get("bars") or T["bgm"].get("plan")) else [n for n in range(2, 40, 2) if 0 <= n * BAR - over <= 1.5]
+if not cands and not (T["bgm"].get("bars") or T["bgm"].get("plan")): raise SystemExit(f"no bar count fits: over {over:.2f}s, bar {BAR:.3f}s")
 nbars = next((n for n in cands if n % 4 == 0), cands[0]) if cands else 0
 cut = nbars * BAR
 print(f"need {NEED:.2f}s, song from beat0 {end_s:.2f}s (audible), remove {nbars} bars = {cut:.2f}s -> {end_s - cut:.2f}s")
+
+if T["bgm"].get("plan"):
+    # 水準 v8.6（V6b の組み方）：timeline.bgm.plan＝[["bars", a, b] | ["stop", 小節数, 曲の小節]]。52_bgm_v6_tests.py の build と同じ作り方
+    #   bars：曲の a〜b 小節を小節の頭でつなぐ（60ms の等パワー）。stop：曲の小節 h の頭の和音を 1 拍鳴らして減衰（時定数 0.35 秒）、残りは無音
+    #   hold：{at, len, xfade}（つないだ後の秒）で len 秒前へ戻って最後の和音をのばす。duck：[[t0, t1, dB, 立ち上がり, 戻り]]（機械が載る音を聞かせる）
+    xf = int(0.06 * SR); y = np.zeros((0, 2)); splices = []
+    bar_i = lambda n: int(round((n - 1) * BAR * SR))
+    fade = lambda n, k: (np.sin if k == "in" else np.cos)(np.linspace(0, 1, max(n, 1))[:, None] * np.pi / 2)
+    for op in T["bgm"]["plan"]:
+        if op[0] == "bars":
+            a, b = op[1], op[2]; s0 = bar_i(a); e0 = len(x) if b >= 36 else bar_i(b + 1)
+            seg = x[max(s0 - xf // 2, 0):min(e0 + xf // 2, len(x))].copy()
+            if len(y) == 0: y = seg[xf // 2:] if s0 >= xf // 2 else seg
+            else:
+                splices.append(round((len(y) - xf // 2) / SR, 3)); w = np.sqrt(np.linspace(0, 1, xf))[:, None]
+                y[-xf:] = y[-xf:] * w[::-1] + seg[:xf] * w; y = np.concatenate([y, seg[xf:]])
+        elif op[0] == "stop":
+            nb, h = op[1], op[2]; L = int(round(nb * BAR * SR)) + xf // 2; seg = np.zeros((L, 2))
+            y = y[:len(y) - xf // 2]
+            hit = x[bar_i(h):bar_i(h) + int(1.6 * SR)].copy()
+            env = np.exp(-np.linspace(0, 1.6, len(hit)) / 0.35)[:, None]; env[:int(0.25 * SR)] = 1.0
+            seg[:len(hit)] = hit * env
+            f10 = int(0.01 * SR); y[-f10:] *= fade(f10, "out")
+            splices.append(round(len(y) / SR, 3)); y = np.concatenate([y, seg])
+    hold = T["bgm"].get("hold")
+    if hold:
+        ia, L, h = int(round(hold["at"] * SR)), int(round(hold["len"] * SR)), int(round(hold["xfade"] * SR))
+        u = np.linspace(0, 1, h)[:, None]
+        y = np.concatenate([y[:ia - h // 2], y[ia - h // 2:ia + h - h // 2] * np.cos(u * np.pi / 2)
+                            + y[ia - L - h // 2:ia - L + h - h // 2] * np.sin(u * np.pi / 2), y[ia - L + h - h // 2:]])
+        splices.append(round(hold["at"], 3))
+    n = int(round(NEED * SR))
+    y = y[:n] if len(y) >= n else np.concatenate([y, np.zeros((n - len(y), 2))])
+    f = int(0.01 * SR); y[:f] *= fade(f, "in")
+    tt = np.arange(len(y)) / SR; g = np.zeros(len(y))
+    for t0, t1, dbv, r_in, r_out in T["bgm"].get("duck", []):
+        g = np.minimum(g, dbv * np.clip((tt - t0) / r_in, 0, 1) * np.clip((t1 - tt) / r_out, 0, 1))
+    y = y * (10 ** (g / 20))[:, None]
+    out = ROOT / "audio/bgm/bgm.wav"; out.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(out, y, SR, subtype="PCM_24")
+    meta = {"source": SRC.name, "beat0": B0, "beat_period": BP, "plan": T["bgm"]["plan"], "hold": hold, "duck": T["bgm"].get("duck"),
+            "splices": splices, "length": round(len(y) / SR, 3), "need": round(NEED, 3)}
+    (ROOT / "audio/bgm/bgm_edit.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
+    print(meta); raise SystemExit(0)
 
 if T["bgm"].get("bars"):
     xf = int(0.06 * SR); w = np.sqrt(np.linspace(0, 1, xf))[:, None]

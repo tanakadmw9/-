@@ -1,0 +1,102 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"shrink\":0.033,\"white\":0.989,\"japan\":1.297,\"japan_end\":2.209,\"supp\":2.84,\"dot\":3.14,\"slide\":3.909,\"line\":4.879,\"objs\":5.209,\"bars\":6.27,\"white2\":8.88}"},{"id":"dur","type":"number","label":"dur","default":9.164},{"id":"photo","type":"string","label":"縮む写真（K 7.82 の止め絵）","default":"assets/video/K7_82.png"}]'>
+<body>
+<template>
+  <style>
+    /* B5 前半 b5_sea（editing_v8.md §3.1、20.224–29.388）：K の止め絵が縮む → 白い紙だけ 0.3 秒 → 小さな日本の形（自作の折れ線）と東京湾の紺の点
+       → 点が左へすべり、横一本の 0 の線（紺 6px、y 790）→ 山・建物・家が線にじかに立つ → 「はかります」で3本の棒（幅 10px）→ 白い紙 0.32 秒。
+       目盛り・矢印・数字・地面の線は描かない（断面図に見せない）。0 は海にだけ使う。補足「東京湾の平均の海面」は白い紙まで。
+       日本の形：主な岬・湾の公知の経緯度から手で打った折れ線（地図の画像はなぞっていない。本制作は Natural Earth：editing §3.5）。【要監修】島の扱い */
+    #root { position: absolute; inset: 0; overflow: hidden; background: var(--paper); }
+    #b5s-photo { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; transform-origin: 50% 50%;
+      box-shadow: 0 0 0 4px var(--navy); }
+    #b5s-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #b5s-supp { position: absolute; left: 50%; top: 912px; transform: translateX(-50%); padding: 10px 28px 12px 28px;
+      border-radius: var(--plate-radius); background: var(--plate); font-family: var(--font-ja); font-weight: 700; font-size: 40px;
+      line-height: 1.2; color: var(--white); font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+    #b5s-zero { position: absolute; left: 100px; top: 730px; width: 120px; height: 120px; border-radius: 50%; background: var(--navy);
+      color: var(--white); font-family: var(--font-num); font-weight: 700; font-size: 72px; line-height: 120px; text-align: center; opacity: 0; }
+    #b5s-white { position: absolute; inset: 0; background: var(--paper); opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="b5_sea" data-width="1920" data-height="1080">
+    <svg id="b5s-svg" viewBox="0 0 1920 1080">
+      <g id="b5s-japan" fill="none" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></g>
+      <g id="b5s-oki" opacity="0"><rect x="150" y="760" width="150" height="120" fill="none" stroke="var(--grid)" stroke-width="3"/>
+        <path id="b5s-oki-p" fill="none" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/></g>
+      <g id="b5s-objs">
+        <polygon id="b5s-mt" points="443,790 702,384 960,790" fill="#DDE1E6"/>
+        <rect id="b5s-bd" x="1108" y="513" width="184" height="277" fill="#DDE1E6"/>
+        <polygon id="b5s-hs" points="1440,790 1440,690 1532,624 1625,690 1625,790" fill="#DDE1E6"/>
+      </g>
+      <line id="b5s-line" x1="160" y1="790" x2="1760" y2="790" stroke="var(--navy)" stroke-width="6" stroke-linecap="round"/>
+      <g id="b5s-bars" fill="var(--navy)">
+        <rect id="b5s-bar0" x="697" y="384" width="10" height="406"/>
+        <rect id="b5s-bar1" x="1195" y="513" width="10" height="277"/>
+        <rect id="b5s-bar2" x="1527" y="624" width="10" height="166"/>
+      </g>
+      <circle id="b5s-dot" cx="0" cy="0" r="12" fill="var(--navy)" opacity="0"/>
+    </svg>
+    <div id="b5s-zero">0</div>
+    <div id="b5s-supp">東京湾の平均の海面</div>
+    <img id="b5s-photo" src="assets/video/K7_82.png" alt="">
+    <div id="b5s-white"></div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      if (v.photo) document.getElementById("b5s-photo").src = v.photo;
+      // 日本の形（経緯度。53_plan_storyboard_v8.py と同じ折れ線）。高さ 600px、画面の左寄り。経度は cos(36°) で縮める
+      const HOK = [[141.9,45.5],[142.9,44.6],[144.3,44.1],[145.3,44.3],[145.2,43.6],[145.8,43.4],[144.4,42.95],[143.3,41.95],[142.1,42.4],[141.4,42.6],[140.95,42.3],[141.2,41.8],[140.7,41.75],[140.1,41.4],[139.95,42.0],[140.4,42.6],[140.4,43.3],[141.3,43.2],[141.7,44.3],[141.6,45.2]];
+      const HON = [[140.9,41.5],[141.45,41.4],[141.5,40.5],[142.0,39.6],[141.6,38.5],[141.0,38.25],[141.0,37.0],[140.6,36.3],[140.85,35.7],[140.4,35.15],[139.85,34.9],[139.95,35.45],[139.75,35.65],[139.65,35.3],[139.7,35.15],[139.15,35.25],[138.85,34.6],[138.75,35.05],[138.2,34.6],[137.3,34.65],[136.85,34.75],[136.85,34.3],[136.4,34.2],[135.8,33.45],[135.1,33.9],[135.15,34.3],[135.45,34.65],[134.7,34.75],[133.9,34.5],[132.5,34.3],[131.3,33.95],[130.9,33.95],[131.0,34.4],[131.6,34.7],[132.6,35.4],[133.4,35.55],[134.4,35.55],[135.3,35.6],[136.0,35.7],[136.0,36.1],[136.7,36.85],[136.75,37.3],[137.3,37.55],[137.0,37.0],[137.3,36.75],[138.2,37.05],[138.9,37.9],[139.55,38.6],[139.8,39.4],[140.0,39.9],[139.7,40.0],[140.0,40.6],[140.3,41.25],[140.65,40.85],[140.9,41.2]];
+      const SHI = [[132.95,32.75],[132.45,33.3],[132.65,33.85],[133.4,34.2],[134.2,34.3],[134.65,34.05],[134.75,33.85],[134.2,33.25],[133.6,33.5],[133.25,33.4]];
+      const KYU = [[130.9,33.95],[131.55,33.6],[132.0,33.15],[131.7,32.6],[131.45,31.55],[131.1,31.25],[130.7,31.0],[130.2,31.25],[130.2,31.9],[130.6,32.6],[130.2,32.75],[129.85,32.7],[129.65,33.1],[129.85,33.35],[130.35,33.6]];
+      const OKI = [[127.65,26.1],[127.95,26.4],[128.3,26.85],[128.0,26.65],[127.7,26.4]];
+      const K = 600 / 14.6, KX = K * Math.cos(36 * Math.PI / 180);
+      const P = (p) => [360 + (p[0] - 129.6) * KX, 150 + (45.6 - p[1]) * K];
+      const d = (poly) => "M" + poly.map((p) => P(p).map((n) => n.toFixed(1)).join(" ")).join("L") + "Z";
+      const g = document.getElementById("b5s-japan");
+      const paths = [HOK, HON, SHI, KYU].map((poly) => {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "path"); el.setAttribute("d", d(poly)); g.appendChild(el);
+        const L = el.getTotalLength ? el.getTotalLength() : 3000; el.style.strokeDasharray = L; el.style.strokeDashoffset = L; return el;
+      });
+      const Q = (p) => [225 + (p[0] - 127.95) * 60, 822 - (p[1] - 26.45) * 60];
+      document.getElementById("b5s-oki-p").setAttribute("d", "M" + OKI.map((p) => Q(p).map((n) => n.toFixed(1)).join(" ")).join("L") + "Z");
+      const bay = P([139.82, 35.52]);
+      const dot = document.getElementById("b5s-dot");
+      dot.setAttribute("cx", bay[0]); dot.setAttribute("cy", bay[1]);
+
+      const tl = gsap.timeline({ paused: true });
+      // 写真が縮む（一番強い頭から）→ 白い紙だけ 0.3 秒（どこから引いたか見せない）
+      tl.fromTo("#b5s-photo", { scale: 1 }, { scale: 0.25, duration: c.white - c.shrink, ease: "power2.in" }, c.shrink);
+      tl.to("#b5s-photo", { opacity: 0, duration: 0.12, ease: "none" }, c.white - 0.12);
+      gsap.set(["#b5s-line", "#b5s-objs", "#b5s-bars"], { opacity: 0 });
+      // 日本の形を描く
+      paths.forEach((el) => tl.to(el, { strokeDashoffset: 0, duration: c.japan_end - c.japan, ease: "power1.inOut" }, c.japan));
+      tl.fromTo("#b5s-oki", { opacity: 0 }, { opacity: 1, duration: 0.4 }, c.japan_end - 0.3);
+      tl.fromTo("#b5s-supp", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.supp);
+      tl.fromTo(dot, { opacity: 0, scale: 0.3, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.35, ease: "back.out(2)" }, c.dot);
+      // 日本の形がうすれ、点が左端（x 160、y 790）へすべる
+      tl.to(["#b5s-japan", "#b5s-oki"], { opacity: 0, duration: c.line - c.slide, ease: "power1.in" }, c.slide);
+      tl.to(dot, { attr: { cx: 160, cy: 790 }, duration: c.line - c.slide, ease: "power2.inOut" }, c.slide);
+      // 0 の線（0.5 秒で引く）＋「0」の丸
+      tl.set("#b5s-line", { opacity: 1 }, c.line);
+      tl.fromTo("#b5s-line", { attr: { x2: 160 } }, { attr: { x2: 1760 }, duration: 0.5, ease: "power2.out" }, c.line);
+      tl.to(dot, { opacity: 0, duration: 0.15 }, c.line + 0.05);
+      tl.fromTo("#b5s-zero", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.6)" }, c.line);
+      // 物が 0 の線にじかに立つ（下から 0.3 秒、0.1 秒おき）
+      tl.set("#b5s-objs", { opacity: 1 }, c.objs);
+      ["#b5s-mt", "#b5s-bd", "#b5s-hs"].forEach((id, i) =>
+        tl.fromTo(id, { scaleY: 0, transformOrigin: "50% 100%" }, { scaleY: 1, transformOrigin: "50% 100%", duration: 0.3, ease: "power2.out" }, c.objs + 0.1 * i));
+      // 「はかります」：0 の線からてっぺんまで棒（0.15 秒おき、各 0.4 秒）
+      tl.set("#b5s-bars", { opacity: 1 }, c.bars);
+      [0, 1, 2].forEach((i) =>
+        tl.fromTo("#b5s-bar" + i, { scaleY: 0, transformOrigin: "50% 100%" }, { scaleY: 1, transformOrigin: "50% 100%", duration: 0.4, ease: "power2.out" }, c.bars + 0.15 * i));
+      // 白い紙 0.32 秒で切る（補足もここで消える）
+      tl.set("#b5s-white", { opacity: 1 }, c.white2);
+      tl.set({}, {}, v.dur || c.white2 + 0.32);
+      window.__timelines["b5_sea"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

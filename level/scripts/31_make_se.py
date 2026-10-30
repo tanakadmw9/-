@@ -94,9 +94,24 @@ def glow():
     return fade(lp(x * env, 5000), 0.002, 0.040)
 
 
+def glock(freqs, roll=0.03):
+    """鉄琴（水準 v8.6、editing_v8.md §2）：部分音 1・2.756・5.404 倍、約 2 秒で消える。和音は 30ms ずつ転がす。52_bgm_v6_tests.py の仮の音と同じ形。"""
+    d = 2.0 + roll * len(freqs); t = t_axis(d); x = np.zeros_like(t)
+    for k, f in enumerate(freqs):
+        n0 = int(k * roll * SR); tt = t[:len(t) - n0]
+        z = (np.sin(2 * np.pi * f * tt) * np.exp(-tt / 0.9) + 0.30 * np.sin(2 * np.pi * f * 2.756 * tt) * np.exp(-tt / 0.25)
+             + 0.10 * np.sin(2 * np.pi * f * 5.404 * tt) * np.exp(-tt / 0.08)) * np.clip(tt / 0.002, 0, 1)
+        x[n0:] += z
+    return fade(x, 0.0, 0.05)
+
+
+C6, E6, G6 = 1046.5, 1318.5, 1568.0
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, fn in [("lock", lock), ("measure", measure), ("click", click), ("join", join), ("glow", glow)]:
+    for name, fn in [("lock", lock), ("measure", measure), ("click", click), ("join", join), ("glow", glow),
+                     ("glock_c6", lambda: glock([C6])), ("glock_ceg", lambda: glock([C6, E6, G6])), ("glock_g6", lambda: glock([G6]))]:
         x = norm(fn())
         sf.write(OUT / f"{name}.wav", x.astype(np.float32), SR, subtype="PCM_24")
         print(f"{name:8s} {len(x)/SR*1000:6.1f} ms  -> {OUT/name}.wav")

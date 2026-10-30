@@ -84,23 +84,26 @@
       tl.fromTo("#cd-icon-" + active, { color: NAVY }, { color: ORANGE, duration: 0.25, ease: "power2.out" }, c.lit);
       tl.fromTo("#cd-halo", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, c.lit);
       // 灯ってから照準に変わるまで、ゆっくりふくらむ（止まって見えないように）
-      tl.fromTo("#cd-icon-" + active, { scale: 1 }, { scale: 1.06, duration: Math.max(0.2, c.morph - c.lit), ease: "power1.inOut" }, c.lit);
-      // 4拍目：灯ったアイコンが照準に変わる。ほかは引く。見出しはタイトルの小見出しの大きさへ（そのまま残る）
-      JOBS.forEach((_, i) => {
-        if (i !== active) tl.to("#cd-item-" + i, { opacity: 0.25, duration: 0.3, ease: "power2.in" }, c.morph);
-      });
-      tl.to("#cd-label-" + active, { opacity: 0, duration: 0.25, ease: "power2.in" }, c.morph);
-      tl.to("#cd-icon-" + active, { opacity: 0, scale: 0.7, duration: 0.3, ease: "power2.in" }, c.morph);
-      tl.to("#cd-halo", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.morph);
-      tl.fromTo("#cd-ret", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, c.morph + 0.05);
-      // fly：照準は紙の上で動き出し、加速しながら場面の終わり（カット）で (to_x, to_y) に着く。タイトルはそこから同じ速さで続ける
-      if (c.fly != null && v.to_x != null) {
-        const fd = Math.max(0.2, (v.dur || c.morph + 0.6) - c.fly);
-        tl.fromTo("#cd-ret", { x: 0, y: 0 }, { x: Number(v.to_x) - XS[active], y: Number(v.to_y) - ICON_Y, duration: fd, ease: "sine.in" }, c.fly);
+      tl.fromTo("#cd-icon-" + active, { scale: 1 }, { scale: 1.06, duration: Math.max(0.2, (c.morph ?? (v.dur || c.lit + 1.2)) - c.lit), ease: "power1.inOut" }, c.lit);
+      // 水準 v8.6：morph が無いときは灯ったまま終わる（照準に変えない。終わりの画のオレンジの □ がこのアイコンへ戻る）
+      if (c.morph != null) {
+        // 4拍目：灯ったアイコンが照準に変わる。ほかは引く。見出しはタイトルの小見出しの大きさへ（そのまま残る）
+        JOBS.forEach((_, i) => {
+          if (i !== active) tl.to("#cd-item-" + i, { opacity: 0.25, duration: 0.3, ease: "power2.in" }, c.morph);
+        });
+        tl.to("#cd-label-" + active, { opacity: 0, duration: 0.25, ease: "power2.in" }, c.morph);
+        tl.to("#cd-icon-" + active, { opacity: 0, scale: 0.7, duration: 0.3, ease: "power2.in" }, c.morph);
+        tl.to("#cd-halo", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.morph);
+        tl.fromTo("#cd-ret", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, c.morph + 0.05);
+        // fly：照準は紙の上で動き出し、加速しながら場面の終わり（カット）で (to_x, to_y) に着く。タイトルはそこから同じ速さで続ける
+        if (c.fly != null && v.to_x != null) {
+          const fd = Math.max(0.2, (v.dur || c.morph + 0.6) - c.fly);
+          tl.fromTo("#cd-ret", { x: 0, y: 0 }, { x: Number(v.to_x) - XS[active], y: Number(v.to_y) - ICON_Y, duration: fd, ease: "sine.in" }, c.fly);
+        }
+        tl.to("#cd-head", { scale: 44 / 52, duration: 0.5, ease: "power2.inOut" }, c.morph);
+        tl.to("#cd-headbar", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.morph);
       }
-      tl.to("#cd-head", { scale: 44 / 52, duration: 0.5, ease: "power2.inOut" }, c.morph);
-      tl.to("#cd-headbar", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.morph);
-      tl.set({}, {}, Math.max(v.dur || 0, c.morph + 0.6));
+      tl.set({}, {}, Math.max(v.dur || 0, (c.morph ?? c.lit) + 0.6));
       window.__timelines["chapter_door"] = tl;
     })();
   </script>

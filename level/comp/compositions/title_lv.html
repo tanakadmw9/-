@@ -1,0 +1,40 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"title_in\":0,\"sub_in\":0.2,\"title_out\":2.8,\"out\":4.15}"},{"id":"dur","type":"number","label":"dur","default":4.45}]'>
+<body>
+<template>
+  <style>
+    /* 水準 v8.6 B2 の題（editing_v8.md §1.2）：機械が三脚に載る拍で「水準測量」、0.2 秒後にサブ「“高さの土台” をはかる」。
+       帯は x 1000 より左（右の人と機械にかけない）。下からの紺のグラデーション（docs/04 §5 で許可されている唯一のグラデ）で文字を守る */
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #tl-grad { position: absolute; left: 0; bottom: 0; width: 1180px; height: 460px; opacity: 0;
+      background: linear-gradient(to top, color-mix(in srgb, var(--ink) 62%, transparent) 0%, color-mix(in srgb, var(--ink) 30%, transparent) 50%,
+                  color-mix(in srgb, var(--ink) 0%, transparent) 100%);
+      -webkit-mask-image: linear-gradient(to right, #000 70%, transparent 100%); mask-image: linear-gradient(to right, #000 70%, transparent 100%); }
+    #tl-main { position: absolute; left: 132px; top: 760px; font-family: var(--font-ja); font-weight: 700; font-size: var(--fs-title);
+      line-height: 1.12; color: var(--white); letter-spacing: 0.04em; font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+    #tl-sub { position: absolute; left: 136px; top: 900px; font-family: var(--font-ja); font-weight: 700; font-size: var(--fs-label);
+      line-height: 1.2; color: var(--white); font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="title_lv" data-width="1920" data-height="1080">
+    <div id="tl-grad"></div>
+    <div id="tl-main">水準測量</div>
+    <div id="tl-sub">“高さの土台” をはかる</div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#tl-grad", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, Math.max(0, c.title_in - 0.1));
+      tl.fromTo("#tl-main", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.title_in);
+      tl.fromTo("#tl-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.sub_in);
+      // 題は B3 の頭の後で先に引き、サブだけ残す（読ませたいのは運ぶもの）
+      tl.to("#tl-main", { opacity: 0, duration: 0.3, ease: "power2.in" }, c.title_out);
+      tl.to("#tl-sub", { y: -140, duration: 0.5, ease: "power2.inOut" }, c.title_out);
+      tl.to(["#tl-sub", "#tl-grad"], { opacity: 0, duration: 0.3, ease: "power2.in" }, c.out);
+      tl.set({}, {}, v.dur || c.out + 0.3);
+      window.__timelines["title_lv"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

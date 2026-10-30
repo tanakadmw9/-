@@ -1,0 +1,80 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"paper\":0.033,\"paper_end\":0.665,\"pts\":0.665,\"back\":0.974,\"tri\":1.597,\"merge\":1.929,\"road\":3.193}"},{"id":"dur","type":"number","label":"dur","default":5.056}]'>
+<body>
+<template>
+  <style>
+    /* B10 b10_design（editing_v8.md §3.3、50.559–55.615）：実写から設計の紙（うすい青の方眼）に溶ける
+       → 高さの層：オレンジの点（短い棒のてっぺん、B5 の現場の点と同じ形）が左から 0.04 秒おきに灯り（行き）、右から左へうすい光が戻る（帰り）
+       → 「位置」で位置の層（うすい透明の紙にのった紺の △、1本目の基準点の印）が左からすべりこむ → 「あわせて」重なって1枚に
+       → 「道路」で △ の間を通る道路の点線の下書き（紺の点線2本）を 0.6 秒で描く。点は道の両わきとまん中（点を結ぶ線・坂に見せない）。
+       設計する人の手・図面の数字・文字・坂の線は描かない */
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #bd-paper { position: absolute; inset: 0; background: #EAF1F8; opacity: 0; }
+    #bd-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #bd-sheet { position: absolute; left: 280px; top: 230px; width: 1400px; height: 620px; border-radius: 8px;
+      background: rgba(255, 255, 255, 0.35); border: 3px solid rgba(31, 58, 95, 0.35); opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="b10_design" data-width="1920" data-height="1080">
+    <div id="bd-paper"></div>
+    <svg id="bd-svg" viewBox="0 0 1920 1080">
+      <g id="bd-grid" stroke="#D3E0EE" stroke-width="1.5"></g>
+      <g id="bd-road" fill="none" stroke="var(--navy)" stroke-width="5" stroke-dasharray="26 18" stroke-linecap="round">
+        <line id="bd-road0" x1="111" y1="513" x2="1846" y2="476"/>
+        <line id="bd-road1" x1="111" y1="573" x2="1846" y2="536"/>
+      </g>
+      <g id="bd-pts"></g>
+      <rect id="bd-glow" x="0" y="380" width="160" height="300" fill="url(#bd-glowgrad)" opacity="0"/>
+      <defs><linearGradient id="bd-glowgrad"><stop offset="0" stop-color="#FFD9BC" stop-opacity="0"/><stop offset="0.5" stop-color="#FFD9BC" stop-opacity="0.8"/><stop offset="1" stop-color="#FFD9BC" stop-opacity="0"/></linearGradient></defs>
+    </svg>
+    <div id="bd-sheet"></div>
+    <svg id="bd-tri-svg" viewBox="0 0 1920 1080" style="position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible">
+      <g id="bd-tris" fill="#EAF1F8" stroke="var(--navy)" stroke-width="7" stroke-linejoin="round"></g>
+    </svg>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const NS = "http://www.w3.org/2000/svg";
+      let gd = "";
+      for (let x = 0; x <= 1920; x += 74) gd += `M${x} 0V1080`;
+      for (let y = 0; y <= 1080; y += 74) gd += `M0 ${y}H1920`;
+      document.getElementById("bd-grid").innerHTML = `<path d="${gd}"/>`;
+      // 高さの点の足もと（53_plan_storyboard_v8.py の PTS を 1920 に。道の上わき・まん中・下わきに散らす。±60px）
+      const PTS = [[258, 495], [425, 550], [665, 598], [868, 484], [1108, 524], [1292, 583], [1458, 469], [1680, 528]];
+      const g = document.getElementById("bd-pts");
+      PTS.forEach(([x, y], i) => {
+        const e = document.createElementNS(NS, "g"); e.id = "bd-pt" + i;
+        e.innerHTML = `<rect x="${x - 6}" y="${y - 27}" width="12" height="27" fill="#fff"/><rect x="${x - 3}" y="${y - 24}" width="6" height="24" fill="var(--orange)"/>` +
+                      `<circle cx="${x}" cy="${y - 24}" r="12" fill="#fff"/><circle cx="${x}" cy="${y - 24}" r="9" fill="var(--orange)"/>`;
+        g.appendChild(e);
+      });
+      const TRI = [[517, 738], [1034, 351], [1588, 679]];
+      const tg = document.getElementById("bd-tris");
+      TRI.forEach(([x, y]) => {
+        const p = document.createElementNS(NS, "polygon");
+        p.setAttribute("points", `${x},${y - 36} ${x - 36},${y + 29} ${x + 36},${y + 29}`); tg.appendChild(p);
+      });
+      const tl = gsap.timeline({ paused: true });
+      gsap.set(["#bd-road", "#bd-pts"], { opacity: 0 });
+      tl.fromTo("#bd-paper", { opacity: 0 }, { opacity: 1, duration: c.paper_end - c.paper, ease: "power1.inOut" }, c.paper);
+      tl.fromTo("#bd-grid", { opacity: 0 }, { opacity: 1, duration: c.paper_end - c.paper }, c.paper);
+      // 高さの層：行き（左から 0.04 秒おき）→ 帰り（右から左へうすい光）
+      tl.set("#bd-pts", { opacity: 1 }, c.pts);
+      PTS.forEach((_, i) => tl.fromTo("#bd-pt" + i, { opacity: 0, scale: 0.5, transformOrigin: "50% 100%" },
+        { opacity: 1, scale: 1, transformOrigin: "50% 100%", duration: 0.2, ease: "back.out(2)" }, c.pts + 0.04 * i));
+      tl.fromTo("#bd-glow", { attr: { x: 1760 }, opacity: 0 }, { attr: { x: 120 }, opacity: 1, duration: 0.3, ease: "power1.inOut" }, c.back);
+      tl.to("#bd-glow", { opacity: 0, duration: 0.15 }, c.back + 0.3);
+      // 位置の層：うすい透明の紙にのった △ が左からすべりこむ →「あわせて」重なる（紙の縁が消えて1枚に）
+      tl.fromTo(["#bd-sheet", "#bd-tri-svg"], { x: -700, opacity: 0 }, { x: 0, opacity: 1, duration: c.merge - c.tri, ease: "power2.out" }, c.tri);
+      tl.to("#bd-sheet", { opacity: 0, duration: 0.35, ease: "power1.in" }, c.merge);
+      // 「道路」：△ の間に道路の点線の下書き（0.6 秒で左から描く）
+      tl.set("#bd-road", { opacity: 1 }, c.road);
+      tl.fromTo("#bd-road0", { attr: { x2: 111, y2: 513 } }, { attr: { x2: 1846, y2: 476 }, duration: 0.6, ease: "power2.out" }, c.road);
+      tl.fromTo("#bd-road1", { attr: { x2: 111, y2: 573 } }, { attr: { x2: 1846, y2: 536 }, duration: 0.6, ease: "power2.out" }, c.road);
+      tl.set({}, {}, v.dur || c.road + 2);
+      window.__timelines["b10_design"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

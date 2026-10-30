@@ -1,0 +1,59 @@
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"in\":0,\"out\":1.7}"},{"id":"dur","type":"number","label":"dur","default":2.0},{"id":"text","type":"string","label":"道具の名前","default":"レベル"},{"id":"keys","type":"string","label":"引き出し線の先 [[秒, x, y], ...]（実写の上の道具。寄りに合わせて動く）","default":"[[0,735,420]]"},{"id":"box_dx","type":"number","label":"札の位置（先からの x）","default":260},{"id":"box_dy","type":"number","label":"札の位置（先からの y）","default":-300}]'>
+<body>
+<template>
+  <style>
+    /* 道具の名前の札（水準 v8.6：B4「標尺」、B11「レベル」）。紺の板に白字 48px、先は白い縁の小さな点。
+       札と線は人の体・車の帯に重ねない（位置は 20_plan_timeline.py で決め、シートで確かめる）。id は部品名を前に付ける（21 が場面ごとに置きかえる） */
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #label_pointer-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #label_pointer-box { position: absolute; left: 0; top: 0; padding: 12px 26px 14px 26px; border-radius: var(--plate-radius);
+      background: var(--plate); font-family: var(--font-ja); font-weight: 700; font-size: var(--fs-label); line-height: 1.2;
+      color: var(--white); font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="label_pointer" data-width="1920" data-height="1080">
+    <svg id="label_pointer-svg" viewBox="0 0 1920 1080">
+      <line id="label_pointer-edge" x1="0" y1="0" x2="0" y2="0" stroke="var(--ink)" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round" opacity="0"/>
+      <line id="label_pointer-line" x1="0" y1="0" x2="0" y2="0" stroke="var(--white)" stroke-width="3" stroke-linecap="round" opacity="0"/>
+      <circle id="label_pointer-dot" cx="0" cy="0" r="9" fill="var(--orange)" stroke="var(--white)" stroke-width="3" opacity="0"/>
+    </svg>
+    <div id="label_pointer-box" data-var-text="text">レベル</div>
+  </div>
+  <script>
+    (function () {
+      const v = window.__hyperframes.getVariables();
+      const c = JSON.parse(v.cues);
+      const keys = JSON.parse(v.keys);
+      const dx = Number(v.box_dx), dy = Number(v.box_dy);
+      const box = document.getElementById("label_pointer-box");
+      box.textContent = v.text;
+      // 札の大きさは文字数から決める（描画中に測らない：seek の順で値が変わるため）
+      const W = Math.round([...v.text].length * 48 + 52), H = Math.round(48 * 1.2 + 26);
+      box.style.width = W + "px"; box.style.height = H + "px"; box.style.boxSizing = "border-box"; box.style.textAlign = "center";
+      const lines = ["label_pointer-edge", "label_pointer-line"].map((id) => document.getElementById(id));
+      const dot = document.getElementById("label_pointer-dot");
+      const st = { x: keys[0][1], y: keys[0][2] };
+      function place() {
+        const bx = st.x + dx, by = st.y + dy;
+        box.style.transform = `translate(${bx}px, ${by}px)`;
+        const w = W, h = H;
+        const ax = bx + w / 2, ay = dy < 0 ? by + h : by;          // 札の下（または上）の辺のまん中から先へ
+        for (const l of lines) { l.setAttribute("x1", ax); l.setAttribute("y1", ay); l.setAttribute("x2", st.x); l.setAttribute("y2", st.y); }
+        dot.setAttribute("cx", st.x); dot.setAttribute("cy", st.y);
+      }
+      place();
+      const tl = gsap.timeline({ paused: true });
+      for (let i = 1; i < keys.length; i++) {
+        const a = keys[i - 1], b = keys[i];
+        tl.fromTo(st, { x: a[1], y: a[2] }, { x: b[1], y: b[2], duration: b[0] - a[0], ease: "none", onUpdate: place, immediateRender: false }, a[0]);
+      }
+      tl.fromTo([dot], { opacity: 0, scale: 0.4, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.3, ease: "power3.out" }, c.in);
+      tl.fromTo(lines, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, c.in + 0.05);
+      tl.fromTo(box, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power3.out", onUpdate: place }, c.in + 0.1);
+      tl.to([box, dot].concat(lines), { opacity: 0, duration: 0.3, ease: "power2.in" }, c.out);
+      tl.set({}, { onUpdate: place }, v.dur || c.out + 0.3);
+      window.__timelines["label_pointer"] = tl;
+    })();
+  </script>
+</template>
+</body>
+</html>

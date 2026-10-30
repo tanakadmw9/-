@@ -1,5 +1,5 @@
-"""計画段階の絵コンテ v8.1「海からの高さ」（ゲート1 用。28小節が正本）。元の素材のコマ（ぼかし済み）と、真上の地図・接眼の円のスケッチで作る。
-秒は plan/editing_v8.md（v8.1）の写し。v5〜v7 の真横の図は使わない。
+"""計画段階の絵コンテ v8.2「海からの高さ」（設計のための測量。ゲート1 用。28小節が正本）。元の素材のコマ（ぼかし済み）と、真上の地図・接眼の円のスケッチで作る。
+秒は plan/editing_v8.md（v8.2）の写し。v5〜v7 の真横の図は使わない。
 使い方：source .venv/bin/activate && python3 scripts/53_plan_storyboard_v8.py /mnt/project-files/level/storyboard_v8/
 出力：storyboard_v8_p1〜p3.jpg と compare_v7.jpg（v7 との対応表）（素材から作った画像なので、リポジトリには入れない）。幅 1080 の縦長＝スマホで縦に読む。
 日本の形は、主な岬・湾の公知の経緯度から手で打った仮の折れ線（地図の画像はなぞっていない）。本番は editing_v8.md §3.2。
@@ -111,7 +111,7 @@ import random
 def nsq(d, x, y, s=6):            # 国の水準点：紺の □＋中心の点
     d.rectangle([x - s, y - s, x + s, y + s], outline=NAVY, width=2, fill=PAPER); r = max(1, s // 3); d.ellipse([x - r, y - r, x + r, y + r], fill=NAVY)
 
-def osq(d, x, y, s=8, dotted=False):   # 家族の新しい目印：オレンジの □（点なし）
+def osq(d, x, y, s=8, dotted=False):   # 現場の高さの目印：オレンジの □（点なし）
     if not dotted: d.rectangle([x - s, y - s, x + s, y + s], outline=ORANGE, width=3)
     else:
         for (a, b) in (((x - s, y - s), (x + s, y - s)), ((x + s, y - s), (x + s, y + s)), ((x + s, y + s), (x - s, y + s)), ((x - s, y + s), (x - s, y - s))):
@@ -130,7 +130,7 @@ def sk_door8():
 
 def ov_title8(im):
     band = Image.new("RGBA", (272, 120), (20, 32, 46, 150)); im.paste(band, (0, 8), band)
-    d = ImageDraw.Draw(im); label(d, (16, 16), "水準測量", 44, fill="white"); label(d, (18, 72), "“高さの目印” をつくる", 21, fill="white")
+    d = ImageDraw.Draw(im); label(d, (16, 16), "水準測量", 44, fill="white"); label(d, (18, 72), "“高さの土台” をはかる", 21, fill="white")
     return im
 
 def ov_q(im):
@@ -138,15 +138,15 @@ def ov_q(im):
     label(d, (14, 14), "止め絵（18.96–）。曲が止まり、現場の音だけ", 18, box=True)
     return im
 
-# ---- B5 看板 ----
+# ---- B5 看板（v8.2：写真が縮む → 白い紙 → 日本の0 → 戻って現場の足もとに目印） ----
 def sk_pull1():
-    im, d = paper(); town(d)
-    k = frame("K", 7.82, KW132, MK + [HELMET_85]).resize((156, 88))
-    im.paste(k, (SITE[0] - 78, SITE[1] - 44)); d.rectangle([SITE[0] - 78, SITE[1] - 44, SITE[0] + 78, SITE[1] + 44], outline=NAVY, width=2)
-    for a, b in (((40, 40), (SITE[0] - 78, SITE[1] - 44)), ((480, 40), (SITE[0] + 78, SITE[1] - 44)), ((40, 260), (SITE[0] - 78, SITE[1] + 44))):
-        d.line([a, b], fill=FAINT, width=1)
-    label(d, (14, 14), "引く1：写真が縮みながら、紙の町の線画に", 18, box=True)
-    label(d, (14, 262), "架空の町（地名・方位なし）", 15, fill=INK)
+    im, d = paper()
+    k = frame("K", 7.82, KW132, MK + [HELMET_85]).resize((130, 73))
+    im.paste(k, (195, 100)); d.rectangle([195, 100, 325, 173], outline=NAVY, width=2)
+    for a_, b_ in (((20, 20), (195, 100)), ((500, 20), (325, 100)), ((20, 275), (195, 173)), ((500, 275), (325, 173))):
+        d.line([a_, b_], fill=FAINT, width=1)
+    label(d, (14, 14), "写真が縮む → 白い紙 0.3秒", 18, box=True)
+    label(d, (14, 262), "どこから引いたか見せない（地方の絵は出さない）", 15, fill=INK)
     return tag(im, "20.22–21.49")
 
 def zero(d, x, y, r=17, px=26):
@@ -157,44 +157,27 @@ def sk_pull2():
     P = japan(d)
     x, y = P(TOKYO); zero(d, x, y)
     label(d, (x - 12, y + 30), "東京湾の平均の海面", 17, box=True)
-    label(d, (14, 14), "引く2・3：町 → 地方 → 日本。「海」で東京湾に「0」", 18, box=True)
+    label(d, (14, 14), "日本の形 →「ゼロ」で東京湾に「0」", 18, box=True)
     label(d, (236, 262), "海は面の色だけ", 15, fill=INK)
-    return tag(im, "21.49–27.7")
+    return tag(im, "21.49–25.91")
 
-def land_pts(P, n=60, seed=8):
-    rnd = random.Random(seed); pts = []
-    for road in ROADS:
-        q = [P(p) for p in road]
-        for (x1, y1), (x2, y2) in zip(q, q[1:]):
-            L = math.dist((x1, y1), (x2, y2)); t = 5
-            while t < L - 3:
-                pts.append((x1 + (x2 - x1) * t / L + rnd.uniform(-3, 3), y1 + (y2 - y1) * t / L + rnd.uniform(-3, 3))); t += 13
-    rnd.shuffle(pts); return pts[:n]
+def sk_zoomback():
+    im, d = paper(); town(d, fade=True)
+    k = frame("K", 7.82, KW132, MK + [HELMET_85]).resize((156, 88))
+    im.paste(k, (SITE[0] - 78, SITE[1] - 44)); d.rectangle([SITE[0] - 78, SITE[1] - 44, SITE[0] + 78, SITE[1] + 44], outline=NAVY, width=2)
+    for a_, b_ in (((SITE[0] - 78, SITE[1] - 44), (0, 0)), ((SITE[0] + 78, SITE[1] - 44), (TW, 0)), ((SITE[0] - 78, SITE[1] + 44), (0, TH)), ((SITE[0] + 78, SITE[1] + 44), (TW, TH))):
+        d.line([a_, b_], fill=FAINT, width=1)
+    label(d, (14, 14), "1段で寄って戻る：日本 → 架空の町 → 現場の写真", 18, box=True)
+    label(d, (14, 262), "日本の形は 26.6 までに消す（場所を見せない）", 15, fill=INK)
+    return tag(im, "25.91–28.44")
 
-def sk_dots():
-    im, d = paper(sea=True)
-    P = japan(d)
-    for road in ROADS: d.line([P(p) for p in road], fill="#C5CEDA", width=1)
-    pts = land_pts(P)
-    for i, (x, y) in enumerate(pts): nsq(d, x, y, 4)
-    x, y = P(TOKYO); zero(d, x, y, 10, 15)
-    tx, ty = P((139.1, 36.4)); nsq(d, tx, ty, 6)
-    label(d, (tx - 92, ty - 38), "水準点", 20, box=True); d.line([(tx - 50, ty - 12), (tx - 6, ty - 4)], fill=NAVY, width=2)
-    label(d, (14, 14), "□ がばらばらに、ほぼ同時に灯る（約1.2秒）", 18, box=True)
-    label(d, (330, 210), "陸の上だけ。沖縄の枠と", 15, fill=INK); label(d, (330, 230), "離島には置かない", 15, fill=INK)
-    label(d, (420, 262), "イメージ", 16, fill=INK)
-    return tag(im, "28.44–29.64")
-
-def sk_back():
-    im, d = paper(); town(d)
-    marks = [(70, 102), (200, 110), (300, 60)]
-    for x, y in marks: nsq(d, x, y, 7)
-    nsq(d, 300, 60, 10); d.rectangle([286, 46, 314, 74], outline=GLOW, width=4)
-    label(d, (318, 40), "その目印から", 18, box=True)
-    d.ellipse([SITE[0] - 4, SITE[1] - 4, SITE[0] + 4, SITE[1] + 4], fill=ORANGE)
-    label(d, (14, 14), "戻る1段（2.53秒）→ 近い紺の □ で止まる", 18, box=True)
-    label(d, (14, 262), "線とオレンジの □ はまだ出さない（B10 へ）", 15, fill=INK)
-    return tag(im, "30.34–32.86")
+def sk_sitemark():
+    im = frame("K", 7.82, KW132, MK + [HELMET_85]); d = ImageDraw.Draw(im)
+    fx, fy = 106, 222                                   # 遠くの標尺手の足もとの横（体には重ねない）
+    osq(d, fx, fy, 9); d.rectangle([fx - 15, fy - 15, fx + 15, fy + 15], outline=GLOW, width=2)
+    label(d, (fx - 20, fy + 16), "高さの目印", 20, box=True, bg=ORANGE)
+    label(d, (14, 14), "現場の写真に戻り、足もとにオレンジの □", 18, box=True)
+    return tag(im, "28.44–32.86 止め絵")
 
 def sk_eyepiece():
     im = Image.new("RGB", (TW, TH), DARK); d = ImageDraw.Draw(im)
@@ -216,34 +199,40 @@ def sk_eyepiece():
     d.line([(150, 70), (180, 70)], fill="#9FB3CC", width=2); d.polygon([(150, 64), (150, 76), (140, 70)], fill="#9FB3CC")
     return tag(im, "40.45–42.98")
 
-CH = [("基準点", 60), ("水準", 160), ("地形", 260), ("路線", 360), ("用地", 460)]
-def link_base(d, lit_road=False):
-    town(d, fade=True)
-    nsq(d, 300, 60, 8)
-    d.line([(300, 68), (300, 120), (305, 140), (SITE[0], SITE[1] - 9)], fill=NAVY, width=3)
+PTS = [(70, 104), (110, 106), (150, 108), (190, 110), (230, 108), (270, 104), (300, 100), (330, 96)]
+def sk_design1():
+    im, d = paper(); town(d, fade=True)
+    osq(d, 40, 112, 9)
+    for i, (x, y) in enumerate(PTS): d.ellipse([x - 5, y - 5, x + 5, y + 5], fill=NAVY if i < 6 else FAINT)
+    label(d, (14, 14), "紙の町：目印から、はかった点が順に灯る", 18, box=True)
+    label(d, (14, 262), "点に数字は付けない", 15, fill=INK)
+    return tag(im, "50.56–52.46")
 
-def sk_link1():
-    im, d = paper(); link_base(d)
-    osq(d, SITE[0], SITE[1], 10); d.rectangle([SITE[0] - 16, SITE[1] - 16, SITE[0] + 16, SITE[1] + 16], outline=GLOW, width=3)
-    label(d, (SITE[0] - 70, SITE[1] + 26), "新しい高さの目印", 20, box=True, bg=ORANGE)
-    label(d, (14, 14), "紙の町 → 紺の □ から現場へ線 → オレンジの □", 18, box=True)
-    label(d, (14, 262), "51.82 点線 → 52.46 実線＋C・E・G", 15, fill=INK)
-    return tag(im, "50.56–53.72")
+def sk_design2():
+    im, d = paper(); town(d, fade=True)
+    osq(d, 40, 112, 9)
+    for x, y in PTS: d.ellipse([x - 5, y - 5, x + 5, y + 5], fill=NAVY)
+    sx0 = 300; d.rectangle([sx0, 40, TW - 8, 250], fill="#EAF1F8", outline="#9FB3CC", width=2)
+    for gx in range(sx0, TW - 8, 18): d.line([(gx, 40), (gx, 250)], fill="#D6E2EE", width=1)
+    for gy in range(40, 250, 18): d.line([(sx0, gy), (TW - 8, gy)], fill="#D6E2EE", width=1)
+    road = [(sx0 + 10, 210), (360, 175), (430, 130), (TW - 18, 95)]
+    for off, col, w in ((-14, NAVY, 2), (14, NAVY, 2)): d.line([(x, y + off) for x, y in road], fill=col, width=w)
+    for (x1, y1), (x2, y2) in zip(road, road[1:]):
+        L = math.dist((x1, y1), (x2, y2)); t = 0
+        while t < L:
+            t2 = min(L, t + 10); d.line([(x1 + (x2 - x1) * t / L, y1 + (y2 - y1) * t / L), (x1 + (x2 - x1) * t2 / L, y1 + (y2 - y1) * t2 / L)], fill=ORANGE, width=2); t += 16
+    for (px, py), (tx, ty) in zip([PTS[0], PTS[3], PTS[5]], road[:3]):
+        arc = [(px + (tx - px) * t, py + (ty - py) * t - 45 * math.sin(math.pi * t)) for t in [i / 20 for i in range(21)]]
+        d.line(arc, fill=NAVY, width=2)
+    label(d, (sx0 + 12, 48), "設計", 24, box=True)
+    label(d, (14, 14), "点の高さが設計図へ → 新しい道路の線", 18, box=True)
+    label(d, (14, 262), "設計図は真上の道の線だけ（手・数字なし）", 15, fill=INK)
+    return tag(im, "52.46–55.62")
 
-def sk_link2():
-    im, d = paper(); link_base(d)
-    d.line([(-10, 205), (150, 190), (SITE[0], SITE[1] + 10), (530, 120)], fill=NAVY, width=3)
-    for x in range(0, 520, 22): d.line([(x, 206 - x * 0.16 + (0 if x < 150 else 0)), (x + 10, 206 - (x + 10) * 0.16)], fill="white", width=1)
-    osq(d, SITE[0], SITE[1], 10)
-    d.rectangle([0, 0, TW, 80], fill=PAPER); d.line([(0, 80), (TW, 80)], fill=FAINT, width=2)
-    for name, x in CH:
-        lit = name == "路線"
-        d.ellipse([x - 18, 12, x + 18, 48], outline=(ORANGE if lit else FAINT), width=3 if lit else 2)
-        w = d.textlength(name, font=font(15)); label(d, (x - w / 2, 54), name, 15, fill=(INK if lit else "#8A94A3"))
-    pts = [(SITE[0] + (360 - SITE[0]) * t, SITE[1] - 14 + (48 - SITE[1] + 14) * t - 40 * math.sin(math.pi * t)) for t in [i / 20 for i in range(21)]]
-    d.line(pts, fill=NAVY, width=2)
-    label(d, (14, 262), "弧は「路線」1本 → 道路の中心線", 15, fill=INK)
-    return tag(im, "53.72–55.62")
+def stick(d, x, y, col=INK, staff=False):
+    d.ellipse([x - 5, y - 26, x + 5, y - 16], outline=col, width=2); d.line([(x, y - 16), (x, y)], fill=col, width=2)
+    d.line([(x, y), (x - 6, y + 12)], fill=col, width=2); d.line([(x, y), (x + 6, y + 12)], fill=col, width=2)
+    if staff: d.line([(x + 9, y - 34), (x + 9, y + 12)], fill="#C8322B", width=3)
 
 def sk_child():
     im, d = paper()
@@ -254,14 +243,13 @@ def sk_child():
     P = lambda p: (ox + p[0] * s * 0.81, oy + (46.2 - p[1]) * s)
     for poly in (HOK, HON, SHI, KYU): wob([P(p) for p in poly], NAVY, 3)
     zx, zy = P(TOKYO); zero(d, zx, zy, 9, 13)
-    road = [(250, 175), (300, 160), (350, 150), (400, 140)]
-    d.line(road, fill="#9AA5B4", width=5)
-    for x, y in ((262, 168), (312, 152)): nsq(d, x, y - 12, 7)
-    d.line([(312, 140), (340, 128), (372, 120)], fill=NAVY, width=4)
-    osq(d, 384, 116, 11)
+    d.line([(240, 160), (330, 150), (470, 136)], fill="#9AA5B4", width=6)
+    osq(d, 300, 140, 10)
+    stick(d, 330, 132, staff=True)
+    stick(d, 440, 118); d.line([(432, 100), (446, 100)], fill=INK, width=3)
     label(d, (14, 14), "終わりの画：子どもが描く地図の絵（0.6秒で並ぶ）", 18, box=True)
-    label(d, (250, 186), "並ぶ順：日本→0→□→線→オレンジ", 14, fill=INK)
-    label(d, (40, 222), "“海からの高さ” の目印をつくる", 24)
+    label(d, (240, 176), "並ぶ順：日本→0→道と □→はかる人", 14, fill=INK)
+    label(d, (60, 222), "“高さの土台” をはかる", 26)
     return tag(im, "68.26–70.78")
 
 def ov_level(im):
@@ -271,29 +259,29 @@ def ov_level(im):
 ROWS = [
     ("B1 章扉", "1小節　0.0–2.5", [sk_door8], "N1a 0.30「測量部門の仕事のひとつ、」", "章扉（共通）。水準のアイコン（□）だけ灯る", "章扉の灯り", "部門の中の1作業"),
     ("B2 据える", "2–3小節　2.5–7.6", [lambda: tag(frame("S", 49.6, (70, 82, 707, 398), M1), "S 48.58– 実時間"), lambda: tag(ov_title8(frame("S", 53.3, (70, 82, 707, 398), M1)), "6.95 載る＝題")],
-     "N1b 7.25「水準測量です。」", "ケースを開ける → 持ち上げる → 6.95 に載る。題とサブ「“高さの目印” をつくる」", "載る音（実音）", "人の手で始まる"),
+     "N1b 7.25「水準測量です。」", "ケースを開ける → 持ち上げる → 6.95 に載る。題とサブ「“高さの土台” をはかる」", "載る音（実音）", "人の手で始まる"),
     ("B3 はかる", "4–5小節　7.6–12.6", [lambda: tag(frame("S", 66.0, (170, 40, 678, 381), M1), "S 56–74 4.75倍"), lambda: tag(frame("N", 2.6, (600, 180, 1200, 675), NV), "N 2.0–3.3")],
      "N2 8.99「道ばたで、地面の高さを、ミリまではかります。」", "整準（気泡をのぞく）→ 目を当てる寄り。文字なし（「レベル」は B11 へ）", "道の環境音", "何をしているか"),
     ("B4 問い", "6–8小節　12.6–20.2", [lambda: tag(frame("K", 3.0, None, MK), "K 1.5 全画面から"), lambda: tag(ov_q(ov_lab(frame("K", 7.82, KW132, MK + [HELMET_85]), (40, 50), "標尺", (93, 120))), "K 7.82 で止める")],
      "N3 13.38「でも、高さって、どこからはかるのでしょう。」（〜17.18）", "歩いて来てかがむ。「標尺」14.50–16.50（「どこから」の前）。18.96 に止まる", "17.70 に曲が止まる → 3 秒、現場の音だけ（考える間）", "問いを置く"),
-    ("B5 看板 1/2", "9–11小節　20.2–27.8", [sk_pull1, sk_pull2],
-     "N4 22.70「高さの0は、海。東京湾の海の高さです。」（「海」24.03）", "一番強い頭で写真が縮みながら紙の町 → 地方 → 日本の形（3段）→ 24.02「0」→ 補足「東京湾の平均の海面」24.3–27.7", "9小節の頭で引き始め。0 で C6（−3 dB）", "なるほど：高さの0は東京湾の海"),
-    ("B5 看板 2/2", "12–13小節　27.8–32.9", [sk_dots, sk_back],
-     "N5 26.90「東京湾は遠いので、道ばたに、高さの目印があります。」　N6 32.41「その目印から、…」", "28.44 から紺の □＋点がばらばらに灯る（陸だけ）、「水準点」29.26 → 30.34 戻る1段 → 近い紺の □ で止まる", "鉄琴なし", "目印は道ばたに、もうある"),
-    ("B6 現場へ", "14–15小節　32.9–37.9", [lambda: tag(frame("S", 169.2, None, M2), "S 166.56–171.62 実時間")],
-     "N6「…現場まで、高さをつないでいきます。」（〜36.78。「つないで」35.26）", "標尺手が右手前からあらわれ、35.5 に機械の横を通って奥へ", "足音・道の音", "人の仕事に戻る"),
+    ("B5 看板 1/2", "9–11小節　20.2–25.9", [sk_pull1, sk_pull2],
+     "N4 21.61「日本の高さの0は、東京湾の海の高さ。」（「ゼロ」22.75）", "一番強い頭で写真が縮む → 白い紙 0.3秒 → 日本の形 → 22.75「0」→ 補足「東京湾の平均の海面」23.21–26.50", "9小節の頭で引き始め。0 で C6（−3 dB）", "なるほど：高さには0がいる。日本の0は海"),
+    ("B5 看板 2/2", "11–13小節　25.9–32.9", [sk_zoomback, sk_sitemark],
+     "N5 25.89「道路を設計する場所では、近くに高さの目印を決めて、そこを高さの基準にします。」（〜32.92）", "1段で寄って戻る（日本の形はすぐ消す）→ 架空の町 → 現場の写真 → 28.44 足もとにオレンジの □ と「高さの目印」→ 30.64「そこを」で □ に輪", "□ で E6", "現場では、近くの目印が高さの基準"),
+    ("B6 はかる人", "14–15小節　32.9–37.9", [lambda: tag(frame("S", 169.2, None, M2), "S 166.56–171.62 実時間")],
+     "N6 33.26「その目印から、地面の高さを、次々にはかっていきます。」（〜38.01、B7 に 0.09 秒かかる）", "ものさしを持った人が右手前からあらわれ、35.5 に機械の横を通って次の点へ", "足音・道の音", "目印から、地面の高さを次々に"),
     ("B7 読む", "16–17小節　37.9–43.0", [lambda: tag(frame("N", 4.5, (600, 180, 1200, 675), NV), "N 3.3–5.83"), sk_eyepiece],
      "N7 39.25「遠くのものさしを、目で読んで、」", "のぞいて指でつまみを回す → 40.45（曲のつなぎ目）接眼の円 → 41.0–41.5 ピント → 41.71 横の線にうすい帯（標尺は動かさない、数字なし）", "N の実音 → 曲だけ", "目で読む仕事"),
     ("B8 書く", "18小節　43.0–45.5", [lambda: tag(frame("K", 17.0, (720, 0, 1200, 675), MK + [TRUCK17, SHOP_17, HELMET_17]), "K 16.2–18.73 1.6倍")],
      "N8 43.37「手で書きとめる。」", "立って黄色い手帳に書く手（N7 からカットで続く）", "ペンの音", "読んだ数字は人の手で残る"),
     ("B9 確かめる", "19–20小節　45.5–50.6", [lambda: tag(frame("S", 173.5, None, M2 + [CYC]), "S 172.2–174.73 全画面"), lambda: tag(frame("S", 178.0, (170, 40, 678, 381), M2 + [CYC]), "S 177.0– 窓 1.25倍")],
      "N9 45.90「行きと帰りではかって、ずれがないか確かめます。」", "遠くに着いた標尺手 → 寄りの大きさで、観測者がのぞき 179.2 から歩き出す（実写だけ）", "S の実音", "ていねいさ"),
-    ("B10 新しい目印", "21–22小節　50.6–55.6", [sk_link1, sk_link2],
-     "N10 50.94「こうしてできた、新しい高さの目印。道路も、ここから高さを決めます。」（「新しい」52.46）", "紙の町 → 紺の □ から現場へ線 → オレンジの点線の □ → 実線（紺にしない）→ 弧は「路線」1本 → 道路の中心線", "C・E・G（52.46）", "家族の仕事でできた目印と使い道"),
+    ("B10 設計へ", "21–22小節　50.6–55.6", [sk_design1, sk_design2],
+     "N10 50.96「はかった高さをもとに、新しい道路が設計されます。」（〜55.33）", "紙の町で目印から点が順に灯る → 設計図の紙 → 点から弧が3本 → 54.35 新しい道路の線。文字「設計」53.70–", "C・E・G（54.35、小）", "設計が使う"),
     ("B11 人", "23–24小節　55.6–60.7", [lambda: tag(ov_level(frame("S", 81.6, (170, 40, 678, 381), M1 + [(500, 258, 552, 296)])), "S 81.0– 窓"), lambda: tag(frame("K", 0.6, None, MK), "K 0–1.26"), lambda: tag(frame("N", 7.0, (600, 196, 1200, 675), NV), "N 5.9–7.8 顔")],
-     "N10 の終わり（〜57.02）、N11 57.55「ふたりで息を合わせて、道にそって。」（◎ 28小節は声なし）", "人のいない機械と流れる車に「レベル」→ 57.51 K の二人 → 58.78 のぞく寄りの顔で終える", "実音 +3 dB", "まちのすぐ横で、二人で"),
+     "声なし（実音 +3 dB）", "人のいない機械と流れる車に「レベル」→ 57.51 K の二人 → 58.78 のぞく寄りの顔で終える", "実音 +3 dB", "まちのすぐ横で、二人で"),
     ("B12 締め", "25–28小節　60.7–70.8", [lambda: tag(frame("K", 12.0, K115, MK + [HELMET_85]), "K 8.53–16.12 等速、引く"), sk_child],
-     "N12 61.07「ほかの測量や工事が使う、“海からの高さ”の目印をつくる。それが、水準測量です。」", "N の顔から、最後の一打で二人の引き。文字 63.05–。68.26 子どもの地図 → 70.15 オレンジの □ だけ縮んでアイコン → 黒", "最後の和音のばし。G6（小）", "誇りと余韻。中心の絵をもう一度"),
+     "N12 61.07「設計が使う、“高さの土台”をはかる。それが、水準測量です。」（〜66.01）", "N の顔から、最後の一打で二人の引き。文字「“高さの土台” をはかる」61.91–。68.26 子どもの地図 → 70.15 オレンジの □ だけ縮んでアイコン → 黒", "最後の和音のばし。G6（小）", "誇りと余韻。中心の絵をもう一度"),
 ]
 
 PAD, FS, LH = 20, 26, 36
@@ -333,7 +321,7 @@ def page(rows, n, of):
     cards = [card(r, tmp) for r in rows]
     H = 120 + sum(c.height for c in cards)
     im = Image.new("RGB", (W, H), "white"); d = ImageDraw.Draw(im)
-    d.text((PAD, 14), f"水準測量パート 絵コンテ v8.1「海からの高さ」　{n}/{of}", font=font(34), fill=INK)
+    d.text((PAD, 14), f"水準測量パート 絵コンテ v8.2「海からの高さ」　{n}/{of}", font=font(34), fill=INK)
     d.text((PAD, 62), "28小節・70.8秒・曲 V6b（8小節で止め）。コマは元の素材（ぼかし済み）、", font=font(22), fill="#555")
     d.text((PAD, 90), "図は真上の地図・接眼の円・子どもの地図のスケッチ（日本の形は仮）。秒は完成尺。社外に出さない。", font=font(22), fill="#555")
     y = 120
@@ -347,15 +335,15 @@ for n, rows in enumerate(groups, 1):
 # ---- ゲートの1枚目：v7（v7.4）との対応表。変えた画を先に、同じ画はその理由と ----
 CMP = [
     ("変", "尺と曲", "32小節・80.9秒（V6d）", "28小節・70.8秒（V6b）。32小節は別案"),
-    ("変", "芯の考え", "高さのバトンを、となりへつなぐ", "高さの0は海。道ばたの目印から、新しい目印をつくる"),
+    ("変", "芯の考え", "高さのバトンを、となりへつなぐ", "設計のための測量。高さには0がいる（日本の0は海）、現場では近くの目印が基準"),
     ("変", "B4 ナレ", "仲間がひとり、ものさしを…", "問い「高さって、どこからはかるのでしょう」"),
-    ("変", "B5 看板", "真横の図：目線・のぼって・わたって・おりる", "写真が引いて日本の形 → 東京湾の0 → 道ばたの □ → 戻る"),
+    ("変", "B5 看板", "真横の図：目線・のぼって・わたって・おりる", "写真が縮む → 白い紙 → 日本の形と東京湾の0 → 戻って現場の足もとに □"),
     ("変", "B7", "真横の図「となりへ、となりへ」", "N の顔 → 描いた接眼の円（横の線を読む）"),
     ("変", "B9", "S 177 全画面 → 図（帰りの線）", "実写だけ：S 172 全画面 → S 177 を 1.25倍の窓"),
-    ("変", "B10", "真横の図「新しい道」", "紙の町：紺の □ → 線 → オレンジの □ → 路線 → 道路の線"),
-    ("変", "B11", "N の顔（長い）→ S 172 → S 81", "S 81「レベル」→ K の二人 → N の顔で終える"),
+    ("変", "B10", "真横の図「新しい道」", "紙の町：はかった点 → 設計図 → 新しい道路の線（設計へ）"),
+    ("変", "B11", "N の顔（長い）→ S 172 → S 81", "声なし。S 81「レベル」→ K の二人 → N の顔で終える"),
     ("変", "終わりの画", "紺の □ が縮んでアイコン", "子どもが描く地図の絵 → オレンジの □ だけ縮む"),
-    ("変", "目印の色", "新しい □ は確かめると紺", "国＝紺の □＋点、家族の新しい □＝オレンジのまま"),
+    ("変", "締め", "“高さの目印” をつくる", "設計が使う “高さの土台” をはかる"),
     ("変", "「レベル」", "B6 の S の機械", "B11 の S 81 の機械（人のいない画）"),
     ("同", "B1 章扉", "共通の型", "同じ（シリーズの型）"),
     ("同", "B2 据える", "S 48.58–53.63、題", "同じ（素材）"),
@@ -375,7 +363,7 @@ def compare():
         rows.append((r, cells, max(len(c) for c in cells) * 32 + 14))
     H = 230 + 44 + sum(h for _, _, h in rows) + 30
     im = Image.new("RGB", (W, H), "white"); d = ImageDraw.Draw(im)
-    d.text((PAD, 16), "v7 との対応表（v7.4 → v8.1）", font=font(36), fill=INK)
+    d.text((PAD, 16), "v7 との対応表（v7.4 → v8.2）", font=font(36), fill=INK)
     d.text((PAD, 70), "変えた画を先に。同じ画が残るのは、素材が約40秒（S・K・N の3本）で、", font=font(22), fill="#555")
     d.text((PAD, 100), "人の仕事が映る所がそこしかないため。図・ナレ・終わりの画・B9〜B11 の並びは変えた。", font=font(22), fill="#555")
     n_ch = sum(1 for r in CMP if r[0] == "変")
@@ -383,7 +371,7 @@ def compare():
     d.text((PAD, 180), "絵コンテは p2（看板）から見てください。社外に出さない。", font=font(22), fill="#555")
     y = 230
     d.rectangle([0, y, W, y + 44], fill="#2C4A3E")
-    for (x, _), h in zip(cols, ("", "どこ", "v7.4", "v8.1")): d.text((x + 6, y + 8), h, font=fb, fill="white")
+    for (x, _), h in zip(cols, ("", "どこ", "v7.4", "v8.2")): d.text((x + 6, y + 8), h, font=fb, fill="white")
     y += 44
     for r, cells, h in rows:
         ch = r[0] == "変"

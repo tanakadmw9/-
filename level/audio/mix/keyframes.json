@@ -10,112 +10,128 @@
    -8.93
   ],
   [
-   2.3703,
+   2.3503,
    -8.93
   ],
   [
-   2.7203,
-   -3.07
+   2.7003,
+   -5.82
   ],
   [
-   3.5539,
-   -3.07
+   6.8906,
+   -5.82
   ],
   [
-   3.8539,
-   -15.72
+   7.1906,
+   -20.47
   ],
   [
-   5.3439,
-   -15.72
+   17.366,
+   -20.47
   ],
   [
-   5.6939,
-   -10.1
+   17.716,
+   -9.42
   ],
   [
-   7.5913,
-   -10.1
+   21.1048,
+   -9.42
   ],
   [
-   7.8913,
-   -20.59
+   21.4048,
+   -25.57
   ],
   [
-   13.9468,
-   -20.59
+   37.1582,
+   -25.57
   ],
   [
-   14.2968,
-   -11.89
-  ],
-  [
-   14.9319,
-   -11.89
-  ],
-  [
-   15.2319,
-   -23.8
-  ],
-  [
-   25.1972,
-   -23.8
-  ],
-  [
-   25.5472,
+   37.5082,
    -14.48
   ],
   [
-   29.9469,
+   39.3897,
    -14.48
   ],
   [
-   30.2469,
-   -23.22
+   39.6897,
+   -23.94
   ],
   [
-   37.3628,
-   -23.22
+   42.1697,
+   -23.94
   ],
   [
-   37.7128,
-   -13.92
+   42.5197,
+   -14.27
   ],
   [
-   38.3887,
-   -13.92
+   43.0267,
+   -14.27
   ],
   [
-   38.6887,
-   -22.95
+   43.3267,
+   -23.08
   ],
   [
-   48.2335,
-   -22.95
+   44.4267,
+   -23.08
   ],
   [
-   48.5835,
-   -13.85
+   44.7767,
+   -13.76
   ],
   [
-   51.0347,
-   -13.85
+   45.5625,
+   -13.76
   ],
   [
-   51.3347,
-   -19.08
+   45.8625,
+   -22.93
   ],
   [
-   57.5447,
-   -19.08
+   49.7625,
+   -22.93
   ],
   [
-   58.5447,
-   -13.08
+   50.1125,
+   -13.91
   ],
   [
-   60.6606,
-   -13.08
+   50.6009,
+   -13.91
+  ],
+  [
+   50.9009,
+   -23.07
+  ],
+  [
+   55.4909,
+   -23.07
+  ],
+  [
+   55.8409,
+   -13.88
+  ],
+  [
+   60.711,
+   -13.88
+  ],
+  [
+   61.011,
+   -19.38
+  ],
+  [
+   67.261,
+   -19.38
+  ],
+  [
+   68.261,
+   -13.38
+  ],
+  [
+   70.783,
+   -13.38
   ]
  ],
  "amb_keyframes": [
@@ -132,202 +148,168 @@
    -31.5
   ],
   [
-   2.2025,
-   -29.0
-  ],
-  [
    2.8025,
-   -26.0
-  ],
-  [
-   3.0025,
-   -27.5
-  ],
-  [
-   7.0409,
-   -27.5
-  ],
-  [
-   7.8409,
    -21.5
   ],
   [
-   14.8485,
+   19.8868,
    -21.5
   ],
   [
-   15.6485,
+   20.6868,
    -31.5
   ],
   [
-   19.6868,
+   28.8627,
    -31.5
   ],
   [
-   20.4868,
+   29.6627,
    -21.5
   ],
   [
-   27.4611,
+   40.107,
    -21.5
   ],
   [
-   28.2611,
+   40.907,
    -31.5
   ],
   [
-   38.0051,
+   42.4429,
    -31.5
   ],
   [
-   38.8051,
+   43.2429,
    -21.5
   ],
   [
-   45.1788,
+   50.2171,
    -21.5
   ],
   [
-   45.9788,
+   51.0171,
    -31.5
   ],
   [
-   50.0171,
+   55.0889,
    -31.5
   ],
   [
-   50.5171,
-   -25.25
-  ],
-  [
-   55.2501,
+   55.8889,
    -21.5
   ],
   [
-   55.8501,
+   62.3957,
+   -21.5
+  ],
+  [
+   68.2547,
+   -21.5
+  ],
+  [
+   68.8547,
    -29.5
   ],
   [
-   60.1621,
+   70.2827,
    -29.5
   ],
   [
-   60.6606,
+   70.783,
    -90.0
   ]
  ],
  "se": [
   {
    "kind": "glow",
-   "src": "assets/se/tones/decision28.mp3",
+   "src": null,
    "t": 1.2679,
-   "gain_db": -13.5,
-   "target_re_vo_ref_db": -12.0
+   "gain_db": -24.27,
+   "target_re_vo_ref_db": -14.0
   },
   {
-   "kind": "lock",
-   "src": "assets/se/tones/decision6.mp3",
-   "t": 3.8038,
-   "gain_db": -6.15,
-   "target_re_vo_ref_db": -9.0
+   "kind": "glock_c6",
+   "src": null,
+   "t": 25.0584,
+   "gain_db": -24.32,
+   "target_re_vo_ref_db": -13.0
   },
   {
-   "kind": "foley",
-   "src": "assets/se/tones/sceneswitch1.mp3",
-   "t": 27.7611,
-   "gain_db": -35.35,
-   "target_re_vo_ref_db": -32.0
+   "kind": "glock_c6",
+   "src": null,
+   "t": 31.031,
+   "gain_db": -24.32,
+   "target_re_vo_ref_db": -13.0
   },
   {
-   "kind": "measure",
-   "src": "assets/se/tones/cursor3.mp3",
-   "t": 28.9289,
-   "gain_db": -14.51,
-   "target_re_vo_ref_db": -10.0
+   "kind": "glock_ceg",
+   "src": null,
+   "t": 53.7203,
+   "gain_db": -25.16,
+   "target_re_vo_ref_db": -16.0
   },
   {
-   "kind": "measure",
-   "src": "assets/se/tones/cursor3.mp3",
-   "t": 32.032,
-   "gain_db": -15.51,
-   "target_re_vo_ref_db": -10.0
-  },
-  {
-   "kind": "foley",
-   "src": "assets/se/foley/mechanical-pencil-write1.mp3",
-   "t": 39.039,
-   "gain_db": -18.48,
-   "target_re_vo_ref_db": -28.0
-  },
-  {
-   "kind": "foley",
-   "src": "assets/se/foley/walk-soil1.mp3",
-   "t": 42.9763,
-   "gain_db": -27.81,
-   "target_re_vo_ref_db": -34.0
-  },
-  {
-   "kind": "measure",
-   "src": "assets/se/tones/cursor3.mp3",
-   "t": 49.6162,
-   "gain_db": -17.51,
-   "target_re_vo_ref_db": -10.0
-  },
-  {
-   "kind": "lock",
-   "src": "assets/se/tones/decision6.mp3",
-   "t": 57.5909,
-   "gain_db": -9.15,
-   "target_re_vo_ref_db": -9.0
+   "kind": "glock_g6",
+   "src": null,
+   "t": 70.1367,
+   "gain_db": -30.88,
+   "target_re_vo_ref_db": -18.0
   }
  ],
  "report": {
-  "duration": 60.6606,
-  "samples": 2911709,
-  "vo_lines": 10,
+  "duration": 70.783,
+  "samples": 3397584,
+  "vo_lines": 12,
   "bgm_source": "audio/bgm/bgm.wav",
   "bgm_regions": [
    {
     "type": "under_vo",
     "start": 0.3,
-    "end": 2.27,
+    "end": 2.25,
     "fader_db": -8.93
    },
    {
     "type": "under_vo",
-    "start": 3.904,
-    "end": 5.244,
-    "fader_db": -15.72
+    "start": 7.241,
+    "end": 17.266,
+    "fader_db": -20.47
    },
    {
     "type": "under_vo",
-    "start": 7.941,
-    "end": 13.847,
-    "fader_db": -20.59
+    "start": 21.455,
+    "end": 37.058,
+    "fader_db": -25.57
    },
    {
     "type": "under_vo",
-    "start": 15.282,
-    "end": 25.097,
-    "fader_db": -23.8
+    "start": 39.74,
+    "end": 42.07,
+    "fader_db": -23.94
    },
    {
     "type": "under_vo",
-    "start": 30.297,
-    "end": 37.263,
-    "fader_db": -23.22
+    "start": 43.377,
+    "end": 44.327,
+    "fader_db": -23.08
    },
    {
     "type": "under_vo",
-    "start": 38.739,
-    "end": 48.133,
-    "fader_db": -22.95
+    "start": 45.913,
+    "end": 49.663,
+    "fader_db": -22.93
    },
    {
     "type": "under_vo",
-    "start": 51.385,
-    "end": 57.445,
-    "fader_db": -19.08
+    "start": 50.951,
+    "end": 55.391,
+    "fader_db": -23.07
+   },
+   {
+    "type": "under_vo",
+    "start": 61.061,
+    "end": 67.161,
+    "fader_db": -19.38
    },
    {
     "type": "free",
@@ -337,79 +319,87 @@
    },
    {
     "type": "free",
-    "start": 2.72,
-    "end": 3.554,
-    "fader_db": -3.07
+    "start": 2.7,
+    "end": 6.891,
+    "fader_db": -5.82
    },
    {
     "type": "free",
-    "start": 5.694,
-    "end": 7.591,
-    "fader_db": -10.1
+    "start": 17.716,
+    "end": 21.105,
+    "fader_db": -9.42
    },
    {
     "type": "free",
-    "start": 14.297,
-    "end": 14.932,
-    "fader_db": -11.89
-   },
-   {
-    "type": "free",
-    "start": 25.547,
-    "end": 29.947,
+    "start": 37.508,
+    "end": 39.39,
     "fader_db": -14.48
    },
    {
     "type": "free",
-    "start": 37.713,
-    "end": 38.389,
-    "fader_db": -13.92
+    "start": 42.52,
+    "end": 43.027,
+    "fader_db": -14.27
    },
    {
     "type": "free",
-    "start": 48.583,
-    "end": 51.035,
-    "fader_db": -13.85
+    "start": 44.777,
+    "end": 45.562,
+    "fader_db": -13.76
    },
    {
     "type": "free",
-    "start": 57.895,
-    "end": 60.661,
-    "fader_db": -13.08
+    "start": 50.113,
+    "end": 50.601,
+    "fader_db": -13.91
+   },
+   {
+    "type": "free",
+    "start": 55.841,
+    "end": 60.711,
+    "fader_db": -13.88
+   },
+   {
+    "type": "free",
+    "start": 67.611,
+    "end": 70.783,
+    "fader_db": -13.38
    }
   ],
   "amb_source": "audio/amb/amb_loc.wav",
   "integrated_lufs_py": -24.0,
   "integrated_lufs_ffmpeg": -24.0,
-  "true_peak_dbtp_py": -8.36,
-  "true_peak_dbtp_ffmpeg": -8.4,
+  "true_peak_dbtp_py": -9.29,
+  "true_peak_dbtp_ffmpeg": -9.3,
   "limiter_max_gr_db": null,
   "stems_sum_residual": 1.1102230246251565e-16,
   "vo_minus_bgm_per_line_db": {
-   "N1a": 20.7,
-   "N1b": 18.9,
-   "N2": 17.8,
-   "N3": 22.3,
-   "N4": 17.8,
-   "N5a": 17.2,
-   "N5b": 18.1,
-   "N6": 17.3,
-   "N7": 17.8,
-   "N8": 18.8
+   "N1a": 20.8,
+   "N1b": 18.5,
+   "N2": 18.0,
+   "N3": 17.6,
+   "N4": 19.6,
+   "N5": 19.4,
+   "N6": 19.7,
+   "N7": 17.6,
+   "N8": 17.9,
+   "N9": 17.6,
+   "N10": 17.6,
+   "N12": 18.6
   },
   "vo_minus_bgm_short_term_inside_lines": {
-   "median": 16.9,
-   "p5": 15.6,
-   "min": 15.1,
-   "n_windows": 128
+   "median": 17.5,
+   "p5": 15.7,
+   "min": 15.2,
+   "n_windows": 125
   },
-  "vo_median_short_term_lufs": -24.1,
-  "bgm_free_max_short_term_re_vo": -6.5,
-  "amb_re_vo_live_median": -20.3,
-  "amb_re_vo_diagram_median": -28.0,
-  "se_max_100ms_re_vo_max_100ms": -11.8,
-  "se_max_100ms_re_vo_integrated": -4.9,
-  "se_peak_re_vo_peak_db": -9.7,
+  "vo_median_short_term_lufs": -24.2,
+  "bgm_free_max_short_term_re_vo": -5.5,
+  "amb_re_vo_live_median": -20.0,
+  "amb_re_vo_diagram_median": -26.8,
+  "se_max_100ms_re_vo_max_100ms": -20.3,
+  "se_max_100ms_re_vo_integrated": -12.7,
+  "se_peak_re_vo_peak_db": -23.8,
   "bgm_in_pause_short_term_lufs": null
  }
 }

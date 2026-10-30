@@ -1,4 +1,4 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"title_in\":0,\"sub_in\":0.2,\"title_out\":2.8,\"out\":4.15}"},{"id":"dur","type":"number","label":"dur","default":4.45}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"title_in\":0,\"sub_in\":0.2,\"title_out\":2.8,\"out\":4.15}"},{"id":"pos","type":"string","label":"題の位置（bottom｜top）","default":"bottom"},{"id":"dur","type":"number","label":"dur","default":4.45}]'>
 <body>
 <template>
   <style>
@@ -23,6 +23,12 @@
     (function () {
       const v = window.__hyperframes.getVariables();
       const c = JSON.parse(v.cues);
+      if (v.pos === "top") {                 // v4.2：B3 の寄り（N）の顔が左下に来るので、題を左上へ（顔に文字を重ねない）
+        const g = document.getElementById("tl-grad");
+        g.style.bottom = "auto"; g.style.top = "0px";
+        g.style.background = "linear-gradient(to bottom, color-mix(in srgb, var(--ink) 62%, transparent) 0%, color-mix(in srgb, var(--ink) 30%, transparent) 50%, color-mix(in srgb, var(--ink) 0%, transparent) 100%)";
+        document.getElementById("tl-main").style.top = "96px"; document.getElementById("tl-sub").style.top = "236px";
+      }
       const tl = gsap.timeline({ paused: true });
       tl.fromTo("#tl-grad", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, Math.max(0, c.title_in - 0.1));
       tl.fromTo("#tl-main", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.title_in);

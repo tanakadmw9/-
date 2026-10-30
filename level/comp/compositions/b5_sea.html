@@ -1,4 +1,4 @@
-<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"shrink\":0.033,\"white\":0.989,\"japan\":1.297,\"japan_end\":2.209,\"supp\":2.84,\"dot\":3.14,\"slide\":3.909,\"line\":4.879,\"objs\":5.209,\"bars\":6.27,\"white2\":8.88}"},{"id":"dur","type":"number","label":"dur","default":9.164},{"id":"photo","type":"string","label":"縮む写真（K 7.82 の止め絵）","default":"assets/video/K7_82.png"}]'>
+<html data-composition-variables='[{"id":"cues","type":"string","label":"cues","default":"{\"shrink\":0.033,\"white\":0.989,\"japan\":1.297,\"japan_end\":2.209,\"supp\":2.84,\"dot\":3.14,\"slide\":3.909,\"line\":4.879,\"objs\":5.209,\"bars\":6.27,\"white2\":8.88}"},{"id":"dur","type":"number","label":"dur","default":9.164},{"id":"photo","type":"string","label":"縮む写真（B4 の最後の止め絵）","default":"assets/video/S178_5.png"}]'>
 <body>
 <template>
   <style>
@@ -10,9 +10,10 @@
     #b5s-photo { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; transform-origin: 50% 50%;
       box-shadow: 0 0 0 4px var(--navy); }
     #b5s-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
-    #b5s-supp { position: absolute; left: 50%; top: 912px; transform: translateX(-50%); padding: 10px 28px 12px 28px;
+    #b5s-supp { position: absolute; left: 0; top: 0; padding: 10px 28px 12px 28px;
       border-radius: var(--plate-radius); background: var(--plate); font-family: var(--font-ja); font-weight: 700; font-size: 40px;
       line-height: 1.2; color: var(--white); font-feature-settings: "palt"; white-space: nowrap; opacity: 0; }
+    #b5s-supp-line { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; pointer-events: none; }
     #b5s-zero { position: absolute; left: 100px; top: 730px; width: 120px; height: 120px; border-radius: 50%; background: var(--navy);
       color: var(--white); font-family: var(--font-num); font-weight: 700; font-size: 72px; line-height: 120px; text-align: center; opacity: 0; }
     #b5s-white { position: absolute; inset: 0; background: var(--paper); opacity: 0; }
@@ -20,8 +21,6 @@
   <div id="root" data-composition-id="b5_sea" data-width="1920" data-height="1080">
     <svg id="b5s-svg" viewBox="0 0 1920 1080">
       <g id="b5s-japan" fill="none" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></g>
-      <g id="b5s-oki" opacity="0"><rect x="150" y="760" width="150" height="120" fill="none" stroke="var(--grid)" stroke-width="3"/>
-        <path id="b5s-oki-p" fill="none" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/></g>
       <g id="b5s-objs">
         <polygon id="b5s-mt" points="443,790 702,384 960,790" fill="#DDE1E6"/>
         <rect id="b5s-bd" x="1108" y="513" width="184" height="277" fill="#DDE1E6"/>
@@ -36,8 +35,9 @@
       <circle id="b5s-dot" cx="0" cy="0" r="12" fill="var(--navy)" opacity="0"/>
     </svg>
     <div id="b5s-zero">0</div>
+    <svg id="b5s-supp-line" viewBox="0 0 1920 1080"><line id="b5s-sl" x1="0" y1="0" x2="0" y2="0" stroke="var(--navy)" stroke-width="3" opacity="0"/></svg>
     <div id="b5s-supp">東京湾の平均の海面</div>
-    <img id="b5s-photo" src="assets/video/K7_82.png" alt="">
+    <img id="b5s-photo" src="assets/video/S178_5.png" alt="">
     <div id="b5s-white"></div>
   </div>
   <script>
@@ -50,7 +50,6 @@
       const HON = [[140.9,41.5],[141.45,41.4],[141.5,40.5],[142.0,39.6],[141.6,38.5],[141.0,38.25],[141.0,37.0],[140.6,36.3],[140.85,35.7],[140.4,35.15],[139.85,34.9],[139.95,35.45],[139.75,35.65],[139.65,35.3],[139.7,35.15],[139.15,35.25],[138.85,34.6],[138.75,35.05],[138.2,34.6],[137.3,34.65],[136.85,34.75],[136.85,34.3],[136.4,34.2],[135.8,33.45],[135.1,33.9],[135.15,34.3],[135.45,34.65],[134.7,34.75],[133.9,34.5],[132.5,34.3],[131.3,33.95],[130.9,33.95],[131.0,34.4],[131.6,34.7],[132.6,35.4],[133.4,35.55],[134.4,35.55],[135.3,35.6],[136.0,35.7],[136.0,36.1],[136.7,36.85],[136.75,37.3],[137.3,37.55],[137.0,37.0],[137.3,36.75],[138.2,37.05],[138.9,37.9],[139.55,38.6],[139.8,39.4],[140.0,39.9],[139.7,40.0],[140.0,40.6],[140.3,41.25],[140.65,40.85],[140.9,41.2]];
       const SHI = [[132.95,32.75],[132.45,33.3],[132.65,33.85],[133.4,34.2],[134.2,34.3],[134.65,34.05],[134.75,33.85],[134.2,33.25],[133.6,33.5],[133.25,33.4]];
       const KYU = [[130.9,33.95],[131.55,33.6],[132.0,33.15],[131.7,32.6],[131.45,31.55],[131.1,31.25],[130.7,31.0],[130.2,31.25],[130.2,31.9],[130.6,32.6],[130.2,32.75],[129.85,32.7],[129.65,33.1],[129.85,33.35],[130.35,33.6]];
-      const OKI = [[127.65,26.1],[127.95,26.4],[128.3,26.85],[128.0,26.65],[127.7,26.4]];
       const K = 600 / 14.6, KX = K * Math.cos(36 * Math.PI / 180);
       const P = (p) => [360 + (p[0] - 129.6) * KX, 150 + (45.6 - p[1]) * K];
       const d = (poly) => "M" + poly.map((p) => P(p).map((n) => n.toFixed(1)).join(" ")).join("L") + "Z";
@@ -59,8 +58,6 @@
         const el = document.createElementNS("http://www.w3.org/2000/svg", "path"); el.setAttribute("d", d(poly)); g.appendChild(el);
         const L = el.getTotalLength ? el.getTotalLength() : 3000; el.style.strokeDasharray = L; el.style.strokeDashoffset = L; return el;
       });
-      const Q = (p) => [225 + (p[0] - 127.95) * 60, 822 - (p[1] - 26.45) * 60];
-      document.getElementById("b5s-oki-p").setAttribute("d", "M" + OKI.map((p) => Q(p).map((n) => n.toFixed(1)).join(" ")).join("L") + "Z");
       const bay = P([139.82, 35.52]);
       const dot = document.getElementById("b5s-dot");
       dot.setAttribute("cx", bay[0]); dot.setAttribute("cy", bay[1]);
@@ -72,11 +69,17 @@
       gsap.set(["#b5s-line", "#b5s-objs", "#b5s-bars"], { opacity: 0 });
       // 日本の形を描く
       paths.forEach((el) => tl.to(el, { strokeDashoffset: 0, duration: c.japan_end - c.japan, ease: "power1.inOut" }, c.japan));
-      tl.fromTo("#b5s-oki", { opacity: 0 }, { opacity: 1, duration: 0.4 }, c.japan_end - 0.3);
-      tl.fromTo("#b5s-supp", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.supp);
+      // 補足「東京湾の平均の海面」：はじめは東京湾の点の右（引き出し線つき）、点がすべったら 0 の丸の右下へ（線は 0 の丸へ）
+      const SW = 9 * 40 + 56, SH = 74;                     // 札の大きさ（9 文字 × 40px ＋ 余白）。描画中に測らない
+      const supp = document.getElementById("b5s-supp"), sl = document.getElementById("b5s-sl");
+      const A = { x: bay[0] + 150, y: bay[1] + 60 }, B = { x: 250, y: 840 };
+      gsap.set(supp, { x: A.x, y: A.y }); gsap.set(sl, { attr: { x1: A.x, y1: A.y + SH / 2, x2: bay[0] + 14, y2: bay[1] + 6 } });
+      tl.fromTo([supp, sl], { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, c.supp);
+      tl.to(supp, { x: B.x, y: B.y, duration: c.line - c.slide, ease: "power2.inOut" }, c.slide);
+      tl.to(sl, { attr: { x1: B.x, y1: B.y + SH / 2, x2: 196, y2: 826 }, duration: c.line - c.slide, ease: "power2.inOut" }, c.slide);
       tl.fromTo(dot, { opacity: 0, scale: 0.3, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.35, ease: "back.out(2)" }, c.dot);
       // 日本の形がうすれ、点が左端（x 160、y 790）へすべる
-      tl.to(["#b5s-japan", "#b5s-oki"], { opacity: 0, duration: c.line - c.slide, ease: "power1.in" }, c.slide);
+      tl.to("#b5s-japan", { opacity: 0, duration: c.line - c.slide, ease: "power1.in" }, c.slide);
       tl.to(dot, { attr: { cx: 160, cy: 790 }, duration: c.line - c.slide, ease: "power2.inOut" }, c.slide);
       // 0 の線（0.5 秒で引く）＋「0」の丸
       tl.set("#b5s-line", { opacity: 1 }, c.line);

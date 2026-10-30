@@ -498,6 +498,32 @@ def hf_review(outdir):
     return out
 
 
+def storyboard_compare_rows(path, outdir, rows, rdir, tw, th, lw):
+    """絵コンテ v8 の拍ごとの画（rows.json）と書き出しを並べる。行ごとに：計画の画｜書き出しの「頭＋0.3秒」｜「中間」。"""
+    from PIL import Image, ImageDraw, ImageFont
+    fp = next((f for f in JA_FONTS if pathlib.Path(f).exists()), None)
+    font = ImageFont.truetype(fp, 20) if fp else ImageFont.load_default()
+    rh = th + 22
+    sheet = Image.new("RGB", (lw + 3 * (tw + 4) + 4, 40 + len(rows) * (rh + 6)), (40, 40, 40))
+    dr = ImageDraw.Draw(sheet)
+    dr.text((10, 8), "計画＝絵コンテ v8（拍ごとの1コマ目。秒は計画の秒）｜書き出し：頭＋0.3秒｜中間", font=font, fill=(255, 255, 255))
+    for i, r in enumerate(rows):
+        y0 = 40 + i * (rh + 6)
+        dr.text((10, y0 + 6), f"{r['beat']}", font=font, fill=(240, 160, 60))
+        dr.text((10, y0 + 32), r["bars"], font=font, fill=(255, 255, 255))
+        pic = r.get("picture", "")
+        for j, k in enumerate(range(0, min(len(pic), 18 * 6), 18)): dr.text((10, y0 + 62 + j * 26), pic[k:k + 18], font=font, fill=(180, 180, 180))
+        plan = Image.open(rdir / r["img"]).convert("RGB").resize((tw, th))
+        sheet.paste(plan, (lw + 4, y0)); dr.text((lw + 8, y0 + th + 1), "計画", font=font, fill=(200, 200, 200))
+        t0, t1 = r["start"], r["end"]
+        for c, ((t, fr), lab) in enumerate(zip(frames(path, w=tw, h=th, at=[t0 + 0.3, (t0 + t1) / 2]), ["start+0.3", "middle"])):
+            fr = np.zeros((th, tw, 3), np.uint8) if fr is None else fr.copy()
+            sheet.paste(Image.fromarray(cv2.cvtColor(with_tc(fr, f"{tc(t)} {lab}"), cv2.COLOR_BGR2RGB)), (lw + 4 + (c + 1) * (tw + 4), y0))
+    p = outdir / "storyboard_compare.jpg"
+    sheet.save(p, quality=82)
+    return [p.name]
+
+
 def storyboard_compare(path, outdir, tw=384, th=216, lw=420):
     """絵コンテ（編集計画のカット割り案 plan/editing_storyboard.png、scripts/43_edit_storyboard.py の SEG）と書き出しを並べる（docs/07 §2）。
     行ごとに：計画の画｜書き出しの「頭＋0.3秒」｜「中間」。計画のシートが無ければ作らない。"""
@@ -505,7 +531,12 @@ def storyboard_compare(path, outdir, tw=384, th=216, lw=420):
     from PIL import Image, ImageDraw, ImageFont
     sb = ROOT / "plan/editing_storyboard.png"   # 編集計画の絵コンテ（素材から作った画像なので media の zip に入っている）
     src = (ROOT / "scripts/43_edit_storyboard.py").read_text()
-    if not sb.exists() or "SEG = [" not in src: return []
+    rows_json = ROOT / "storyboard/plan_rows/rows.json"   # 水準 v4.2：絵コンテ v8 の拍ごとの画（53_plan_storyboard_v8.py storyboard/）
+    if not sb.exists() and rows_json.exists():
+        return storyboard_compare_rows(path, outdir, json.loads(rows_json.read_text()), rows_json.parent, tw, th, lw)
+    if not sb.exists() or "SEG = [" not in src:
+        print("storyboard_compare: 絵コンテが無い（plan/editing_storyboard.png も storyboard/plan_rows/ も無い）→ 作らない")
+        return []
     seg = ast.literal_eval(src[src.index("SEG = [") + 6:src.index("\n]\n", src.index("SEG = [")) + 2])
     board = Image.open(sb).convert("RGB")
     fp = next((f for f in JA_FONTS

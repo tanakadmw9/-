@@ -31,27 +31,43 @@
   ],
   [
    17.716,
-   -9.42
+   -9.59
   ],
   [
-   21.1048,
-   -9.42
+   21.2049,
+   -9.59
   ],
   [
-   21.4048,
-   -25.57
+   21.5049,
+   -23.49
   ],
   [
-   37.1582,
-   -25.57
+   27.2211,
+   -23.49
   ],
   [
-   37.5082,
-   -14.48
+   27.5711,
+   -14.37
+  ],
+  [
+   28.2119,
+   -14.37
+  ],
+  [
+   28.5119,
+   -25.62
+  ],
+  [
+   38.1926,
+   -25.62
+  ],
+  [
+   38.5426,
+   -14.61
   ],
   [
    39.3897,
-   -14.48
+   -14.61
   ],
   [
    39.6897,
@@ -160,11 +176,11 @@
    -31.5
   ],
   [
-   28.8627,
+   27.895,
    -31.5
   ],
   [
-   29.6627,
+   28.695,
    -21.5
   ],
   [
@@ -204,11 +220,11 @@
    -21.5
   ],
   [
-   68.2547,
+   66.9907,
    -21.5
   ],
   [
-   68.8547,
+   67.5907,
    -29.5
   ],
   [
@@ -231,21 +247,21 @@
   {
    "kind": "glock_c6",
    "src": null,
-   "t": 25.0584,
+   "t": 24.9249,
    "gain_db": -24.32,
    "target_re_vo_ref_db": -13.0
   },
   {
    "kind": "glock_c6",
    "src": null,
-   "t": 31.031,
+   "t": 31.8652,
    "gain_db": -24.32,
    "target_re_vo_ref_db": -13.0
   },
   {
    "kind": "glock_ceg",
    "src": null,
-   "t": 53.7203,
+   "t": 53.42,
    "gain_db": -25.16,
    "target_re_vo_ref_db": -16.0
   },
@@ -277,9 +293,15 @@
    },
    {
     "type": "under_vo",
-    "start": 21.455,
-    "end": 37.058,
-    "fader_db": -25.57
+    "start": 21.555,
+    "end": 27.121,
+    "fader_db": -23.49
+   },
+   {
+    "type": "under_vo",
+    "start": 28.562,
+    "end": 38.093,
+    "fader_db": -25.62
    },
    {
     "type": "under_vo",
@@ -326,14 +348,20 @@
    {
     "type": "free",
     "start": 17.716,
-    "end": 21.105,
-    "fader_db": -9.42
+    "end": 21.205,
+    "fader_db": -9.59
    },
    {
     "type": "free",
-    "start": 37.508,
+    "start": 27.571,
+    "end": 28.212,
+    "fader_db": -14.37
+   },
+   {
+    "type": "free",
+    "start": 38.543,
     "end": 39.39,
-    "fader_db": -14.48
+    "fader_db": -14.61
    },
    {
     "type": "free",
@@ -369,8 +397,8 @@
   "amb_source": "audio/amb/amb_loc.wav",
   "integrated_lufs_py": -24.0,
   "integrated_lufs_ffmpeg": -24.0,
-  "true_peak_dbtp_py": -9.29,
-  "true_peak_dbtp_ffmpeg": -9.3,
+  "true_peak_dbtp_py": -9.19,
+  "true_peak_dbtp_ffmpeg": -9.2,
   "limiter_max_gr_db": null,
   "stems_sum_residual": 1.1102230246251565e-16,
   "vo_minus_bgm_per_line_db": {
@@ -378,7 +406,7 @@
    "N1b": 18.5,
    "N2": 18.0,
    "N3": 17.6,
-   "N4": 19.6,
+   "N4": 17.5,
    "N5": 19.4,
    "N6": 19.7,
    "N7": 17.6,
@@ -388,16 +416,16 @@
    "N12": 18.6
   },
   "vo_minus_bgm_short_term_inside_lines": {
-   "median": 17.5,
+   "median": 17.3,
    "p5": 15.7,
    "min": 15.2,
-   "n_windows": 125
+   "n_windows": 124
   },
-  "vo_median_short_term_lufs": -24.2,
-  "bgm_free_max_short_term_re_vo": -5.5,
-  "amb_re_vo_live_median": -20.0,
-  "amb_re_vo_diagram_median": -26.8,
-  "se_max_100ms_re_vo_max_100ms": -20.3,
+  "vo_median_short_term_lufs": -24.3,
+  "bgm_free_max_short_term_re_vo": -5.4,
+  "amb_re_vo_live_median": -19.9,
+  "amb_re_vo_diagram_median": -26.5,
+  "se_max_100ms_re_vo_max_100ms": -20.4,
   "se_max_100ms_re_vo_integrated": -12.7,
   "se_peak_re_vo_peak_db": -23.8,
   "bgm_in_pause_short_term_lufs": null

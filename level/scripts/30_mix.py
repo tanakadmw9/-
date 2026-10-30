@@ -329,6 +329,13 @@ def main():
         lim = float(20 * np.log10(env.min()))
         I = integrated(mix); g = db(TARGET_LUFS - I); mix *= g
         for k in stems: stems[k] *= g
+    # 最後は全体を 0 まで下げ切る（黒へのフェードと一緒に。最後の 20 ms は無音。独立レビュー v4.1：末尾 −48.5 dBFS で切れていた）
+    endc_m = [sc for sc in T["scenes"] if sc["id"] == "endcard"]
+    if endc_m and "fade" in endc_m[0]["cues"]:
+        f0 = int(round((endc_m[0]["start"] + endc_m[0]["cues"]["fade"]) * SR)); f1 = max(f0 + 1, N - int(0.02 * SR))
+        mf = np.ones(N); mf[f0:f1] = np.cos(np.linspace(0, 1, f1 - f0) * np.pi / 2) ** 2; mf[f1:] = 0.0
+        mix *= mf[:, None]
+        for k in stems: stems[k] *= mf[:, None]
     final_gain_db = 20 * np.log10(np.abs(mix).max() / max(np.abs(vo + bgm + se + amb).max(), 1e-12))  # 参考
     for k, x in stems.items(): write(MIX / f"{k}.wav", x)
     write(MIX / "mix.wav", mix)

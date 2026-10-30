@@ -45,11 +45,12 @@ cp docs/01_brief.md "$P/rules/01_brief.md"
 cp docs/04_design_system.md "$P/rules/04_design_system.md"
 cp docs/05_audio_design.md "$P/rules/05_audio_design.md"
 cp docs/07_qc_and_review.md "$P/rules/07_qc_and_review.md"
-cp docs/12_kanshu.md "$P/rules/12_kanshu.md" 2>/dev/null || true
+if [ -f docs/12_kanshu.md ]; then cp docs/12_kanshu.md "$P/rules/12_kanshu.md"; else echo "注意：docs/12_kanshu.md が無い（技術監修の確認表。templates/kanshu.md から作る）"; fi
 cp "$Q/report.md" "$P/report.md"
 cp "$Q/request.md" "$P/request.md"
 for f in "$Q"/*.jpg "$Q"/*.png "$Q"/text_timing.json; do [ -f "$f" ] && cp "$f" "$P/sheets/"; done
 [ -d "$Q/hf_review" ] && cp -r "$Q/hf_review" "$P/sheets/"
+[ -f "$Q/storyboard_compare.jpg" ] || echo "注意：$Q/storyboard_compare.jpg が無い（絵コンテが無い。水準は python3 scripts/53_plan_storyboard_v8.py storyboard/ で storyboard/plan_rows/ を作ってから 40_qc.py）"
 [ -n "$MP4" ] && [ -f "$MP4" ] && cp "$MP4" "$P/video.mp4"
 # 原稿と、画面に出る時刻（timeline から）
 python3 - "$P/script.md" <<'PY'

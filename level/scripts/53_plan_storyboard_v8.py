@@ -4,7 +4,7 @@
 出力：storyboard_v8_p1〜p3.jpg と compare_v7.jpg（v7 との対応表）（素材から作った画像なので、リポジトリには入れない）。幅 1080 の縦長＝スマホで縦に読む。
 日本の形は、主な岬・湾の公知の経緯度から手で打った仮の折れ線（地図の画像はなぞっていない）。本番は editing_v8.md §3.2。
 """
-import pathlib, subprocess, sys, io, math
+import json, pathlib, subprocess, sys, io, math
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -428,6 +428,14 @@ def page(rows, n, of):
     y = 120
     for c in cards: im.paste(c, (0, y)); y += c.height
     return im
+
+# 拍ごとの計画の画（各行の1コマ目）と秒：scripts/40_qc.py の storyboard_compare が書き出しと並べる（plan/editing_storyboard.png が無いとき）
+RD = OUT / "plan_rows"; RD.mkdir(exist_ok=True); meta_rows = []
+for i, r in enumerate(ROWS):
+    t0, t1 = [float(x) for x in r[1].split("　")[-1].split("–")]
+    r[2][0]().convert("RGB").save(RD / f"row_{i:02d}.png")
+    meta_rows.append({"beat": r[0], "bars": r[1], "start": t0, "end": t1, "img": f"row_{i:02d}.png", "picture": r[4]})
+(RD / "rows.json").write_text(json.dumps(meta_rows, ensure_ascii=False, indent=1))
 
 groups = [ROWS[0:4], ROWS[4:9], ROWS[9:]]
 for n, rows in enumerate(groups, 1):
